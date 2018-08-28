@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#000104</color>
+    <color name="colorAccent">#FF4081</color>
+
+
+    <color name="colorMagpieBlue">#40AAF2</color>
+    <color name="colorMagpieGreen">#52D291</color>
+    <color name="colorMagpieBlack">#231F20</color>
+    <color name="colorMagpieDarkGray">#262626</color>
+    <color name="colorMagpieLightGray">#C8CDD5</color>
+    <color name="colorMagpieWhite">#ffffff</color>
+
+    <color name="translucent_grey">#88cccccc</color>
+</resources>

@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">MagpieHunt</string>
+    <string name="google_maps_API_key">AIzaSyB1kjES3EG5dnTuo_1u9VBM1zykt-SX6Ys</string>
+    <string name="signin_agreement">By logging into Magpie with your Google account, you are agreeing to our Privacy Policy and our Terms of Use. Magpie 2017.</string>
+    <string name="menu_map">Map</string>
+    <string name="magpie_logo">Magpie</string>
+    <string name="menu_account">Account</string>
+    <string name="menu_home">Home</string>
+    <string name="menu_search">Search</string>
+    <string name="menu_prizes">Prizes</string>
+    <string name="map_view">Map View</string>
+    <string name="share">Share</string>
+    <string name="landmark">_landmark</string>
+    <string name="collect_button">Collect Button</string>
+    <string name="collect">COLLECT</string>
+    <string name="subtitle">Subtitle</string>
+    <string name="description">Description</string>
+    <string name="move_closer">PLEASE MOVE CLOSER TO COLLECT THIS BADGE</string>
+    <string name="okay">OKAY</string>
+</resources>

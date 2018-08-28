@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/landmarkImage"
+                android:layout_width="match_parent"
+                android:layout_height="298dp"
+
+                android:scaleType="centerCrop"
+                android:src="@drawable/magpie_logo_bird_name"
+                android:background="@color/colorMagpieWhite"/>
+
+            <View
+                android:id="@+id/backgroundLandmarkName"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@color/colorMagpieDarkGray"
+                app:layout_constraintBottom_toBottomOf="@id/landmarkImage"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                android:textColor="@color/colorMagpieWhite"
+                android:textAlignment="center"
+                android:alpha=".4"
+                />
+
+            <TextView
+                android:id="@+id/landmarkName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/landmark"
+                android:fontFamily="@font/material"
+                android:textSize="16sp"
+                android:textAllCaps="true"
+                android:textColor="@color/colorMagpieWhite"
+                app:layout_constraintBottom_toBottomOf="@+id/backgroundLandmarkName"
+                app:layout_constraintEnd_toEndOf="@+id/backgroundLandmarkName"
+                app:layout_constraintStart_toStartOf="@+id/backgroundLandmarkName"
+                app:layout_constraintTop_toTopOf="@+id/backgroundLandmarkName" />
+
+            <View
+                android:id="@+id/backgroundCollect"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/background_landmark_collect"
+                app:layout_constraintBottom_toBottomOf="@id/mapButton"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/backgroundLandmarkName"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <Button
+                android:id="@+id/mapButton"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:drawableTop="@drawable/ic_map"
+                android:text="@string/map_view"
+                android:textColor="@color/colorMagpieWhite"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/backgroundLandmarkName"
+                android:layout_marginStart="16dp" />
+
+
+            <Button
+                android:id="@+id/shareButton"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:drawableTop="@drawable/ic_share"
+                android:text="@string/share"
+                android:textColor="@color/colorMagpieWhite"
+                app:layout_constraintBottom_toBottomOf="@+id/backgroundCollect"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/backgroundLandmarkName"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <TextView
+                android:id="@+id/landmarkSubTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="15dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/subtitle"
+                android:fontFamily="@font/font_awesome"
+                android:textStyle="bold"
+                android:textColor="@color/colorMagpieLightGray"
+                android:textAllCaps="true"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/mapButton" />
+
+            <TextView
+                android:id="@+id/landmarkDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:paddingRight="32dp"
+                android:fontFamily="@font/font_awesome"
+                android:text="@string/description"
+                android:textColor="@color/colorMagpieBlack"
+                app:layout_constraintLeft_toLeftOf="@id/landmarkSubTitle"
+                app:layout_constraintTop_toBottomOf="@+id/landmarkSubTitle"
+                android:paddingEnd="32dp" />
+
+            <ImageView
+                android:id="@+id/collectButton"
+                android:layout_width="132dp"
+                android:layout_height="106dp"
+                android:contentDescription="@string/collect_button"
+                android:src="@drawable/placeholder_badge"
+                app:layout_constraintBottom_toBottomOf="@+id/backgroundCollect"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/backgroundCollect" />
+
+            <View
+                android:id="@+id/foregroundCollect"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="100dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/background_landmark_collect"
+                app:layout_constraintTop_toTopOf="@id/collectButton"
+                app:layout_constraintEnd_toEndOf="@+id/collectButton"
+                app:layout_constraintLeft_toLeftOf="@id/collectButton"
+                app:layout_constraintRight_toRightOf="@id/collectButton"
+                app:layout_constraintStart_toStartOf="@+id/collectButton"
+                app:layout_constraintBottom_toBottomOf="@id/collectButton"
+                android:alpha=".9"/>
+
+            <TextView
+                android:id="@+id/collectText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/collect"
+                android:textColor="@color/colorMagpieWhite"
+                android:fontFamily="@font/material"
+                app:layout_constraintBottom_toBottomOf="@+id/foregroundCollect"
+                app:layout_constraintEnd_toEndOf="@+id/foregroundCollect"
+                app:layout_constraintStart_toStartOf="@+id/foregroundCollect"
+                app:layout_constraintTop_toTopOf="@+id/foregroundCollect" />
+
+
+        </android.support.constraint.ConstraintLayout>
+
+    </FrameLayout>
+    </ScrollView>

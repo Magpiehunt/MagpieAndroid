@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@drawable/add_collections_button_bg"
+    android:padding="10dp"
+    >
+
+
+    <ImageView
+        android:id="@+id/markerprofilepicture"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:adjustViewBounds="true"
+        android:layout_marginRight="7dp"
+        android:scaleType="fitCenter"
+        android:layout_marginLeft="5dp"
+        app:srcCompat="@drawable/background_color"
+        android:layout_gravity="center_vertical"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp">
+
+
+        <TextView
+            android:id="@+id/landmarkName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="10dp"
+            android:fontFamily="@font/montserrat_light"
+            android:gravity="left|center"
+            android:maxLines="2"
+            android:text="Landmark Name"
+            android:textColor="@color/colorMagpieBlack"
+            android:textSize="20sp"
+            android:typeface="sans" />
+
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/landmarkName"
+            android:layout_alignParentLeft="true"
+            android:layout_marginBottom="5dp"
+            android:id="@+id/minutesconatiner">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/clock"
+                android:id="@+id/clock"
+                android:layout_alignParentLeft="true"/>
+
+            <TextView
+                android:id="@+id/landmarkTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="14"
+                android:textSize="12sp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:gravity="right|top"
+                android:layout_toRightOf="@+id/clock"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left|top"
+                android:text="MINUTES"
+                android:fontFamily="@font/advent_pro_thin"
+                android:textColor="@color/colorMagpieLightGray"
+                android:layout_marginTop="2dp"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_toRightOf="@+id/landmarkTime"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/minutesconatiner"
+            android:layout_marginBottom="5dp"
+            android:layout_below="@+id/landmarkName"
+            android:layout_marginLeft="10dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/map_pin"
+                android:id="@+id/mappin"
+                android:layout_alignParentLeft="true"/>
+
+            <TextView
+                android:id="@+id/landmarkMiles"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=".84"
+                android:textSize="12sp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:gravity="right|top"
+                android:layout_toRightOf="@+id/mappin"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left|top"
+                android:text="MILES"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/colorMagpieLightGray"
+                android:textSize="12sp"
+                android:fontFamily="@font/advent_pro_thin"
+                android:textStyle="bold"
+                android:layout_toRightOf="@+id/landmarkMiles"/>
+
+        </RelativeLayout>
+    </RelativeLayout>
+
+
+
+</LinearLayout>
+

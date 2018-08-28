@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorMagpieWhite">
+
+    <TextView
+        android:id="@+id/dropdown_description_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="lets test a long string with no newlines and see how this is delimited i hope it goes smoothly but i guess we'll find out here goes nothing lets test a long string with no newlines and see how this is delimited i hope it goes smoothly but i guess we'll find out here goes nothing"
+        android:textColor="@color/colorMagpieBlack"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/advent_pro_thin"
+        android:layout_weight="4"
+        android:layout_marginBottom="3dp"
+        android:layout_marginLeft="74dp"
+        android:layout_marginRight="24dp" />
+
+    <LinearLayout
+        android:id="@+id/search_expand_row1"
+        android:layout_width="match_parent"
+        android:layout_height="22dp"
+        android:orientation="horizontal"
+        android:layout_weight="1"
+        android:layout_marginTop="3dp"
+        android:layout_marginBottom="1dp"
+        android:layout_marginLeft="74dp"
+        android:layout_marginRight="24dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_weight="2">
+
+            <ImageView
+                android:id="@+id/imageTime"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:gravity="right|center"
+                android:src="@drawable/clock"
+                android:adjustViewBounds="true" />
+
+            <TextView
+                android:id="@+id/collectionTime_search"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:text="1.5"
+                android:textColor="@color/colorMagpieBlack"
+                android:textSize="14sp"
+                android:gravity="center"
+                app:layout_constraintLeft_toRightOf="@id/imageTime" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:gravity="left|center"
+                android:text="HR"
+                android:textColor="@color/colorMagpieLightGray"
+                android:textSize="14sp"
+                app:layout_constraintLeft_toRightOf="@id/collectionTime_search" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_weight="2">
+
+            <ImageView
+                android:id="@+id/imageDistance"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:gravity="right|center"
+                android:src="@drawable/collection_expanded_distance"
+                android:adjustViewBounds="true" />
+
+            <TextView
+                android:id="@+id/collectionDistance_search"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:text="2"
+                android:textColor="@color/colorMagpieBlack"
+                android:textSize="14sp"
+                android:gravity="center"
+                app:layout_constraintLeft_toRightOf="@id/imageDistance" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:gravity="left|center"
+                android:text="MI"
+                android:textColor="@color/colorMagpieLightGray"
+                android:textSize="14sp"
+                app:layout_constraintLeft_toRightOf="@id/collectionDistance_search" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="right"
+            android:layout_weight="3">
+
+            <ImageView
+                android:id="@+id/imageBadge"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.5"
+                android:gravity="right|center"
+                android:src="@drawable/collection_expanded_badges"
+                android:adjustViewBounds="true" />
+
+            <TextView
+                android:id="@+id/collectionBadges_search"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:text="8"
+                android:textColor="@color/colorMagpieBlack"
+                android:textSize="14sp"
+                android:gravity="center"
+                app:layout_constraintLeft_toRightOf="@id/collectionBadges" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:gravity="left|center"
+                android:text="BADGES"
+                android:textColor="@color/colorMagpieLightGray"
+                android:textSize="14sp"
+                app:layout_constraintLeft_toRightOf="@id/collectionBadges_search" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/search_expand_row2"
+        android:layout_width="match_parent"
+        android:layout_height="22dp"
+        android:orientation="horizontal"
+        android:layout_weight="1"
+        android:layout_marginTop="1dp"
+        android:layout_marginBottom="18dp"
+        android:layout_marginLeft="74dp"
+        android:layout_marginRight="24dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_weight="8">
+
+            <ImageView
+                android:id="@+id/imageReward"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.5"
+                android:gravity="right|center"
+                android:src="@drawable/collection_expanded_reward"
+                android:adjustViewBounds="true" />
+
+            <TextView
+                android:id="@+id/collectionReward_search"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:text="$5"
+                android:textColor="@color/colorMagpieBlack"
+                android:textSize="14sp"
+                android:gravity="center"
+                app:layout_constraintLeft_toRightOf="@id/imageReward" />
+
+            <TextView
+                android:id="@+id/collectionReward_search_desc"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="9.5"
+                android:gravity="left|center"
+                android:text="Visa Gift Card"
+                android:textColor="@color/colorMagpieLightGray"
+                android:textSize="14sp"
+                app:layout_constraintLeft_toRightOf="@id/collectionReward_search" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="right"
+            android:layout_weight="4">
+
+
+            <ImageView
+                android:id="@+id/imageAge"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.5"
+                android:gravity="right|center"
+                android:src="@drawable/collection_expanded_age"
+                android:adjustViewBounds="true" />
+
+            <TextView
+                android:id="@+id/collectionAge_search"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:text="12+"
+                android:textColor="@color/colorMagpieBlack"
+                android:textSize="14sp"
+                android:gravity="center"
+                app:layout_constraintLeft_toRightOf="@id/imageAge" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:gravity="left|center"
+                android:text="YRS"
+                android:textColor="@color/colorMagpieLightGray"
+                android:textSize="14sp"
+                app:layout_constraintLeft_toRightOf="@id/collectionAge_search" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/button_addCollection_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add Collection"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_gravity="center|top"
+        android:layout_marginBottom="15dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginLeft="50dp"
+        android:textColor="@color/colorMagpieLightGray"
+        android:background="@drawable/add_collections_button_bg" />
+
+</LinearLayout>
