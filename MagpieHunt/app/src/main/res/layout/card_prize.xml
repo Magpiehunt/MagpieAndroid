@@ -8,14 +8,14 @@
     android:background="@color/colorMagpieWhite">
 
     <LinearLayout
-        android:id="@+id/card_collection"
+        android:id="@+id/prize_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorMagpieWhite"
         android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/img_thumb_collection"
+            android:id="@+id/img_super_badge"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_margin="7dp"
@@ -28,12 +28,12 @@
             android:layout_weight="4">
 
             <TextView
-                android:id="@+id/tvAbbreviation_collection"
+                android:id="@+id/tvAbbreviation_prize"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_marginTop="1dp"
                 android:layout_weight="2"
-                android:fontFamily="@font/montserrat_light"
+                android:fontFamily="@font/montserrat_extralight"
                 android:gravity="left"
                 android:text="TFN"
                 android:textColor="@color/colorMagpieBlack"
@@ -41,12 +41,12 @@
                 android:typeface="sans" />
 
             <TextView
-                android:id="@+id/tvTitle_collection"
+                android:id="@+id/tvTitle_prize"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:fontFamily="@font/advent_pro_thin"
                 android:layout_marginBottom="5dp"
                 android:layout_weight="1"
+                android:fontFamily="@font/advent_pro_thin"
                 android:gravity="left"
                 android:text="Testing Full Name"
                 android:textColor="@color/colorMagpieLightGray"
@@ -54,38 +54,19 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/expandArrow_collection"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_weight="1"
-            android:layout_margin="7dp"
+        <TextView
+            android:id="@+id/expandArrow_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:src="@drawable/temp_dropdown_arrow_down" />
+            android:layout_margin="7dp"
+            android:layout_weight="1"
+            android:fontFamily="@font/montserrat_regular"
+            android:text="NEW!"
+            android:textColor="@color/colorMagpieGreen"
+            android:textStyle="bold" />
 
     </LinearLayout>
 
-    <com.github.aakira.expandablelayout.ExpandableLinearLayout
-        android:id="@+id/expandableLayout_collection"
-        android:layout_below="@id/card_collection"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="74dp"
-        android:layout_marginRight="24dp"
-        app:ael_duration="200"
-        app:ael_expanded="false">
-
-        <include
-            android:id="@+id/dropdown_information_collection"
-            layout="@layout/dropdown_data_collections" />
-
-    </com.github.aakira.expandablelayout.ExpandableLinearLayout>
-
-    <View
-        android:layout_below="@id/expandableLayout_collection"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorMagpieLightGray" />
 
 </RelativeLayout>

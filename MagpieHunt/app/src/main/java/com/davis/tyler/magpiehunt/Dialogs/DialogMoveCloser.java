@@ -1,4 +1,4 @@
-package com.davis.tyler.magpiehunt;
+package com.davis.tyler.magpiehunt.Dialogs;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import com.davis.tyler.magpiehunt.Hunts.Badge;
+import com.davis.tyler.magpiehunt.R;
 
 public class DialogMoveCloser extends Dialog {
     private Button yes;

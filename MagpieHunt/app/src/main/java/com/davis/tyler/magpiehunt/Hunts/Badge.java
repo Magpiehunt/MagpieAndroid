@@ -37,6 +37,11 @@ public class Badge implements Serializable, Comparable<Badge>{
         mIsCompleted = isCompleted;
         mHuntID = huntID;
     }
+    public Badge()
+    {
+
+    }
+
 
     public void setDistance(double d){
         mDistance = d;
@@ -60,6 +65,10 @@ public class Badge implements Serializable, Comparable<Badge>{
         l.setLatitude(mLatitude);
         l.setLongitude(mLongitude);
     }
+
+    public void setmLatitude(double d) {this.mLatitude = d;}
+    public void setmLongitude(double d) {this.mLongitude = d;}
+
     public String getQRurl(){return mQRurl;}
 
     public int compareTo(Badge b)
@@ -71,6 +80,43 @@ public class Badge implements Serializable, Comparable<Badge>{
             return 1;
         else
             return 0;
+    }
+
+
+    public void setmID(int mID) {
+        this.mID = mID;
+    }
+
+    public void setmDescription(String mDescription) {
+        this.mDescription = mDescription;
+    }
+
+    public void setmBadgeIcon(String mBadgeIcon) {
+        this.mBadgeIcon = mBadgeIcon;
+    }
+
+    public void setmLandmarkImage(String mLandmarkImage) {
+        this.mLandmarkImage = mLandmarkImage;
+    }
+
+    public void setmLandmarkName(String mLandmarkName) {
+        this.mLandmarkName = mLandmarkName;
+    }
+
+    public void setmName(String mName) {
+        this.mName = mName;
+    }
+
+    public void setmIsCompleted(boolean mIsCompleted) {
+        this.mIsCompleted = mIsCompleted;
+    }
+
+    public void setmDistance(double mDistance) {
+        this.mDistance = mDistance;
+    }
+
+    public void setmHuntID(int mHuntID) {
+        this.mHuntID = mHuntID;
     }
 
 }

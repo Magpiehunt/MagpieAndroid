@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/relativelayout">
+
+    <ImageView
+        android:id="@+id/img_badge"
+        android:layout_width="240dp"
+        android:layout_height="240dp"
+        android:src="@drawable/example_super_badge"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:id="@+id/txt_congratulations"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/img_badge"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="@font/montserrat_medium"
+        android:text="CONGRATULATIONS!"
+        android:textColor="@color/colorMagpieDarkGray"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/txt_have_earned"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_below="@+id/txt_congratulations"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="@font/montserrat_medium"
+        android:text="YOU HAVE EARNED"
+        android:textColor="@color/colorMagpieDarkGray"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/txt_badge_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txt_have_earned"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:fontFamily="@font/montserrat_medium"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:gravity="center"
+        android:text="THE MARSH BADGE"
+        android:textColor="@color/colorMagpieBlack"
+        android:textSize="18sp" />
+
+
+    <TextView
+        android:id="@+id/txt_tap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_below="@+id/txt_badge_name"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="@font/montserrat_medium"
+        android:text="TAP ANYWHERE TO CONTINUE"
+        android:textColor="@color/colorMagpieDarkGray"
+        android:textSize="12sp" />
+
+</RelativeLayout>

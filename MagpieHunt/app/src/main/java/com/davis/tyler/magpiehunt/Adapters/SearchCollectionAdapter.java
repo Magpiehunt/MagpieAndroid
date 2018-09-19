@@ -12,12 +12,16 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.davis.tyler.magpiehunt.Fragments.FragmentSearch;
+import com.davis.tyler.magpiehunt.Fragments.FragmentSearchHunts;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
+import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.R;
 import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter;
 import com.github.aakira.expandablelayout.ExpandableLinearLayout;
 import com.github.aakira.expandablelayout.Utils;
 
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -41,14 +45,20 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
 
     private List<Hunt> collectionList;
     private SparseBooleanArray expandState;
+    protected HuntManager huntManager;
+    protected FragmentSearchHunts listener;
 
-    public SearchCollectionAdapter(List<Hunt> collectionList, Context context) {
+
+    public SearchCollectionAdapter(List<Hunt> collectionList, Context context, HuntManager huntManager,
+                                   FragmentSearchHunts listener) {
         this.collectionList = collectionList;
         this.expandState = new SparseBooleanArray();
         for (int x = 0; x < collectionList.size(); x++) {
             expandState.append(x, false);
         }//end for
         this.context = context;
+        this.huntManager = huntManager;
+        this.listener = listener;
     }//end DVC
 
     // Create new views (invoked by the layout manager)
@@ -57,7 +67,7 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
         // Create new view
         // this.context = parent.getContext();
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.search_collection_card, parent, false);
+                .inflate(R.layout.card_search_hunt, parent, false);
 
         return new CollectionHolder(view);
     }//end onCreateViewHolder
@@ -101,7 +111,9 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
         animator.setInterpolator(Utils.createInterpolator(Utils.LINEAR_INTERPOLATOR));
         return animator;
     }
-
+    public void updateList(LinkedList<Hunt> list){
+        collectionList = list;
+    }
     @Override
     public int getItemCount() {
         return collectionList.size();
@@ -120,7 +132,11 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
         private ImageView imgThumb, expandArrow;
         private Hunt currentObject;
         private TextView description;
-        private TextView rating;
+        private TextView numBadges;
+        private TextView age;
+        private TextView rewardName;
+        private TextView rewardWorth;
+
         private Button addCollectionBtn;
 
         public CollectionHolder(View itemView) {
@@ -131,18 +147,25 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
             this.imgThumb = itemView.findViewById(R.id.img_thumb_search);
             this.expandArrow = itemView.findViewById(R.id.expandArrow_search);
 
+
             // expanded views
             this.expandableLinearLayout = itemView.findViewById(R.id.expandableLayout_search);
             this.description = itemView.findViewById(R.id.dropdown_description_search);
             this.addCollectionBtn = itemView.findViewById(R.id.button_addCollection_search);
+            this.numBadges = itemView.findViewById(R.id.collectionBadges_search);
+            this.age = itemView.findViewById(R.id.collectionAge_search);
+            this.rewardName = itemView.findViewById(R.id.collectionRewardName);
+            this.rewardWorth = itemView.findViewById(R.id.collectionRewardWorth);
         }//end DVC
 
         void setCondensedData(int position) {
             currentObject = collectionList.get(position);
 
+
             this.collectionTitle.setText(currentObject.getName());
             this.collectionAbbreviation.setText(currentObject.getAbbreviation());
             this.imgThumb.setImageResource(R.drawable.magpie_test_cardview_collectionimage);
+
             // use the following line once images are in the DB. for now, we will use a dummy.
 //            this.imgThumb.setImageResource(currentObject.getImage());
 //            setListeners(); // uncomment when click functionality implemented.
@@ -150,8 +173,11 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
 
         void setExpandedData(int position) {
             Hunt currentObject = collectionList.get(position);
-
+            this.age.setText(""+currentObject.getAudience()+"+");
             this.description.setText(currentObject.getDescription());
+            this.numBadges.setText(""+currentObject.getNumBadges());
+            this.rewardName.setText(currentObject.getAward().getName());
+            this.rewardWorth.setText(currentObject.getAward().getWorth()+"$");
 //            this.rating.setText(currentObject.getRating());
         }//end setExpandedData
 
@@ -181,12 +207,24 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
 //                    removeItem(position);
 //                    break;
                 case R.id.button_addCollection_search:
-                    //addCollectionToDB(this.currentObject);
+                    Hunt h = huntManager.getHuntByID(currentObject.getID());
+                    if(h == null){
+                        Log.e(TAG, "adding hunt: "+currentObject.getName());
+                        currentObject.setIsFocused(true);
+                        currentObject.setmIsDownloaded(true);
+                        huntManager.addHunt(currentObject);
+                        huntManager.getSelectedHunts().add(currentObject);
+                        listener.onAddHuntListener();
+
+                    }
                     //     break;
                 default:
                     break;
             }//end switch
         }//end onClick
+
+
+
 
         // will be used at some point.
         //TODO: decide on gesture or button removal.

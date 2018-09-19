@@ -1,13 +1,10 @@
 package com.davis.tyler.magpiehunt.Fragments;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +16,6 @@ import android.widget.TextView;
 import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
-import com.davis.tyler.magpiehunt.QRFragment;
 import com.davis.tyler.magpiehunt.R;
 
 public class FragmentLandmarkInfo extends Fragment implements View.OnClickListener {
@@ -44,11 +40,21 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
                 mListener.onMapClicked(mBadge);
             else if(view.getId() == R.id.collectButton || view.getId() == R.id.collectText || view.getId() == R.id.foregroundCollect){
                 if(((ActivityBase)getActivity()).isCloseEnough(mBadge)) {
-                    if (getParentFragment() instanceof FragmentMap) {
-                        Log.e(TAG, "Switching to QR code fragment...");
-                        ((FragmentMap) getParentFragment()).setFragment(FragmentMap.FRAGMENT_QR_READER);
-                    } else if (getParentFragment() instanceof FragmentHome) {
-                        ((FragmentHome) getParentFragment()).setFragment(FragmentHome.FRAGMENT_QR_READER);
+                    if(mBadge.getQRurl() == null || mBadge.getQRurl().equals("")) {
+                        if (getParentFragment() instanceof FragmentMap) {
+                            Log.e(TAG, "Switching to Quiz fragment...");
+                            ((FragmentMap) getParentFragment()).setFragment(FragmentMap.FRAGMENT_QUIZ);
+                        } else if (getParentFragment() instanceof FragmentHome) {
+                            ((FragmentHome) getParentFragment()).setFragment(FragmentHome.FRAGMENT_QUIZ);
+                        }
+                    }
+                    else{
+                        if (getParentFragment() instanceof FragmentMap) {
+                            Log.e(TAG, "Switching to QR code fragment...");
+                            ((FragmentMap) getParentFragment()).setFragment(FragmentMap.FRAGMENT_QR_READER);
+                        } else if (getParentFragment() instanceof FragmentHome) {
+                            ((FragmentHome) getParentFragment()).setFragment(FragmentHome.FRAGMENT_QR_READER);
+                        }
                     }
                 }
                 else
@@ -65,7 +71,7 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_landmark_info, container, false);
-
+        Log.e(TAG, "on create");
         img_badgeButton = (ImageView)view.findViewById(R.id.collectButton);
         foregroundView = (View)view.findViewById(R.id.foregroundCollect);
         img_landmark = (ImageView)view.findViewById(R.id.landmarkImage);
@@ -80,7 +86,12 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
         btn_map.setOnClickListener(this);
         Bitmap bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.example_badge);
         Bitmap landmarkpic = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.ewu);
+
         mBadge = mHuntManager.getFocusBadge();
+        if(!mBadge.getIsCompleted()){
+            //TODO do this but for the badge image.
+            //landmarkpic = mHuntManager.toGrayscale(landmarkpic);
+        }
         img_badgeButton.setImageBitmap(bitmap);
         img_badgeButton.setOnClickListener(this);
         img_landmark.setImageBitmap(landmarkpic);

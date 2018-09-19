@@ -1,236 +1,256 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingRight="20dp"
     android:background="@color/colorMagpieWhite">
 
     <TextView
         android:id="@+id/dropdown_description_collection"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="3dp"
         android:layout_margin="5dp"
-        android:layout_weight="4"
-        android:fontFamily="@font/advent_pro_thin"
+        android:layout_marginBottom="3dp"
+        android:fontFamily="@font/montserrat_medium"
         android:text="lets test a long string with no newlines and see how this is delimited i hope it goes smoothly but i guess we'll find out here goes nothing lets test a long string with no newlines and see how this is delimited i hope it goes smoothly but i guess we'll find out here goes nothing"
         android:textColor="@color/colorMagpieBlack"
-        android:textSize="16sp" />
+        android:textSize="14sp" />
 
     <LinearLayout
         android:id="@+id/collection_expand_row1"
         android:layout_width="match_parent"
-        android:layout_height="22dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_weight="1"
-        android:layout_marginTop="3dp"
-        android:layout_marginBottom="1dp">
-
-        <LinearLayout
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp"
+        android:layout_below="@id/dropdown_description_collection">
+        <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:layout_weight="2">
-
+            android:layout_height="wrap_content"
+            android:layout_weight="3">
             <ImageView
                 android:id="@+id/imageTime"
-                android:layout_width="0dp"
+                android:layout_width="20dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginRight="2dp"
                 android:gravity="right|center"
                 android:src="@drawable/clock"
                 android:adjustViewBounds="true" />
 
             <TextView
                 android:id="@+id/collectionTime"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:layout_marginRight="2dp"
+                android:layout_toRightOf="@+id/imageTime"
+                android:fontFamily="@font/montserrat_medium"
                 android:text="1.5"
                 android:textColor="@color/colorMagpieBlack"
-                android:textSize="14sp"
-                android:gravity="center"
-                app:layout_constraintLeft_toRightOf="@id/imageTime" />
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
             <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="3"
-                android:gravity="left|center"
+                android:id="@+id/lbl_hr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/collectionTime"
+                android:fontFamily="@font/montserrat_medium"
+                android:gravity="left"
                 android:text="HR"
                 android:textColor="@color/colorMagpieLightGray"
-                android:textSize="14sp"
+                android:textSize="12sp"
+                android:textStyle="bold"
                 app:layout_constraintLeft_toRightOf="@id/collectionTime" />
+        </RelativeLayout>
 
-        </LinearLayout>
-
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:layout_weight="2">
-
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            >
             <ImageView
                 android:id="@+id/imageDistance"
-                android:layout_width="0dp"
+                android:layout_width="20dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
+                android:layout_alignParentTop="true"
+                android:layout_marginRight="2dp"
+                android:layout_alignParentLeft="true"
                 android:gravity="right|center"
                 android:src="@drawable/collection_expanded_distance"
                 android:adjustViewBounds="true" />
 
             <TextView
                 android:id="@+id/collectionDistance"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="2dp"
+                android:layout_toRightOf="@+id/imageDistance"
+                android:fontFamily="@font/montserrat_medium"
+                android:gravity="center"
                 android:text="2"
                 android:textColor="@color/colorMagpieBlack"
-                android:textSize="14sp"
-                android:gravity="center"
+                android:textSize="12sp"
+                android:textStyle="bold"
                 app:layout_constraintLeft_toRightOf="@id/imageDistance" />
 
             <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/collectionDistance"
                 android:layout_weight="3"
+                android:fontFamily="@font/montserrat_medium"
                 android:gravity="left|center"
                 android:text="MI"
                 android:textColor="@color/colorMagpieLightGray"
-                android:textSize="14sp"
-                app:layout_constraintLeft_toRightOf="@id/collectionDistance" />
-
-        </LinearLayout>
-
-        <LinearLayout
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+        <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:gravity="right"
+            android:layout_height="wrap_content"
             android:layout_weight="3">
-
             <ImageView
                 android:id="@+id/imageBadge"
-                android:layout_width="0dp"
+                android:layout_width="20dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.5"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginRight="2dp"
                 android:gravity="right|center"
                 android:src="@drawable/collection_expanded_badges"
                 android:adjustViewBounds="true" />
 
             <TextView
                 android:id="@+id/collectionBadges"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="2dp"
+                android:layout_toRightOf="@+id/imageBadge"
+                android:fontFamily="@font/montserrat_medium"
+                android:gravity="center"
                 android:text="8"
                 android:textColor="@color/colorMagpieBlack"
-                android:textSize="14sp"
-                android:gravity="center"
-                app:layout_constraintLeft_toRightOf="@id/collectionBadges" />
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
             <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/collectionBadges"
+                android:fontFamily="@font/montserrat_medium"
                 android:gravity="left|center"
                 android:text="BADGES"
                 android:textColor="@color/colorMagpieLightGray"
-                android:textSize="14sp"
-                app:layout_constraintLeft_toRightOf="@id/collectionBadges" />
-
-        </LinearLayout>
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
 
     </LinearLayout>
+
+
 
     <LinearLayout
         android:id="@+id/collection_expand_row2"
         android:layout_width="match_parent"
-        android:layout_height="22dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/collection_expand_row1"
         android:orientation="horizontal"
-        android:layout_weight="1"
         android:layout_marginTop="1dp"
         android:layout_marginBottom="18dp">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:layout_weight="8">
+            android:layout_weight="1">
 
             <ImageView
                 android:id="@+id/imageReward"
-                android:layout_width="0dp"
+                android:layout_width="20dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.5"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginRight="5dp"
                 android:gravity="right|center"
                 android:src="@drawable/collection_expanded_reward"
                 android:adjustViewBounds="true" />
 
             <TextView
-                android:id="@+id/collectionReward"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="2"
+                android:id="@+id/collectionRewardWorth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_toRightOf="@+id/imageReward"
+                android:fontFamily="@font/montserrat_medium"
+                android:gravity="center"
                 android:text="$5"
                 android:textColor="@color/colorMagpieBlack"
-                android:textSize="14sp"
-                android:gravity="center"
+                android:textSize="12sp"
+                android:textStyle="bold"
                 app:layout_constraintLeft_toRightOf="@id/imageReward" />
 
             <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="9.5"
+                android:id="@+id/collectionRewardName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/collectionRewardWorth"
+                android:fontFamily="@font/montserrat_medium"
                 android:gravity="left|center"
                 android:text="Visa Gift Card"
                 android:textColor="@color/colorMagpieLightGray"
-                android:textSize="14sp"
-                app:layout_constraintLeft_toRightOf="@id/collectionReward" />
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
-        </LinearLayout>
+        </RelativeLayout>
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:gravity="right"
-            android:layout_weight="4">
+            android:layout_weight="1">
 
 
             <ImageView
                 android:id="@+id/imageAge"
-                android:layout_width="0dp"
+                android:layout_width="20dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.5"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginRight="5dp"
                 android:gravity="right|center"
                 android:src="@drawable/collection_expanded_age"
                 android:adjustViewBounds="true" />
 
             <TextView
                 android:id="@+id/collectionAge"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_toRightOf="@+id/imageAge"
+                android:fontFamily="@font/montserrat_medium"
+                android:gravity="center"
                 android:text="12+"
                 android:textColor="@color/colorMagpieBlack"
-                android:textSize="14sp"
-                android:gravity="center"
+                android:textSize="12sp"
+                android:textStyle="bold"
                 app:layout_constraintLeft_toRightOf="@id/imageAge" />
 
             <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/collectionAge"
+                android:fontFamily="@font/montserrat_medium"
                 android:gravity="left|center"
                 android:text="YRS"
                 android:textColor="@color/colorMagpieLightGray"
-                android:textSize="14sp"
+                android:textSize="12sp"
+                android:textStyle="bold"
                 app:layout_constraintLeft_toRightOf="@id/collectionAge" />
 
-        </LinearLayout>
+        </RelativeLayout>
 
     </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>

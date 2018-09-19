@@ -1,8 +1,8 @@
 package com.davis.tyler.magpiehunt.Fragments;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -23,13 +24,9 @@ import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.R;
-import com.davis.tyler.magpiehunt.SpinnerHuntFilter;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.davis.tyler.magpiehunt.Spinners.SpinnerHuntFilter;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -53,6 +50,8 @@ public class FragmentLandmarkList extends Fragment {
     private Set<Hunt> selected_items;
     private List<Badge> landmarks;
     private TextView txt_select_hunts;
+    private CheckableSpinnerAdapter checkableSpinnerAdapter;
+    private RelativeLayout badgeCompleted;
 
 
 
@@ -79,9 +78,16 @@ public class FragmentLandmarkList extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        Log.e(TAG, "OnCreateView");
+
+        Log.e(TAG, "OnCreateView"+this);
         View rootView = inflater.inflate(R.layout.fragment_landmark_list, container, false);
 
+        if(savedInstanceState != null){
+            Log.e(TAG, "bundle not null");
+        }
+
+        badgeCompleted = rootView.findViewById(R.id.badge_completed);
+        badgeCompleted.setVisibility(View.GONE);
         //replace param with cid of collection from bundle
         selected_items = mHuntManager.getSelectedHunts();
         spinner_items = mHuntManager.getAllHunts();
@@ -103,11 +109,11 @@ public class FragmentLandmarkList extends Fragment {
         catch (NoClassDefFoundError | ClassCastException | NoSuchFieldException | IllegalAccessException e) {
             // silently fail...
         }
-        CheckableSpinnerAdapter adapter = new CheckableSpinnerAdapter(getContext(), headerText, spinner_items, selected_items);
-        spinner.setAdapter(adapter);
+        checkableSpinnerAdapter = new CheckableSpinnerAdapter(getContext(), headerText, mHuntManager, selected_items);
+        spinner.setAdapter(checkableSpinnerAdapter);
         spinner.setSpinnerEventsListener((ActivityBase)getActivity());
 
-        landmarks = mHuntManager.getSortedBadges();
+        landmarks = mHuntManager.getFocusedSortedBadges();
 
         mRecyclerView = rootView.findViewById(R.id.landmarksRecyclerView);
         txt_select_hunts = (TextView) rootView.findViewById(R.id.txt_no_hunt_selected);
@@ -173,22 +179,53 @@ public class FragmentLandmarkList extends Fragment {
         }
     }
     public void updateFocusHunts(){
-
         landmarks.clear();
-        for(Hunt h: mHuntManager.getSelectedHunts()){
+        landmarks.addAll(mHuntManager.getFocusedSortedBadges());
+        /*for(Hunt h: mHuntManager.getSelectedHunts()){
             landmarks.addAll(h.getAllBadges());
-        }
+        }*/
         if(mHuntManager.getSelectedHuntsSize() ==0){
             txt_select_hunts.setVisibility(View.VISIBLE);
         }
         else{
             txt_select_hunts.setVisibility(View.INVISIBLE);
         }
+        updateBadgeDisplay();
         updateList();
+    }
+
+    public void updateBadgeDisplay(){
+        //whenever a badge is completed this method is called
+        //if there is a single focused hunt, alert the user their super badge is complete
+        if(mHuntManager.getSelectedHunts().size() == 1){
+            Hunt h = mHuntManager.getSingleSelectedHunt();
+            h.updateIsCompleted();
+            if(h.getIsCompleted() && h.getAward().getIsNew()) {
+                badgeCompleted.setVisibility(View.VISIBLE);
+                mHuntManager.setFocusAward(h.getID());
+            }
+            else
+                badgeCompleted.setVisibility(View.GONE);
+        }
+        else{
+            badgeCompleted.setVisibility(View.GONE);
+        }
+    }
+    public void updateSpinner(){
+        //TODO eventually make this get all downloaded hunts, as undownloaded hunts may be sitting in huntmanager
+        checkableSpinnerAdapter.updateSpinnerItems();
+        checkableSpinnerAdapter.notifyDataSetChanged();
     }
     //TODO implement this before release, just for testing
     public interface OnLandmarkSelectedListener {
         // TODO: Update argument type and name
         void onLandmarkSelected(Badge b);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.e(TAG, "ON SAVE ");
+        outState.putSerializable("huntmanager", mHuntManager);
     }
 }

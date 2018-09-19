@@ -7,6 +7,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 public class Hunt implements Serializable {
+    public static final int AGE_ALL = 0;
+    public static final int AGE_TEEN = 1;
+    public static final int AGE_YOUNG_ADULT = 2;
+    public static final int AGE_MATURE = 3;
     private HashMap<Integer, Badge> mBadges;
     private Award mAward;
     private boolean mIsCompleted;
@@ -24,6 +28,9 @@ public class Hunt implements Serializable {
     private String mSponsor;
     private String mRating;
     private boolean mIsFocused;
+    private int mAudience;
+    private boolean mIsDeleted;
+    private boolean mIsDownloaded;
 
 
     public Hunt(HashMap<Integer, Badge> badges, Award award, boolean isCompleted, int id,
@@ -62,8 +69,48 @@ public class Hunt implements Serializable {
     public void setAbbreviation(String s){
         mAbbreviation = s;
     }
+    public void setIsAvailable(boolean b){ mIsAvailable = b; }
+    public void setmDateStart(Date d){ mDateStart = d; }
+    public void setmDateEnd(Date d){ mDateEnd = d; }
+    public void setmSponsor(String s){ mSponsor = s; }
+    public void setmCity(String s){ mCity = s; }
+    public void setmState(String s){ mState = s; }
+    public void setmZip(int i){ mZip = i; }
+    public void setmAward(Award a){ this.mAward = a; }
+    public void setmBadges(HashMap<Integer, Badge> b){ this.mBadges = b; }
+    public void setmIsCompleted(boolean b){mIsCompleted = b;}
+    public void updateIsCompleted(){
+        LinkedList<Badge> ll = getAllBadges();
+        setmIsCompleted(true);
+        for(Badge b: ll){
+            if(!b.getIsCompleted()){
+                setmIsCompleted(false);
+            }
+        }
+        mAward.setIsNew(true);
+    }
+    public void setmIsDeleted(boolean b){mIsDeleted = b;}
+    public void setmIsDownloaded(boolean b){mIsDownloaded = b;}
+    public void setmAudience(String s){
+        if(s.equalsIgnoreCase("all")){
+            mAudience = 4;
+        }
+        else if(s.equalsIgnoreCase("teen")){
+            mAudience = 13;
+        }
+        else if(s.equalsIgnoreCase("young")){
+            mAudience = 21;
+        }
+        else if(s.equalsIgnoreCase("mature")){
+            mAudience = 21;
+        }
+    }
 
-
+    public boolean getIsDownloaded(){return mIsDownloaded;}
+    public int getAudience(){
+        return mAudience;
+    }
+    public boolean getIsDeleted(){return mIsDeleted;}
     public boolean isFocused(){return mIsFocused;}
     public int getAwardID(){return mAward.getID();}
     public Badge getBadge(int id){return mBadges.get(id);}
@@ -81,15 +128,29 @@ public class Hunt implements Serializable {
     public int getZip(){return mZip;}
     public String getSponsor(){return mSponsor;}
     public String getRating(){return mRating;}
+    public int getNumBadges(){return mBadges.size();}
     public Award getAward(){return mAward;}
-    public LinkedList<Badge> getAllBadges(){
+    public LinkedList<Badge> getAllUncompletedBadges(){
         LinkedList<Badge> ll = new LinkedList();
+        //System.out.println("num badges: "+mBadges.size());
         if(mBadges == null)
             return ll;
         Iterator it = mBadges.entrySet().iterator();
         while (it.hasNext()) {
             HashMap.Entry pair = (HashMap.Entry)it.next();
             if(!((Badge)pair.getValue()).getIsCompleted())
+                ll.add(((Badge)pair.getValue()));
+        }
+        return ll;
+    }
+    public LinkedList<Badge> getAllBadges(){
+        LinkedList<Badge> ll = new LinkedList();
+        //System.out.println("num badges: "+mBadges.size());
+        if(mBadges == null)
+            return ll;
+        Iterator it = mBadges.entrySet().iterator();
+        while (it.hasNext()) {
+            HashMap.Entry pair = (HashMap.Entry)it.next();
                 ll.add(((Badge)pair.getValue()));
         }
         return ll;

@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
+import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.R;
 
 import java.util.List;
@@ -23,14 +24,19 @@ public class CheckableSpinnerAdapter extends BaseAdapter {
     private List<Hunt> all_items;
     private String header;
     private ActivityBase listener;
+    private HuntManager huntManager;
 
     public CheckableSpinnerAdapter(Context context, String header,
-                                   List<Hunt> all_items, Set<Hunt> selected_items){
+                                   HuntManager huntManager, Set<Hunt> selected_items){
+        this.huntManager = huntManager;
         this.context = context;
         this.header = header;
-        this.all_items = all_items;
+        this.all_items = huntManager.getAllHunts();
         this.selected_items = selected_items;
         this.listener = listener;
+    }
+    public void updateSpinnerItems(){
+        all_items = huntManager.getAllHunts();
     }
     @Override
     public int getCount() {
@@ -86,6 +92,7 @@ public class CheckableSpinnerAdapter extends BaseAdapter {
 
                         hunt.setIsFocused(true);
                         selected_items.add(hunt);
+
                         Log.e("CheckableSpinner","checked: "+hunt.getName());
 
                     }

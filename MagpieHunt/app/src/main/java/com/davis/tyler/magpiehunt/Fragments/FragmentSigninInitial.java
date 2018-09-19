@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.davis.tyler.magpiehunt.Activities.ActivityBase;
-import com.davis.tyler.magpiehunt.OnSwipeTouchListener;
+import com.davis.tyler.magpiehunt.Listeners.OnSwipeTouchListener;
 import com.davis.tyler.magpiehunt.R;
 
 public class FragmentSigninInitial extends Fragment implements View.OnClickListener{
@@ -32,7 +32,7 @@ public class FragmentSigninInitial extends Fragment implements View.OnClickListe
         btn_signin.setOnClickListener(this);
         view.setOnTouchListener(new OnSwipeTouchListener(getActivity()){
             public void onSwipeLeft() {
-                //mListener.swipedLeftEvent();
+                mListener.swipedLeftEvent();
             }
 
             public void onSwipeRight() {

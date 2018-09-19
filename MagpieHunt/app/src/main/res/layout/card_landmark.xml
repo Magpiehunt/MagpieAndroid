@@ -43,7 +43,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_below="@+id/landmarkSponsor"
-                android:fontFamily="@font/montserrat_light"
+                android:fontFamily="@font/montserrat_regular"
                 android:gravity="left|center"
                 android:maxLines="2"
                 android:text="Landmark"
@@ -71,24 +71,26 @@
                     android:id="@+id/landmarkTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="14"
-                    android:textSize="12sp"
                     android:layout_marginLeft="3dp"
                     android:layout_marginRight="3dp"
-                    android:gravity="right|top"
-                    android:layout_toRightOf="@+id/clock"/>
+                    android:layout_toRightOf="@+id/clock"
+                    android:fontFamily="@font/montserrat_medium"
+                    android:gravity="right"
+                    android:text="14"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/minutestext"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
                     android:layout_toRightOf="@+id/landmarkTime"
-                    android:fontFamily="@font/font_awesome"
-                    android:gravity="left|top"
+                    android:fontFamily="@font/montserrat_medium"
+                    android:gravity="left"
                     android:text="MINUTES"
                     android:textColor="@color/colorMagpieLightGray"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
 
             </RelativeLayout>
 
@@ -111,24 +113,26 @@
                     android:id="@+id/landmarkMiles"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=".84"
-                    android:textSize="12sp"
                     android:layout_marginLeft="3dp"
                     android:layout_marginRight="3dp"
-                    android:gravity="right|top"
-                    android:layout_toRightOf="@+id/mappin"/>
+                    android:layout_toRightOf="@+id/mappin"
+                    android:fontFamily="@font/montserrat_medium"
+                    android:gravity="right"
+                    android:text=".84"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/milestext"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
                     android:layout_toRightOf="@+id/landmarkMiles"
-                    android:fontFamily="@font/font_awesome"
-                    android:gravity="left|top"
+                    android:fontFamily="@font/montserrat_medium"
+                    android:gravity="left"
                     android:text="MILES"
                     android:textColor="@color/colorMagpieLightGray"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
 
             </RelativeLayout>
         </RelativeLayout>

@@ -1,4 +1,4 @@
-package com.davis.tyler.magpiehunt;
+package com.davis.tyler.magpiehunt.Listeners;
 
 import android.content.Context;
 import android.view.GestureDetector;

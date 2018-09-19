@@ -31,4 +31,5 @@ dependencies {
     implementation 'com.github.aakira:expandable-layout:1.6.0@aar'
     implementation 'com.google.zxing:core:3.2.1'
     implementation 'me.dm7.barcodescanner:zxing:1.9'
+    implementation 'com.android.volley:volley:1.1.0'
 }

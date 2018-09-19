@@ -3,6 +3,10 @@ package com.davis.tyler.magpiehunt.Hunts;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.util.Log;
 
 import com.davis.tyler.magpiehunt.R;
@@ -64,6 +68,7 @@ public class HuntManager implements Serializable{
         Badge badge3 = new Badge(2, "testbadge3","filepathhere", "landmark3",
                 47.4862000,-117.5757111, "badge3", false, 0, "filepathhere");
 
+        badge3.setQRurl("hello");
         //Bitmap bitmapSuperBadge = BitmapFactory.decodeResource(context.getResources(), R.drawable.example_super_badge);
         Award award = new Award(0, "2702 AL OGDON WAY CHENEY, WA", "testaward1",
                 "award1", "this is my apartment area", 47.4872000,-117.5757111,
@@ -77,10 +82,11 @@ public class HuntManager implements Serializable{
         calendar.setTime(dateOfStart);
         calendar.add(Calendar.DAY_OF_YEAR, noOfDays);
         Date dateOfEnd = calendar.getTime();
-        Hunt hunt1 = new Hunt(badges, award, false, 0,"HNT", true,
+        Hunt hunt1 = new Hunt(badges, award, false, 2,"HNT", true,
                 dateOfStart, dateOfEnd, "hunt1", false, "summary: this is hunt1",
                 "CHENEY", "WA", 99004, "CJ's");
         hunt1.setIsFocused(true);
+        hunt1.setmIsCompleted(false);
         mHunts.put(hunt1.getID(), hunt1);
     }
 
@@ -93,6 +99,16 @@ public class HuntManager implements Serializable{
     }
     public void saveAllHuntInformation(){
 
+    }
+    public Hunt getHuntByID(int id){
+        LinkedList<Hunt> ll = new LinkedList<>();
+        Iterator it = mHunts.entrySet().iterator();
+        while (it.hasNext()) {
+            HashMap.Entry pair = (HashMap.Entry)it.next();
+            if(((Hunt)pair.getValue()).getID() == id)
+                return((Hunt)pair.getValue());
+        }
+        return null;
     }
     public LinkedList<Hunt> getAllUnCompletedHunts(){
         LinkedList<Hunt> ll = new LinkedList<>();
@@ -196,14 +212,45 @@ public class HuntManager implements Serializable{
     public List<Badge> getFocusedSortedBadges()
     {
         LinkedList<Badge> ll = new LinkedList<>();
-        Iterator it = mHunts.entrySet().iterator();
+        Iterator it = mSelectedHunts.iterator();
         while (it.hasNext()) {
-            HashMap.Entry pair = (HashMap.Entry)it.next();
-            ll.addAll(((Hunt)pair.getValue()).getAllBadges());
+            Hunt h = (Hunt)it.next();
+            ll.addAll((h).getAllBadges());
 
         }
         sort(ll);
         return ll;
     }
 
+    public Hunt getSingleSelectedHunt(){
+        Iterator it = mSelectedHunts.iterator();
+        while (it.hasNext()) {
+            Hunt h = (Hunt)it.next();
+            return h;
+
+        }
+        return null;
+    }
+
+    public void deleteHuntByID(int id){
+        mSelectedHunts.remove(mHunts.get(id));
+        mHunts.remove(id);
+    }
+
+    public Bitmap toGrayscale(Bitmap bmpOriginal)
+    {
+        int width, height;
+        height = bmpOriginal.getHeight();
+        width = bmpOriginal.getWidth();
+
+        Bitmap bmpGrayscale = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(bmpGrayscale);
+        Paint paint = new Paint();
+        ColorMatrix cm = new ColorMatrix();
+        cm.setSaturation(0);
+        ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
+        paint.setColorFilter(f);
+        c.drawBitmap(bmpOriginal, 0, 0, paint);
+        return bmpGrayscale;
+    }
 }

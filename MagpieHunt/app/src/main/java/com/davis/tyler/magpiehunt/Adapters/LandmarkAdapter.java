@@ -2,6 +2,7 @@ package com.davis.tyler.magpiehunt.Adapters;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -50,7 +51,7 @@ public class LandmarkAdapter extends RecyclerView.Adapter<LandmarkAdapter.Landma
     @Override
     public LandmarkAdapter.LandmarkHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.landmark_card, parent, false);
+                .inflate(R.layout.card_landmark, parent, false);
 
         return new LandmarkHolder(view);
     }//end onCreateViewHolder
@@ -89,7 +90,7 @@ public class LandmarkAdapter extends RecyclerView.Adapter<LandmarkAdapter.Landma
 
         public LandmarkHolder(View itemView) {
             super(itemView);
-            // attach to landmark_card.xml items
+            // attach to card_landmark.xml items
             font = ResourcesCompat.getFont(context, R.font.font_awesome);
             this.landmarkSponsor = itemView.findViewById(R.id.landmarkSponsor);
             this.landmarkName = itemView.findViewById(R.id.landmarkName);
@@ -106,10 +107,14 @@ public class LandmarkAdapter extends RecyclerView.Adapter<LandmarkAdapter.Landma
         }//end EVC
 
         public void setData(Badge currentObject, int position) {
-            // attach class fields to their respective items on landmark_card.xml
+            // attach class fields to their respective items on card_landmark.xml
 
             landmarkSponsor.setText(currentObject.getLandmarkName()); // may need to move sponsor to landmark to display on card
             landmarkName.setText(currentObject.getName());
+            if(currentObject.getIsCompleted())
+                landmarkName.setTextColor(ContextCompat.getColor(context, R.color.colorMagpieBlack));
+            else
+                landmarkName.setTextColor(ContextCompat.getColor(context, R.color.colorMagpieLightGray));
 
             Log.e(TAG, "setting distance in list");
             landmarkMiles.setText(""+currentObject.getDistance()); // need to get distance calculated

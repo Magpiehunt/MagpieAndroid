@@ -1,21 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_marginTop="4dp"
-    android:layout_marginBottom="4dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_alignParentTop="true"
     android:background="@color/colorMagpieWhite">
 
-    <LinearLayout
-        android:id="@+id/card_search"
+    <RelativeLayout
+        android:id="@+id/view_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignTop="@id/view_foreground"
+        android:layout_alignBottom="@id/view_foreground"
+        android:background="@color/bg_row_background">
+
+        <ImageView
+            android:id="@+id/delete_icon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/ic_delete" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:layout_toLeftOf="@id/delete_icon"
+            android:text="@string/delete"
+            android:textColor="#fff"
+            android:textSize="13dp" />
+
+    </RelativeLayout>
+    <LinearLayout
+        android:id="@+id/view_foreground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:background="@color/colorMagpieWhite"
         android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/img_thumb_search"
+            android:id="@+id/img_thumb_collection"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_margin="7dp"
@@ -28,34 +55,37 @@
             android:layout_weight="4">
 
             <TextView
-                android:id="@+id/tvAbbreviation_search"
+                android:id="@+id/tvAbbreviation_collection"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginTop="1dp"
+                android:layout_marginTop="4dp"
                 android:layout_weight="2"
+                android:fontFamily="@font/montserrat_extralight"
                 android:gravity="left"
                 android:text="TFN"
-                android:fontFamily="@font/advent_pro_thin"
                 android:textColor="@color/colorMagpieBlack"
                 android:textSize="35sp"
+                android:textStyle="bold"
                 android:typeface="sans" />
 
             <TextView
-                android:id="@+id/tvTitle_search"
+                android:id="@+id/tvTitle_collection"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_marginBottom="5dp"
+                android:layout_marginLeft="3dp"
                 android:layout_weight="1"
-                android:fontFamily="@font/advent_pro_thin"
+                android:fontFamily="@font/montserrat_regular"
                 android:gravity="left"
                 android:text="Testing Full Name"
-                android:textColor="@color/colorMagpieLightGray"
-                android:textSize="14sp"
+                android:textAllCaps="true"
+                android:textColor="@color/colorMagpieDarkGray"
+                android:textSize="10sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/expandArrow_search"
+            android:id="@+id/expandArrow_collection"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_weight="1"
@@ -66,24 +96,24 @@
     </LinearLayout>
 
     <com.github.aakira.expandablelayout.ExpandableLinearLayout
-        android:id="@+id/expandableLayout_search"
-        android:layout_below="@id/card_search"
+        android:id="@+id/expandableLayout_collection"
+        android:layout_below="@id/view_foreground"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="24dp"
+        android:layout_marginLeft="74dp"
         android:layout_marginRight="24dp"
         app:ael_duration="200"
         app:ael_expanded="false">
 
         <include
-            android:id="@+id/dropdown_information_search"
-            layout="@layout/dropdown_data_search" />
+            android:id="@+id/dropdown_information_collection"
+            layout="@layout/dropdown_data_collections" />
 
     </com.github.aakira.expandablelayout.ExpandableLinearLayout>
 
     <View
-        android:layout_below="@id/expandableLayout_search"
+        android:layout_below="@id/expandableLayout_collection"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/colorMagpieLightGray" />

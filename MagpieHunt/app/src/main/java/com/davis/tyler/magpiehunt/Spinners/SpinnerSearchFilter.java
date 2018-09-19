@@ -1,43 +1,40 @@
-package com.davis.tyler.magpiehunt;
+package com.davis.tyler.magpiehunt.Spinners;
 
 import android.content.Context;
 import android.support.v7.widget.AppCompatSpinner;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.widget.Spinner;
 
-
-
-public class SpinnerHuntFilter extends AppCompatSpinner {
-    private static final String TAG = "CustomSpinner";
-    private OnSpinnerEventsListener mListener;
+public class SpinnerSearchFilter extends AppCompatSpinner {
+    private static final String TAG = "SearchSpinner";
+    private SpinnerSearchFilter.OnSpinnerSearchEventsListener mListener;
     private boolean mOpenInitiated = false;
 
-    public SpinnerHuntFilter(Context context, AttributeSet attrs, int defStyleAttr, int mode) {
+    public SpinnerSearchFilter(Context context, AttributeSet attrs, int defStyleAttr, int mode) {
         super(context, attrs, defStyleAttr, mode);
     }
 
-    public SpinnerHuntFilter(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SpinnerSearchFilter(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
-    public SpinnerHuntFilter(Context context, AttributeSet attrs) {
+    public SpinnerSearchFilter(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public SpinnerHuntFilter(Context context, int mode) {
+    public SpinnerSearchFilter(Context context, int mode) {
         super(context, mode);
     }
 
-    public SpinnerHuntFilter(Context context) {
+    public SpinnerSearchFilter(Context context) {
         super(context);
     }
 
-    public interface OnSpinnerEventsListener {
+    public interface OnSpinnerSearchEventsListener {
 
-        void onSpinnerOpened();
+        void onSpinnerSearchOpened();
 
-        void onSpinnerClosed();
+        void onSpinnerSearchClosed();
 
     }
 
@@ -48,12 +45,12 @@ public class SpinnerHuntFilter extends AppCompatSpinner {
         // reasons)
         mOpenInitiated = true;
         if (mListener != null) {
-            mListener.onSpinnerOpened();
+            mListener.onSpinnerSearchOpened();
         }
         return super.performClick();
     }
 
-    public void setSpinnerEventsListener(OnSpinnerEventsListener onSpinnerEventsListener) {
+    public void setSpinnerSearchEventsListener(SpinnerSearchFilter.OnSpinnerSearchEventsListener onSpinnerEventsListener) {
         mListener = onSpinnerEventsListener;
     }
 
@@ -61,10 +58,10 @@ public class SpinnerHuntFilter extends AppCompatSpinner {
      * Propagate the closed Spinner event to the listener from outside.
      */
     public void performClosedEvent() {
-        Log.e(TAG,"spinner closed");
+        Log.e(TAG, "spinner closed");
         mOpenInitiated = false;
         if (mListener != null) {
-            mListener.onSpinnerClosed();
+            mListener.onSpinnerSearchClosed();
 
         }
     }

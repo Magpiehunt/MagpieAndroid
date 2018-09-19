@@ -1,10 +1,10 @@
 package com.davis.tyler.magpiehunt.Fragments;
 
 import android.Manifest;
-import android.app.Activity;
-import android.app.Dialog;
-import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,9 +12,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.AppCompatSpinner;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,15 +24,14 @@ import android.widget.Toast;
 import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Adapters.CheckableSpinnerAdapter;
 import com.davis.tyler.magpiehunt.Adapters.CustomInfoWindowAdapter;
-import com.davis.tyler.magpiehunt.CameraManager;
-import com.davis.tyler.magpiehunt.DialogMoveCloser;
+import com.davis.tyler.magpiehunt.Location.CameraManager;
+import com.davis.tyler.magpiehunt.Dialogs.DialogMoveCloser;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.R;
-import com.davis.tyler.magpiehunt.SpinnerHuntFilter;
+import com.davis.tyler.magpiehunt.Spinners.SpinnerHuntFilter;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -41,6 +39,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -49,7 +48,6 @@ import com.google.android.gms.tasks.Task;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -73,7 +71,10 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
     private CameraManager mCameraManager;
     private HashMap<Integer, Marker> markers;
     private boolean showInfoWindow;
-    DialogMoveCloser customDialog;
+    private DialogMoveCloser customDialog;
+    private SpinnerHuntFilter spinner;
+    private CheckableSpinnerAdapter checkableSpinnerAdapter;
+    private int width, height;
 
     @Nullable
     @Override
@@ -81,13 +82,18 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
         View view = inflater.inflate(R.layout.fragment_google_maps, container, false);
           customDialog =new DialogMoveCloser(getActivity());
 
+        Display display = getActivity().getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        width = size.x / 14;
+        height = (int)(width * 1.6);
 
         mGps = (ImageView)view.findViewById(R.id.ic_gps);
         spinner_items = mHuntManager.getAllHunts();
         selected_items = mHuntManager.getSelectedHunts();
         Log.e(TAG, "OnCreateView");
         String headerText = "Filter";
-        SpinnerHuntFilter spinner = (SpinnerHuntFilter) view.findViewById(R.id.spinner);
+        spinner = (SpinnerHuntFilter) view.findViewById(R.id.spinner);
         //Set the max height of the dropdown spinner:
         try {
             Field popup = Spinner.class.getDeclaredField("mPopup");
@@ -102,8 +108,8 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
         catch (NoClassDefFoundError | ClassCastException | NoSuchFieldException | IllegalAccessException e) {
             // silently fail...
         }
-        CheckableSpinnerAdapter adapter = new CheckableSpinnerAdapter(getContext(), headerText, spinner_items, selected_items);
-        spinner.setAdapter(adapter);
+        checkableSpinnerAdapter = new CheckableSpinnerAdapter(getContext(), headerText, mHuntManager, selected_items);
+        spinner.setAdapter(checkableSpinnerAdapter);
         spinner.setSpinnerEventsListener((ActivityBase)getActivity());
         init();
         getLocationPermission();
@@ -131,7 +137,6 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
     }
 
     public void setCameraOnLandmark(Badge badge){
-        //moveCamera(badge.getLatLng(), DEFAULT_ZOOM, "");
         Log.e(TAG,"SETTING LANDMARK TO FOCUS ON");
         showInfoWindow = true;
         locationToFocus = badge.getLatLng();
@@ -154,6 +159,10 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
         SupportMapFragment mMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mMapFragment.getMapAsync(this);
     }
+
+    /*
+    Checks to see if we have permission to user location
+     */
     private void getLocationPermission(){
         String[] permissions = {FINE_LOCATION, COURSE_LOCATION};
 
@@ -173,6 +182,9 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
         }
     }
 
+    /*
+    This method handles what happens once we have the permission to use user location
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         mLocationPermissionGranted = false;
@@ -187,38 +199,45 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
                     }
                     mLocationPermissionGranted = true;
                     //initialize our map
-                    Log.e(TAG, "init map from onRequestPermissionResult()");
-
                     initMap();
                 }
             }
         }
     }
+
+    //This loads the map after getMapAsync() is called on SupportMapFragment
     @Override
     public void onMapReady(GoogleMap googleMap) {
         Log.e(TAG, "Map is ready");
-        //Toast.makeText(getActivity(), "Map is Ready", Toast.LENGTH_SHORT).show();
+
+        //save reference to the map object
         mMap = googleMap;
+
+        // turns off default googlemaps toolbar
         mMap.getUiSettings().setMapToolbarEnabled(false);
+
+        //Check if we have permission to use user location
         if(mLocationPermissionGranted){
+
+            //if camera was already at a location, move to that location, else, center on user location
             if(mCameraManager.getLat()!= 0)
                 repositionCamera();
             else
                 getDeviceLocation();
+
+            //This if() is necessary to use the setMyLocationEnabled() method
             if(ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                     && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
                 return;
             }
             mMap.setMyLocationEnabled(true);//marks my location on the map
-            mMap.getUiSettings().setMyLocationButtonEnabled(false);// you can try out different settings
+            mMap.getUiSettings().setMyLocationButtonEnabled(false);// turn off default user location button
+
+            //setup the center on user location button and place markers
             init();
-            /*Log.e(TAG, "mhunt: "+mHuntManager+" from: "+this);
-            LinkedList<Hunt> hunts = mHuntManager.getAllUnCompletedHunts();
-            Log.e(TAG, "starting marker placement, hunt list size: "+hunts.size());
-            */
             updateFocusHunts();
 
-
+            //set up our custom info windows for when user clicks on a marker
             mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(getContext(), mHuntManager));
             mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                 @Override
@@ -234,12 +253,6 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
                 Marker m = markers.get(mHuntManager.getFocusBadge().getID());
                 m.showInfoWindow();
             }
-            /*if(mCameraManager.shouldMoveCloser()){
-                customDialog.setBadge(mHuntManager.getFocusBadge());
-                customDialog.show();
-                Marker m = markers.get(mHuntManager.getFocusBadge().getID());
-                m.showInfoWindow();
-            }*/
         }
     }
 
@@ -272,10 +285,16 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCameraManager.getLat(), mCameraManager.getLon()), DEFAULT_ZOOM));
         }
     }
+
+    /*
+    This method moves the camera.
+     */
     private void moveCamera(LatLng latlng, float zoom){
+        //If animation is needed, make camera pan over quickly (done when clicking on landmark or centering.
         if(mAnimateCamera)
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, zoom), 300, null);
         else {
+            //Have camera immediately move to position (done when map is loaded)
             Log.e(TAG, "mmap: "+mMap+"latlng: "+latlng);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, zoom));
         }
@@ -295,6 +314,10 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
     }
 
 
+    /*
+    This method is called when the user clicks the target button to center the camera on
+    the user's current location
+     */
     private void centerOnPosition(){
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
         try{
@@ -323,6 +346,11 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
             Log.e(TAG, "getDeviceLocation: SecurityException: " + e.getMessage());
         }
     }
+
+    /*
+    This method will query user's current location and upon successful response, move the camera
+    to that location when the map is first loaded.
+     */
     private void getDeviceLocation(){
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
         try{
@@ -356,21 +384,79 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
 
     }
 
+    /*
+        This is called to clear the map and redraw all markers for the selected hunts.
+     */
     public void updateFocusHunts(){
+
         if(mMap != null){
+            //clear the map of all markers
             mMap.clear();
             markers = new HashMap<>();
+
+            // for each hunt in the collection of selected hunts, place marker at each badge's location
             for(Hunt h: selected_items){
                 LinkedList<Badge> ll = h.getAllBadges();
                 Log.e(TAG, "badge list size: "+ll.size());
                 for(Badge b: ll){
                     Log.e(TAG, "adding marker");
-                    MarkerOptions temp = new MarkerOptions().position(b
-                            .getLatLng())
-                            .title(""+b.getID());
+                    MarkerOptions temp;
+
+                    //if badge isn't completed place the corresponding hunt color as the marker color
+                    if(!b.getIsCompleted()) {
+                        temp = new MarkerOptions().position(b
+                                .getLatLng())
+                                .title("" + b.getID())
+                                .icon(BitmapDescriptorFactory.defaultMarker(getHue(h.getID())));
+                    }
+                    else{
+                        //if the badge is completed, place grey marker
+
+                        BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.ic_grey_marker);
+                        Bitmap bitmap=bitmapdraw.getBitmap();
+                        Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, width, height, false);
+                        temp = new MarkerOptions().position(b
+                                .getLatLng())
+                                .title("" + b.getID())
+                                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+                    }
+
                     markers.put(b.getID(),mMap.addMarker(temp));
                 }
             }
         }
+    }
+
+    //temporary method to decide the hunt color.
+    //later color is decided by user in the hunt collection list page
+    private float getHue(int i){
+        i = i%8;
+        switch(i){
+            case 0:
+                return BitmapDescriptorFactory.HUE_ORANGE;
+            case 1:
+                return BitmapDescriptorFactory.HUE_MAGENTA;
+            case 2:
+                return BitmapDescriptorFactory.HUE_AZURE;
+            case 3:
+                return BitmapDescriptorFactory.HUE_VIOLET;
+            case 4:
+                return BitmapDescriptorFactory.HUE_YELLOW;
+            case 5:
+                return BitmapDescriptorFactory.HUE_GREEN;
+            case 6:
+                return BitmapDescriptorFactory.HUE_RED;
+            case 7:
+                return BitmapDescriptorFactory.HUE_ROSE;
+        }
+
+        return BitmapDescriptorFactory.HUE_ORANGE;
+    }
+
+    //updates the items in the spinner list
+    public void updateSpinner(){
+        //TODO eventually make this get all downloaded hunts, as undownloaded hunts may be sitting in huntmanager
+        checkableSpinnerAdapter.updateSpinnerItems();
+        checkableSpinnerAdapter.notifyDataSetChanged();
     }
 }

@@ -17,4 +17,5 @@
     <string name="description">Description</string>
     <string name="move_closer">PLEASE MOVE CLOSER TO COLLECT THIS BADGE</string>
     <string name="okay">OKAY</string>
+    <string name="delete">DELETE</string>
 </resources>

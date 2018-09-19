@@ -11,21 +11,26 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.davis.tyler.magpiehunt.CameraManager;
+import com.davis.tyler.magpiehunt.Location.CameraManager;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
-import com.davis.tyler.magpiehunt.QRFragment;
 import com.davis.tyler.magpiehunt.R;
 
 public class FragmentMap extends Fragment implements IFragmentSwitcherListener{
     private static final String TAG = "Map Fragment";
     private static final String TAG_GOOGLE_MAPS = "googlemaps";
     private static final String TAG_LANDMARK_INFO = "landmarkinfo";
-    public static int FRAGMENT_GOOGLE_MAPS = 0;
-    public static int FRAGMENT_LANDMARK_INFO = 1;
-    public static int FRAGMENT_QR_READER = 2;
+    public static final int FRAGMENT_GOOGLE_MAPS = 0;
+    public static final int FRAGMENT_LANDMARK_INFO = 1;
+    public static final int FRAGMENT_QR_READER = 2;
+    public static final int FRAGMENT_QUIZ = 3;
+    public static final int FRAGMENT_TIMER = 4;
+    public static final int FRAGMENT_BADGE_OBTAINED = 5;
     private FragmentGoogleMaps fragmentGoogleMaps;
     private FragmentLandmarkInfo fragmentLandmarkInfo;
+    private FragmentTimer fragmentTimer;
+    private FragmentQuiz fragmentQuiz;
+    private FragmentBadgeObtained fragmentBadgeObtained;
     private HuntManager mHuntManager;
     private CameraManager mCameraManager;
     private int curFrag;
@@ -107,14 +112,49 @@ public class FragmentMap extends Fragment implements IFragmentSwitcherListener{
             ft.replace(R.id.currentfragment, fragmentGoogleMaps);
         }
         else if(i == FRAGMENT_LANDMARK_INFO){
+
             if(fragmentLandmarkInfo == null){
+                Log.e(TAG, "landmarkinfo null");
                 fragmentLandmarkInfo = FragmentLandmarkInfo.newInstance(mHuntManager);
             }
+            Log.e(TAG, "switching to landmarkinfo");
             ft.replace(R.id.currentfragment, fragmentLandmarkInfo);
         }
-        else if(i == FRAGMENT_QR_READER)
-            ft.replace(R.id.currentfragment, QRFragment.newInstance(mHuntManager));
+        else if(i == FRAGMENT_QR_READER) {
+            ft.replace(R.id.currentfragment, FragmentQR.newInstance(mHuntManager));
+        }
+        else if(i == FRAGMENT_TIMER){
+            if(fragmentTimer == null){
+                fragmentTimer = FragmentTimer.newInstance();
+            }
+            ft.replace(R.id.currentfragment, fragmentTimer);
+            //fragmentTimer.startTimer();
+        }
+        else if(i == FRAGMENT_QUIZ){
+            if(fragmentQuiz == null){
+                fragmentQuiz = FragmentQuiz.newInstance(mHuntManager);
+            }
+            ft.replace(R.id.currentfragment, fragmentQuiz);
+
+        }
+        else if(i == FRAGMENT_BADGE_OBTAINED){
+            if(fragmentBadgeObtained == null){
+                fragmentBadgeObtained = FragmentBadgeObtained.newInstance(mHuntManager);
+            }
+            ft.replace(R.id.currentfragment, fragmentBadgeObtained);
+
+        }
+        Log.e(TAG, "committing...");
         ft.commit();
+
+        if(i == FRAGMENT_TIMER) {
+            getChildFragmentManager().executePendingTransactions();
+            fragmentTimer.startTimer();
+        }
+        else if(i == FRAGMENT_GOOGLE_MAPS) {
+            getChildFragmentManager().executePendingTransactions();
+            fragmentGoogleMaps.updateFocusHunts();
+        }
     }
 
     public void onBackPressed(){
@@ -144,6 +184,11 @@ public class FragmentMap extends Fragment implements IFragmentSwitcherListener{
     public void updateFocusHunts(){
         if(fragmentGoogleMaps != null){
             fragmentGoogleMaps.updateFocusHunts();
+        }
+    }
+    public void updateSpinner(){
+        if(fragmentGoogleMaps != null){
+            fragmentGoogleMaps.updateSpinner();
         }
     }
 }
