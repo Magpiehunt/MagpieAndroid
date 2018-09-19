@@ -1,55 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/spinnercontainer"
-        android:background="@color/colorMagpieWhite">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/txt_no_hunt_selected"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:id="@+id/badge_completed"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@+id/spinner"
-            android:layout_centerVertical="true"
+            android:visibility="visible">
+
+            <RelativeLayout
+                android:id="@+id/badge_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorMagpieBlack"
+                android:paddingBottom="30dp"
+                android:paddingTop="30dp">
+
+                <ImageView
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/example_super_badge" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/badge_container"
+                android:background="@drawable/action_bar_gradient"
+                android:paddingBottom="15dp"
+                android:paddingTop="15dp">
+
+                <TextView
+                    android:id="@+id/txt_collection_complete"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/montserrat_medium"
+                    android:gravity="center_horizontal"
+                    android:text="YOUR COLLECTION IS COMPLETE!"
+                    android:textColor="@color/colorMagpieWhite"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/txt_collection_complete"
+                    android:fontFamily="@font/montserrat_medium"
+                    android:gravity="center_horizontal"
+                    android:text="SWIPE LEFT TO REDEEM YOUR AWARD"
+                    android:textColor="@color/colorMagpieWhite"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/badge_completed"
+            android:id="@+id/spinnercontainer"
+            android:background="@drawable/border_set_bottom">
+
+            <TextView
+                android:id="@+id/txt_no_hunt_selected"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@+id/spinner"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="10dp"
+                android:fontFamily="@font/material"
+                android:text="NO HUNTS SELECTED"
+                android:visibility="invisible"
+                android:textColor="@android:color/holo_red_dark" />
+
+            <com.davis.tyler.magpiehunt.Spinners.SpinnerHuntFilter
+                android:id="@+id/spinner"
+                android:layout_width="140dp"
+                android:dropDownWidth="400dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/standard_button_gray"/>
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignRight="@+id/spinner"
+                android:layout_marginRight="10dp"
+                android:layout_centerVertical="true"
+                android:src="@drawable/temp_dropdown_arrow_down"
+                />
+        </RelativeLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/landmarksRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="0dp"
+            android:minHeight="300dp"
+            android:layout_below="@+id/spinnercontainer"
             android:layout_alignParentLeft="true"
-            android:layout_marginLeft="10dp"
-            android:fontFamily="@font/material"
-            android:text="NO HUNTS SELECTED"
-            android:visibility="invisible"
-            android:textColor="@android:color/holo_red_dark" />
-
-        <com.davis.tyler.magpiehunt.SpinnerHuntFilter
-            android:id="@+id/spinner"
-            android:layout_width="140dp"
-            android:dropDownWidth="400dp"
-            android:layout_marginRight="15dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
-            android:background="@drawable/add_collections_button_bg"/>
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_alignRight="@+id/spinner"
-            android:layout_marginRight="10dp"
-            android:layout_centerVertical="true"
-            android:src="@drawable/temp_dropdown_arrow_down"
-            />
+            android:background="@color/colorMagpieWhite"/>
     </RelativeLayout>
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/landmarksRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="0dp"
-        android:layout_below="@+id/spinnercontainer"
-        android:layout_alignParentLeft="true"
-        android:background="@color/colorMagpieWhite"/>
-</RelativeLayout>

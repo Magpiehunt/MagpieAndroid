@@ -1,4 +1,4 @@
-package com.davis.tyler.magpiehunt;
+package com.davis.tyler.magpiehunt.Location;
 
 import android.Manifest;
 import android.app.Activity;
@@ -48,7 +48,7 @@ public class LocationTracker implements ActivityCompat.OnRequestPermissionsResul
     private GoogleMap gMap;
     private boolean hasPermission = false;
     //private GPSTracker gpsTracker;
-    private static double validDistanceInMiles = 1;//change this later to whatever the valid distance you decide on then
+    private static double validDistanceInMiles = 4;//change this later to whatever the valid distance you decide on then
     private LocationManager mLocationManager;
     private LocationListener mLocationListener;
     private HuntManager mHuntManager;

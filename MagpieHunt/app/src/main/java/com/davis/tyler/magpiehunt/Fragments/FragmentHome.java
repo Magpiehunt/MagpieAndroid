@@ -1,6 +1,5 @@
 package com.davis.tyler.magpiehunt.Fragments;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -11,8 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
-import com.davis.tyler.magpiehunt.LocationTracker;
-import com.davis.tyler.magpiehunt.QRFragment;
 import com.davis.tyler.magpiehunt.R;
 
 public class FragmentHome extends Fragment {
@@ -20,8 +17,14 @@ public class FragmentHome extends Fragment {
     public static final int FRAGMENT_LANDMARK_LIST = 0;
     public static final int FRAGMENT_LANDMARK_INFO = 1;
     public static final int FRAGMENT_QR_READER= 2;
+    public static final int FRAGMENT_QUIZ = 3;
+    public static final int FRAGMENT_TIMER = 4;
+    public static final int FRAGMENT_BADGE_OBTAINED = 5;
     private FragmentLandmarkList mLandmarkListFragment;
     private FragmentLandmarkInfo mFragmentLandmarkInfo;
+    private FragmentQuiz fragmentQuiz;
+    private FragmentTimer fragmentTimer;
+    private FragmentBadgeObtained fragmentBadgeObtained;
     private HuntManager mHuntManager;
     private int curFrag;
 
@@ -83,6 +86,7 @@ public class FragmentHome extends Fragment {
         if(i == FRAGMENT_LANDMARK_LIST) {
             Log.e(TAG, "Switching to list");
             if(mLandmarkListFragment == null) {
+                Log.e(TAG, "landmarklist null");
                 //collectionFragment = FragmentGoogleMaps.newInstance(mHuntManager);
                 mLandmarkListFragment = FragmentLandmarkList.newInstance(mHuntManager);
             }
@@ -92,17 +96,53 @@ public class FragmentHome extends Fragment {
         else if(i == FRAGMENT_LANDMARK_INFO){
             Log.e(TAG, "Switching to info");
             if(mFragmentLandmarkInfo == null){
+
                 mFragmentLandmarkInfo = FragmentLandmarkInfo.newInstance(mHuntManager);
             }
             ft.replace(R.id.currentfragment, mFragmentLandmarkInfo);
         }
-        else if(i == FRAGMENT_QR_READER)
-            ft.replace(R.id.currentfragment, QRFragment.newInstance(mHuntManager));
+        else if(i == FRAGMENT_QR_READER) {
+            ft.replace(R.id.currentfragment, FragmentQR.newInstance(mHuntManager));
+        }
+        else if(i == FRAGMENT_TIMER){
+            if(fragmentTimer == null){
+                fragmentTimer = FragmentTimer.newInstance();
+            }
+            ft.replace(R.id.currentfragment, fragmentTimer);
+
+        }
+        else if(i == FRAGMENT_QUIZ){
+            if(fragmentQuiz == null){
+                fragmentQuiz = FragmentQuiz.newInstance(mHuntManager);
+            }
+            ft.replace(R.id.currentfragment, fragmentQuiz);
+
+        }
+        else if(i == FRAGMENT_BADGE_OBTAINED){
+            if(fragmentBadgeObtained == null){
+                fragmentBadgeObtained = FragmentBadgeObtained.newInstance(mHuntManager);
+            }
+            ft.replace(R.id.currentfragment, fragmentBadgeObtained);
+
+        }
         ft.commit();
+        getChildFragmentManager().executePendingTransactions();
+        if(i == FRAGMENT_TIMER) {
+            fragmentTimer.startTimer();
+            Log.e(TAG, "timer started");
+        }
+        else if(i == FRAGMENT_BADGE_OBTAINED){
+            fragmentBadgeObtained.updateInfo(mHuntManager.getFocusBadge());
+        }
     }
 
     public void updateFocusHunts(){
         if(mLandmarkListFragment != null)
             mLandmarkListFragment.updateFocusHunts();
+    }
+    public void updateSpinner(){
+        if(mLandmarkListFragment != null){
+            mLandmarkListFragment.updateSpinner();
+        }
     }
 }

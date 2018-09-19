@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="40dp"
+    android:layout_gravity="center_vertical">
+
+    <TextView
+        android:id="@+id/txt_incorrect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="INCORRECT!"
+        android:textColor="@color/colorMagpieRed"
+        android:textSize="35sp" />
+
+    <ImageView
+        android:id="@+id/img_timer"
+        android:layout_marginTop="50dp"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/ic_timer"
+        android:layout_below="@+id/txt_incorrect"/>
+
+    <TextView
+        android:id="@+id/txt_timer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/img_timer"
+        android:layout_centerHorizontal="true"
+        android:text="00:00:10"
+        android:textSize="60sp" />
+
+    <TextView
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txt_timer"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/montserrat_regular"
+        android:text="UNTIL YOUR NEXT ATTEMPT"
+        android:textColor="@color/colorMagpieDarkGray" />
+
+
+</RelativeLayout>

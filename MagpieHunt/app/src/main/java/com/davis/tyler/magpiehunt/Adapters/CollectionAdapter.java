@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.davis.tyler.magpiehunt.Fragments.FragmentHuntsList;
@@ -20,6 +21,7 @@ import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter;
 import com.github.aakira.expandablelayout.ExpandableLinearLayout;
 import com.github.aakira.expandablelayout.Utils;
 
+import java.util.LinkedList;
 import java.util.List;
 
 //import static com.loopj.android.http.AsyncHttpClient.log;
@@ -55,11 +57,14 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
     public CollectionHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // Create new view
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.collection_card, parent, false);
+                .inflate(R.layout.card_hunt, parent, false);
 
         return new CollectionHolder(view);
     }//end onCreateViewHolder
 
+    public void updateList(LinkedList<Hunt> list){
+        collectionList = list;
+    }
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(final CollectionHolder holder, final int position) {
@@ -105,6 +110,21 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
         return collectionList.size();
     }
 
+    public void removeItem(int position) {
+        collectionList.remove(position);
+        // notify the item removed by position
+        // to perform recycler view delete animations
+        // NOTE: don't call notifyDataSetChanged()
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, collectionList.size());
+    }
+
+    public void restoreItem(Hunt item, int position) {
+        collectionList.add(position, item);
+        // notify item added by position
+        notifyItemInserted(position);
+        notifyItemRangeChanged(position, collectionList.size());
+    }
     public class CollectionHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private static final String TAG = "CollectionHolder";
@@ -117,9 +137,13 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
         private TextView collectionAbbreviation;
         private ImageView imgThumb, expandArrow;
         private Hunt currentObject;
-        private LinearLayout card;
         private TextView description;
-        private TextView rating;
+        private TextView age;
+        private TextView numBadges;
+        private TextView rewardWorth;
+        private TextView rewardName;
+        public RelativeLayout viewBackground;
+        public LinearLayout viewForeground;
 
         CollectionHolder(View itemView) {
             super(itemView);
@@ -127,10 +151,15 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
             this.collectionAbbreviation = itemView.findViewById(R.id.tvAbbreviation_collection);
             this.imgThumb = itemView.findViewById(R.id.img_thumb_collection);
             this.expandArrow = itemView.findViewById(R.id.expandArrow_collection);
-            this.card = itemView.findViewById(R.id.card_collection);
+            viewBackground = itemView.findViewById(R.id.view_background);
+            viewForeground = itemView.findViewById(R.id.view_foreground);
             // expanded views
             expandableLinearLayout = itemView.findViewById(R.id.expandableLayout_collection);
             this.description = itemView.findViewById(R.id.dropdown_description_collection);
+            this.age = itemView.findViewById(R.id.collectionAge);
+            this.numBadges = itemView.findViewById(R.id.collectionBadges);
+            this.rewardWorth = itemView.findViewById(R.id.collectionRewardWorth);
+            this.rewardName = itemView.findViewById(R.id.collectionRewardName);
 
         }//end DVC
 
@@ -140,6 +169,7 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
             this.collectionTitle.setText(currentObject.getName());
             this.collectionAbbreviation.setText(currentObject.getAbbreviation());
             this.imgThumb.setImageResource(R.drawable.magpie_test_cardview_collectionimage);
+
             // use the following line once images are in the DB. for now, we will use a dummy.
 //            this.imgThumb.setImageResource(currentObject.getImage());
 //            setListeners(); // uncomment when click functionality implemented.
@@ -147,7 +177,7 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
 
         public void setListeners() {
             expandArrow.setOnClickListener(CollectionHolder.this);
-            card.setOnClickListener(CollectionHolder.this);
+            viewForeground.setOnClickListener(CollectionHolder.this);
             //TODO: change this listener to respond to a click of the whole card?
             //imgThumb.setOnClickListener(CollectionHolder.this);
         }//end setListeners
@@ -156,6 +186,10 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
             Hunt currentObject = collectionList.get(position);
 
             this.description.setText(currentObject.getDescription());
+            this.age.setText(currentObject.getAudience()+"+");
+            this.numBadges.setText(""+currentObject.getNumBadges());
+            this.rewardName.setText(currentObject.getAward().getName());
+            this.rewardWorth.setText(currentObject.getAward().getWorth()+"$");
 //            this.rating.setText(currentObject.getRating());
         }//end setExpandedData
 
@@ -163,7 +197,7 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
         public void onClick(View v) {
             switch (v.getId()) {
 
-                case R.id.card_collection:
+                case R.id.view_foreground:
                     Log.d(TAG, "CollectionClick: " + currentObject.getName());
                     Log.e(TAG, "clicked on: "+currentObject.getAbbreviation());
                     listener.onCollectionSelected(currentObject.getID(), currentObject.getName());

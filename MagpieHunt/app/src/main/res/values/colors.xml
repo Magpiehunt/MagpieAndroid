@@ -8,9 +8,13 @@
     <color name="colorMagpieBlue">#40AAF2</color>
     <color name="colorMagpieGreen">#52D291</color>
     <color name="colorMagpieBlack">#231F20</color>
-    <color name="colorMagpieDarkGray">#262626</color>
+    <color name="colorMagpieDarkGray">#A7ACB3</color>
     <color name="colorMagpieLightGray">#C8CDD5</color>
     <color name="colorMagpieWhite">#ffffff</color>
+    <color name="colorMagpieRed">#D0011B</color>
 
     <color name="translucent_grey">#88cccccc</color>
+    <color name="bg_row_background">#fa315b</color>
+    <color name="item_name">#535353</color>
+    <color name="description">#a9a9a9</color>
 </resources>

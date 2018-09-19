@@ -1,15 +1,95 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
     android:background="@color/colorMagpieWhite"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.magpiehunt.magpie.Fragments.SearchCollectionsFragment">
+    android:orientation="vertical">
 
+    <RelativeLayout
+        android:id="@+id/search_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/border_set_bottom">
+        <EditText
+            android:id="@+id/searchText"
+            android:singleLine="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:backgroundTint="@color/colorMagpieLightGray"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:textCursorDrawable="@color/colorMagpieGreen"
+            android:inputType="textPersonName"
+            android:textSize="14dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:hint="Enter ZIP, City or State"
+            android:textColor="@color/colorMagpieBlack"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/searchText"
+            android:layout_alignTop="@+id/searchText"
+            android:layout_marginRight="20dp"
+            android:text="⌕"
+            android:textColor="@color/colorMagpieGreen"
+            android:textSize="25sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/spinnercontainer"
+        android:layout_below="@id/search_container"
+        android:background="@drawable/border_set_bottom">
+
+        <TextView
+            android:id="@+id/txt_searchby"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="20dp"
+            android:layout_toLeftOf="@+id/spinner"
+            android:fontFamily="@font/material"
+            android:text="SORT BY: "
+            android:textColor="@color/colorMagpieDarkGray"
+            android:textSize="16dp" />
+
+
+
+        <com.davis.tyler.magpiehunt.Spinners.SpinnerSearchFilter
+            android:id="@+id/spinner"
+            android:layout_width="200dp"
+            android:dropDownWidth="400dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/standard_button_gray"/>
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignRight="@+id/spinner"
+            android:layout_marginRight="10dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/temp_dropdown_arrow_down"
+            />
+    </RelativeLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/searchView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></android.support.v7.widget.RecyclerView>
+        android:layout_height="match_parent"
+        android:layout_below="@id/spinnercontainer"></android.support.v7.widget.RecyclerView>
 
-</LinearLayout>
+</RelativeLayout>

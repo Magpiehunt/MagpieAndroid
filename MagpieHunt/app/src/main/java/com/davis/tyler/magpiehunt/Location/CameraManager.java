@@ -1,4 +1,4 @@
-package com.davis.tyler.magpiehunt;
+package com.davis.tyler.magpiehunt.Location;
 
 import java.io.Serializable;
 

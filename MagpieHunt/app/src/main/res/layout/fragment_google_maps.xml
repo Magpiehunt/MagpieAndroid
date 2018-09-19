@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/spinnercontainer">
-        <com.davis.tyler.magpiehunt.SpinnerHuntFilter
+        <com.davis.tyler.magpiehunt.Spinners.SpinnerHuntFilter
             android:id="@+id/spinner"
             android:layout_width="140dp"
             android:dropDownWidth="400dp"
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
-            android:background="@drawable/add_collections_button_bg"
+            android:background="@drawable/standard_button_gray"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="15dp" />
         <ImageView

@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
@@ -21,13 +20,16 @@ public class FragmentSearch extends Fragment implements FragmentHuntsList.OnColl
     private FragmentHuntsList collectionFragment;
     private HuntManager mHuntManager;
     private FragmentSearchHunts searchCollectionsFragment;
+    private int curFrag;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
         Log.e(TAG, "ONCREATE");
+        curFrag = 0;
         setFragment(FRAGMENT_COLLECTIONS);
+
         return view;
     }
 
@@ -53,6 +55,9 @@ public class FragmentSearch extends Fragment implements FragmentHuntsList.OnColl
 
     }
 
+    public void updateHuntsList(){
+        collectionFragment.updateList();
+    }
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
@@ -64,7 +69,16 @@ public class FragmentSearch extends Fragment implements FragmentHuntsList.OnColl
         }
     }
 
+    public void onBackPressed(){
+        Log.e(TAG, "curfrag: "+curFrag);
+        if(curFrag == FRAGMENT_SEARCH){
+            setFragment(FRAGMENT_COLLECTIONS);
+            curFrag = FRAGMENT_COLLECTIONS;
+        }
+    }
+
     public void setFragment(int i) {
+        curFrag = i;
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         if(i == FRAGMENT_COLLECTIONS) {
             if(collectionFragment == null) {
@@ -81,4 +95,11 @@ public class FragmentSearch extends Fragment implements FragmentHuntsList.OnColl
         ft.addToBackStack(null);
         ft.commit();
     }
+
+    public void hideSoftKeyboard(){
+        if(searchCollectionsFragment != null)
+            searchCollectionsFragment.hideSoftKeyboard();
+    }
+
+
 }

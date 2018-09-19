@@ -1,7 +1,6 @@
-package com.davis.tyler.magpiehunt;
+package com.davis.tyler.magpiehunt.Fragments;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -9,7 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,11 +15,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.davis.tyler.magpiehunt.Fragments.FragmentHome;
-import com.davis.tyler.magpiehunt.Fragments.FragmentLandmarkInfo;
-import com.davis.tyler.magpiehunt.Fragments.FragmentMap;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
+import com.davis.tyler.magpiehunt.R;
 import com.google.zxing.Result;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
@@ -36,7 +32,7 @@ import static android.app.Activity.RESULT_OK;
  */
 //TODO handle denied permissions better
 //TODO result of qr scan could be handled better
-public class QRFragment extends Fragment implements ZXingScannerView.ResultHandler{
+public class FragmentQR extends Fragment implements ZXingScannerView.ResultHandler{
     private static final String TAG = "Fragment QR";
     private boolean status = false, isChildOfLandmark = false;
     private Button scanButton;
@@ -45,7 +41,7 @@ public class QRFragment extends Fragment implements ZXingScannerView.ResultHandl
     private Badge mBadge;
     private HuntManager mHuntManager;
 
-    public QRFragment() {
+    public FragmentQR() {
         // Required empty public constructor
     }
 
@@ -59,8 +55,8 @@ public class QRFragment extends Fragment implements ZXingScannerView.ResultHandl
 
     }
 
-    public static QRFragment newInstance(HuntManager huntManager) {
-        QRFragment f = new QRFragment();
+    public static FragmentQR newInstance(HuntManager huntManager) {
+        FragmentQR f = new FragmentQR();
         Bundle args = new Bundle();
         args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
@@ -154,7 +150,7 @@ public class QRFragment extends Fragment implements ZXingScannerView.ResultHandl
     public void handleResult(Result result) {
         Log.e(TAG, "Handling result");
         if(isChildOfLandmark){
-            Intent i = new Intent(getContext(), QRFragment.class);
+            Intent i = new Intent(getContext(), FragmentQR.class);
             i.putExtra("qrresult", result.getText());
             getTargetFragment().onActivityResult(getTargetRequestCode(), RESULT_OK, i);
             getFragmentManager().popBackStack();
@@ -162,7 +158,15 @@ public class QRFragment extends Fragment implements ZXingScannerView.ResultHandl
         else{
             if(mBadge.getQRurl() != null && mBadge.getQRurl().equals(result.getText())) {
                 Toast.makeText(getContext(), "Found: " + result.getText(), Toast.LENGTH_SHORT).show();
-                //TODO from here go to badge complete screen
+                Fragment f = getParentFragment();
+                mHuntManager.getFocusBadge().setmIsCompleted(true);
+
+                if(f instanceof FragmentHome){
+                    ((FragmentHome) f).setFragment(FragmentHome.FRAGMENT_BADGE_OBTAINED);
+                }
+                else if(f instanceof FragmentMap){
+                    ((FragmentMap) f).setFragment(FragmentMap.FRAGMENT_BADGE_OBTAINED);
+                }
             }
             else {
                 Toast.makeText(getContext(), "Wrong QR Code... found: " + result.getText(), Toast.LENGTH_SHORT).show();

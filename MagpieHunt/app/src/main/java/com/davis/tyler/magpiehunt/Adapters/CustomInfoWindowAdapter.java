@@ -39,7 +39,7 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter, Goo
 
         Badge badge = mHuntManager.getBadgeByID(title);
 
-            landmarkTitle.setText(badge.getLandmarkName());
+            landmarkTitle.setText(badge.getName());
         Bitmap landmarkpic = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ewu);
             //((ImageView)view.findViewById(R.id.markerprofilepicture)).setImageBitmap(badge.getLandmarkPicture());
         ((ImageView)view.findViewById(R.id.markerprofilepicture)).setImageBitmap(landmarkpic);
