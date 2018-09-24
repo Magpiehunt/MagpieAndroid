@@ -5,13 +5,14 @@
     android:layout_marginBottom="4dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_alignParentTop="true"
     android:background="@color/colorMagpieWhite">
 
     <LinearLayout
         android:id="@+id/prize_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorMagpieWhite"
+        android:background="@drawable/border_set_bottom"
         android:orientation="horizontal">
 
         <ImageView
@@ -55,7 +56,7 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/expandArrow_search"
+            android:id="@+id/txt_new"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

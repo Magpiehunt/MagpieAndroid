@@ -134,6 +134,10 @@ public class FragmentHome extends Fragment {
         else if(i == FRAGMENT_BADGE_OBTAINED){
             fragmentBadgeObtained.updateInfo(mHuntManager.getFocusBadge());
         }
+        else if(i == FRAGMENT_QUIZ){
+            fragmentQuiz.updateFragment();
+
+        }
     }
 
     public void updateFocusHunts(){

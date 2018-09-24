@@ -12,11 +12,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.davis.tyler.magpiehunt.Activities.ActivityBase;
+import com.davis.tyler.magpiehunt.GrayScaleTransformation;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.R;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 public class FragmentLandmarkInfo extends Fragment implements View.OnClickListener {
     private static final String TAG = "LandmarkInfo Fragment";
@@ -39,18 +43,35 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
             if(view.getId() == R.id.mapButton)
                 mListener.onMapClicked(mBadge);
             else if(view.getId() == R.id.collectButton || view.getId() == R.id.collectText || view.getId() == R.id.foregroundCollect){
+                if(mBadge.getIsCompleted()){
+                    Toast.makeText(getContext(), "Badge already completed.", Toast.LENGTH_LONG ).show();
+                    return;
+                }
                 if(((ActivityBase)getActivity()).isCloseEnough(mBadge)) {
-                    if(mBadge.getQRurl() == null || mBadge.getQRurl().equals("")) {
+                    System.out.println("qr code: "+mBadge.getQRurl());
+                    if((mBadge.getQRurl() == null || mBadge.getQRurl().equalsIgnoreCase("null"))&& mBadge.getQuiz() == null){
+                        Toast.makeText(getContext(), "No quiz or qr code found...", Toast.LENGTH_LONG).show();
+                        mBadge.setmIsCompleted(true);
                         if (getParentFragment() instanceof FragmentMap) {
-                            Log.e(TAG, "Switching to Quiz fragment...");
+
+                            ((FragmentMap) getParentFragment()).setFragment(FragmentMap.FRAGMENT_BADGE_OBTAINED);
+                        } else if (getParentFragment() instanceof FragmentHome) {
+                            ((FragmentHome) getParentFragment()).setFragment(FragmentHome.FRAGMENT_BADGE_OBTAINED);
+                        }
+                    }
+                    else if(mBadge.getQuiz() != null) {
+                        Log.e(TAG, "Switching to Quiz fragment...");
+                        if (getParentFragment() instanceof FragmentMap) {
+
                             ((FragmentMap) getParentFragment()).setFragment(FragmentMap.FRAGMENT_QUIZ);
                         } else if (getParentFragment() instanceof FragmentHome) {
                             ((FragmentHome) getParentFragment()).setFragment(FragmentHome.FRAGMENT_QUIZ);
                         }
                     }
                     else{
+                        Log.e(TAG, "Switching to QR code fragment...");
                         if (getParentFragment() instanceof FragmentMap) {
-                            Log.e(TAG, "Switching to QR code fragment...");
+
                             ((FragmentMap) getParentFragment()).setFragment(FragmentMap.FRAGMENT_QR_READER);
                         } else if (getParentFragment() instanceof FragmentHome) {
                             ((FragmentHome) getParentFragment()).setFragment(FragmentHome.FRAGMENT_QR_READER);
@@ -94,8 +115,16 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
         }
         img_badgeButton.setImageBitmap(bitmap);
         img_badgeButton.setOnClickListener(this);
-        img_landmark.setImageBitmap(landmarkpic);
+        //img_landmark.setImageBitmap(landmarkpic);
+        Picasso.get().load("http://206.189.204.95/landmark/image/"+mBadge.getLandmarkImage()).fit().centerCrop().into(img_landmark);
+        if(mBadge.getIsCompleted())
+            Picasso.get().load("http://206.189.204.95/badge/icon/"+mBadge.getIcon()).resize(200,200).into(img_badgeButton);
+        else
+            Picasso.get().load("http://206.189.204.95/badge/icon/"+mBadge.getIcon()).transform(new GrayScaleTransformation(Picasso.get())).resize(200,200).into(img_badgeButton);
         txt_Title.setText(mBadge.getLandmarkName());
+        if(mBadge.getIsCompleted()){
+            txt_Collect.setText("YOU ROCK!");
+        }
         txt_Description.setText(mBadge.getDescription());
         txt_badgeName.setText(mBadge.getName());
         return view;

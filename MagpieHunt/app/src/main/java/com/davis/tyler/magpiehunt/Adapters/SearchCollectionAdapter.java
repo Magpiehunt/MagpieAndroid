@@ -2,6 +2,8 @@ package com.davis.tyler.magpiehunt.Adapters;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -11,15 +13,20 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.davis.tyler.magpiehunt.FileSystemManager;
 import com.davis.tyler.magpiehunt.Fragments.FragmentSearch;
 import com.davis.tyler.magpiehunt.Fragments.FragmentSearchHunts;
+import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.R;
 import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter;
 import com.github.aakira.expandablelayout.ExpandableLinearLayout;
 import com.github.aakira.expandablelayout.Utils;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -160,7 +167,8 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
 
         void setCondensedData(int position) {
             currentObject = collectionList.get(position);
-
+            System.out.println("querying for superbadge of: "+currentObject.getName());
+            Picasso.get().load("http://206.189.204.95/superbadge/image/"+currentObject.getAward().getSuperBadgeIcon()).fit().centerCrop().into(imgThumb);
 
             this.collectionTitle.setText(currentObject.getName());
             this.collectionAbbreviation.setText(currentObject.getAbbreviation());
@@ -178,6 +186,7 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
             this.numBadges.setText(""+currentObject.getNumBadges());
             this.rewardName.setText(currentObject.getAward().getName());
             this.rewardWorth.setText(currentObject.getAward().getWorth()+"$");
+
 //            this.rating.setText(currentObject.getRating());
         }//end setExpandedData
 
@@ -185,6 +194,8 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
         public void setListeners() {
             expandArrow.setOnClickListener(CollectionHolder.this);
             addCollectionBtn.setOnClickListener(CollectionHolder.this);
+            /*if(this.expandableLinearLayout.isExpanded())
+                this.expandableLinearLayout.toggle();*/
             //TODO: change this listener to respond to a click of the whole card?
             // imgThumb.setOnClickListener(CollectionHolder.this);
             //addBtn.setOnClickListener(CollectionHolder.this);
@@ -195,7 +206,6 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
             switch (v.getId()) {
                 case R.id.expandArrow_search:
                     this.expandableLinearLayout.toggle();
-
                     break;
 
                 case R.id.img_thumb_search:
@@ -214,7 +224,20 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
                         currentObject.setmIsDownloaded(true);
                         huntManager.addHunt(currentObject);
                         huntManager.getSelectedHunts().add(currentObject);
+                        FileSystemManager fm = new FileSystemManager();
+                        try {
+                            fm.addHuntList(listener.getContext(), huntManager.getAllHunts());
+                        }catch(Exception e){
+                            e.printStackTrace();
+                            Toast.makeText(listener.getContext(), "Download failed.", Toast.LENGTH_LONG).show();
+                        }
                         listener.onAddHuntListener();
+                        //TODO implement this
+                        //saveImagesToFileSystem(h);
+
+                        //TODO IMPORTANT
+                        //wherever there is an img, use picasso to get img from filesystem
+                        //if failed, use picasso to query the cms for img
 
                     }
                     //     break;
@@ -223,7 +246,65 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
             }//end switch
         }//end onClick
 
+        private void saveImagesToFileSystem(Hunt h){
+            LinkedList<Badge> badges = h.getAllBadges();
+            for(Badge b: badges){
+                Target target = new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        System.out.println("icon received: "+bitmap);
+                        //call filemethod
+                    }
 
+                    @Override
+                    public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+                        e.printStackTrace();
+                    }
+
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+                    }
+                };
+                Picasso.get().load("http://206.189.204.95/badge/icon/"+b.getIcon()).into(target);
+                Target targetlandmark = new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        System.out.println("icon received: "+bitmap);
+                        // call file method
+                    }
+
+                    @Override
+                    public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+                        e.printStackTrace();
+                    }
+
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+                    }
+                };
+                Picasso.get().load("http://206.189.204.95/landmark/image/"+b.getLandmarkImage()).into(targetlandmark);
+            }
+            Target targetsuper = new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    System.out.println("icon received: "+bitmap);
+                    // call file method
+                }
+
+                @Override
+                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+                    e.printStackTrace();
+                }
+
+
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+                }
+            };
+            Picasso.get().load("http://206.189.204.95/superbadge/image/"+h.getAward().getSuperBadgeIcon()).into(targetsuper);
+        }
 
 
         // will be used at some point.

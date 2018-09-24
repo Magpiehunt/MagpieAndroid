@@ -56,7 +56,8 @@ public class FragmentSearch extends Fragment implements FragmentHuntsList.OnColl
     }
 
     public void updateHuntsList(){
-        collectionFragment.updateList();
+        if(collectionFragment != null)
+            collectionFragment.updateList();
     }
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {

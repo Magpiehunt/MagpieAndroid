@@ -15,6 +15,7 @@ import com.davis.tyler.magpiehunt.Hunts.Award;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.R;
+import com.squareup.picasso.Picasso;
 
 public class FragmentPrizeInfo extends Fragment {
     private static final String TAG = "Prizes Info Fragment";
@@ -34,8 +35,15 @@ public class FragmentPrizeInfo extends Fragment {
         img_badge = view.findViewById(R.id.img_super_badge);
         //txt_code.setText(""+mHuntManager.getFocusAward().getID());
         Award award = mHuntManager.getFocusAward();
+        System.out.println("award: "+award+" setting to new false");
+        award.setIsNew(false);
         txt_prize.setText(award.getName());
         txt_terms.setText("Redeemable only at "+award.getAddress()+". "+award.getTerms());
+
+        Picasso.get().load("http://206.189.204.95/superbadge/image/"+award.getSuperBadgeIcon())
+                .fit()
+                .centerCrop()
+                .into(img_badge);
 
         return view;
     }

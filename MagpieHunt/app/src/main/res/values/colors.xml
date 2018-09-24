@@ -6,6 +6,7 @@
 
 
     <color name="colorMagpieBlue">#40AAF2</color>
+    <color name="colorMagpieBlend">#48BCC6</color>
     <color name="colorMagpieGreen">#52D291</color>
     <color name="colorMagpieBlack">#231F20</color>
     <color name="colorMagpieDarkGray">#A7ACB3</color>

@@ -1,5 +1,7 @@
 package com.davis.tyler.magpiehunt.Activities;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,6 +14,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.davis.tyler.magpiehunt.FileSystemManager;
 import com.davis.tyler.magpiehunt.Location.CameraManager;
 import com.davis.tyler.magpiehunt.Fragments.FragmentLandmarkList;
 import com.davis.tyler.magpiehunt.Fragments.FragmentAccount;
@@ -27,6 +30,10 @@ import com.davis.tyler.magpiehunt.R;
 import com.davis.tyler.magpiehunt.Adapters.SectionsStatePagerAdapter;
 import com.davis.tyler.magpiehunt.Spinners.SpinnerHuntFilter;
 import com.davis.tyler.magpiehunt.Spinners.SpinnerSearchFilter;
+import com.davis.tyler.magpiehunt.Views.ViewPagerToggleSwipe;
+
+import java.io.IOException;
+import java.text.ParseException;
 
 public class ActivityBase extends AppCompatActivity implements
         FragmentLandmarkList.OnLandmarkSelectedListener, FragmentLandmarkInfo.onClickListener,
@@ -38,7 +45,7 @@ public class ActivityBase extends AppCompatActivity implements
     public static final int FRAGMENT_SEARCH = 3;
     public static final int FRAGMENT_PRIZES = 4;
     private BottomNavigationView mNavigationView;
-    private ViewPager mViewPager;
+    private ViewPagerToggleSwipe mViewPager;
     private FragmentMap fragmentMap;
     private FragmentSearch fragmentSearch;
     private FragmentHome fragmentHome;
@@ -59,6 +66,32 @@ public class ActivityBase extends AppCompatActivity implements
             mHuntManager = new HuntManager(this);
         }
         mCameraManager = new CameraManager();
+        FileSystemManager fm = new FileSystemManager();
+        String ret = "";
+        try {
+            //fm.addTestHunt(this);
+            mHuntManager.addAllHunts(fm.getHuntsFromFile(this));
+            mHuntManager.setAllHuntsFocused();
+        }catch(IOException e)
+        {
+            System.out.println("check: IOException"+e.getMessage());
+        }
+        catch(ParseException e)
+        {
+            System.out.println("check: ParseException"+e.getMessage());
+        }
+        Bitmap bitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.example_badge);
+        Bitmap test = null;
+        try {
+            fm.saveImageToInternalStorage(this, bitmap, "test1.png");
+            test = fm.loadImageFromStorage(this, "test1.png");
+            System.out.println("Hopefully this works!: "+test);
+            fm.printImagesDirectory(this);
+        }
+        catch(Exception e)
+        {
+            System.out.println("error: "+e.getMessage()+e.getStackTrace());
+        }
         getSupportActionBar().setBackgroundDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.action_bar_gradient, null));
 
         mViewPager = findViewById(R.id.currentfragment);
@@ -106,6 +139,7 @@ public class ActivityBase extends AppCompatActivity implements
                                 break;
                             case R.id.menu_search:
                                 mViewPager.setCurrentItem(FRAGMENT_SEARCH);
+                                updateSearch();
                                 break;
                             case R.id.menu_prizes:
                                 if(fragmentPrizes != null){
@@ -171,6 +205,7 @@ public class ActivityBase extends AppCompatActivity implements
             case FRAGMENT_SEARCH:
                 getSupportActionBar().setTitle("MY COLLECTIONS");
                 mNavigationView.setSelectedItemId(R.id.menu_search);
+                updateSearch();
                 break;
             case FRAGMENT_PRIZES:
                 getSupportActionBar().setTitle("MY PRIZES");
@@ -230,6 +265,7 @@ public class ActivityBase extends AppCompatActivity implements
                     case FRAGMENT_SEARCH:
                         getSupportActionBar().setTitle("MY COLLECTIONS");
                         mNavigationView.setSelectedItemId(R.id.menu_search);
+                        updateSearch();
                         break;
                     case FRAGMENT_PRIZES:
                         getSupportActionBar().setTitle("MY PRIZES");
@@ -327,8 +363,15 @@ public class ActivityBase extends AppCompatActivity implements
     }
 
     public void updateHome(){
+        System.out.println("updating home");
         fragmentHome.updateFocusHunts();
         fragmentHome.updateSpinner();
+    }
+
+    public void updateSearch(){
+        if(fragmentSearch != null){
+            fragmentSearch.updateHuntsList();
+        }
     }
     public void updateMap(){
         fragmentMap.updateFocusHunts();
@@ -353,7 +396,15 @@ public class ActivityBase extends AppCompatActivity implements
         Toast.makeText(this, "Successfully added hunt", Toast.LENGTH_SHORT).show();
     }
 
+    public void swipedToPrize(){
+        changePage(FRAGMENT_PRIZES);
+        mHuntManager.setFocusAward(mHuntManager.getSingleSelectedHunt().getID());
+        fragmentPrizes.setFragment(FragmentPrizes.FRAGMENT_PRIZES_INFO);
+
+    }
     public HuntManager getmHuntManager() {
         return mHuntManager;
     }
+
+    public void setPagerSwipe(boolean b){mViewPager.setPagingEnabled(b);}
 }

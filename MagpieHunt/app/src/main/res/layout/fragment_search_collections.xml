@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:background="@color/colorMagpieWhite"
@@ -12,6 +13,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:background="@drawable/border_set_bottom">
+
+
+
         <EditText
             android:id="@+id/searchText"
             android:singleLine="true"
@@ -31,6 +35,7 @@
             />
 
         <TextView
+            android:id="@+id/magnify"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignRight="@+id/searchText"
@@ -90,6 +95,9 @@
         android:id="@+id/searchView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/spinnercontainer"></android.support.v7.widget.RecyclerView>
+        android:layout_below="@id/spinnercontainer">
+
+    </android.support.v7.widget.RecyclerView>
+
 
 </RelativeLayout>

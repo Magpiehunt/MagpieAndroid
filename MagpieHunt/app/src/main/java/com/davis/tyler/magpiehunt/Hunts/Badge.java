@@ -23,6 +23,7 @@ public class Badge implements Serializable, Comparable<Badge>{
     private double mDistance;
     private int mHuntID;
     private String mQRurl;
+    private Quiz quiz;
 
     public Badge(int id, String description, String icon, String lmName, double lat,
                  double lon, String name, boolean isCompleted, int huntID, String landmarkPic){
@@ -118,5 +119,8 @@ public class Badge implements Serializable, Comparable<Badge>{
     public void setmHuntID(int mHuntID) {
         this.mHuntID = mHuntID;
     }
+
+    public Quiz getQuiz(){return this.quiz;}
+    public void setQuiz(Quiz quiz){ this.quiz = quiz;}
 
 }

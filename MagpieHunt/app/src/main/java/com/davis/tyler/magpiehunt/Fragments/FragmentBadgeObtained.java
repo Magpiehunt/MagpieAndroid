@@ -16,6 +16,7 @@ import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.R;
+import com.squareup.picasso.Picasso;
 
 public class FragmentBadgeObtained extends Fragment implements View.OnClickListener {
     private static final String TAG = "Prizes Info Fragment";
@@ -32,9 +33,21 @@ public class FragmentBadgeObtained extends Fragment implements View.OnClickListe
         relativeLayout = view.findViewById(R.id.relativelayout);
         txt_name = view.findViewById(R.id.txt_badge_name);
         img_badge = view.findViewById(R.id.img_badge);
-        txt_name.setText(mHuntManager.getFocusBadge().getName());
+        /*txt_name.setText(mHuntManager.getFocusBadge().getName());
+        if(mHuntManager.getSelectedHuntsSize() == 1){
+            mHuntManager.getSingleSelectedHunt().updateIsCompleted();
+        }
+        */
+        Badge b = mHuntManager.getFocusBadge();
+        txt_name.setText(b.getName());
+        Hunt h = mHuntManager.getHuntByID(b.getHuntID());
+        h.updateIsCompleted();
 
         relativeLayout.setOnClickListener(this);
+        Picasso.get().load("http://206.189.204.95/badge/icon/"+mHuntManager.getFocusBadge().getIcon())
+                .resize(200,200)
+                .into(img_badge);
+
         return view;
     }
 

@@ -35,6 +35,7 @@ public class HuntManager implements Serializable{
     private Hunt mFocusHunt;
     private Award mFocusAward;
     private Set<Hunt> mSelectedHunts;
+    private LinkedList<Hunt> mSearchHunts;
     private boolean huntsFilterUpdated;
 
 
@@ -44,7 +45,7 @@ public class HuntManager implements Serializable{
         huntsFilterUpdated = false;
         parseDownloadedHunts();
         mSelectedHunts = new HashSet<>();
-        addTestHunt(context);//this is a temporary method to make up local hunts
+        //addTestHunt(context);//this is a temporary method to make up local hunts
         for(Hunt h: getAllHunts()){
             if(h.isFocused()) {
                 mSelectedHunts.add(h);
@@ -54,7 +55,7 @@ public class HuntManager implements Serializable{
 
     }
 
-    public void addTestHunt(Context context){
+    /*public void addTestHunt(Context context){
         HashMap<Integer, Badge> badges = new HashMap<>();
         //Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.example_badge);
         //Bitmap landmarkpic = BitmapFactory.decodeResource(context.getResources(), R.drawable.ewu);
@@ -88,7 +89,7 @@ public class HuntManager implements Serializable{
         hunt1.setIsFocused(true);
         hunt1.setmIsCompleted(false);
         mHunts.put(hunt1.getID(), hunt1);
-    }
+    }*/
 
     public void addHunt(Hunt hunt){
         mHunts.put(hunt.getID(), hunt);
@@ -101,14 +102,15 @@ public class HuntManager implements Serializable{
 
     }
     public Hunt getHuntByID(int id){
-        LinkedList<Hunt> ll = new LinkedList<>();
+        return mHunts.get(id);
+        /*LinkedList<Hunt> ll = new LinkedList<>();
         Iterator it = mHunts.entrySet().iterator();
         while (it.hasNext()) {
             HashMap.Entry pair = (HashMap.Entry)it.next();
             if(((Hunt)pair.getValue()).getID() == id)
                 return((Hunt)pair.getValue());
         }
-        return null;
+        return null;*/
     }
     public LinkedList<Hunt> getAllUnCompletedHunts(){
         LinkedList<Hunt> ll = new LinkedList<>();
@@ -237,6 +239,14 @@ public class HuntManager implements Serializable{
         mHunts.remove(id);
     }
 
+    public void setmSearchHunts(LinkedList<Hunt> ll){
+        mSearchHunts = ll;
+    }
+
+    public LinkedList<Hunt> getmSearchHunts() {
+        return mSearchHunts;
+    }
+
     public Bitmap toGrayscale(Bitmap bmpOriginal)
     {
         int width, height;
@@ -252,5 +262,21 @@ public class HuntManager implements Serializable{
         paint.setColorFilter(f);
         c.drawBitmap(bmpOriginal, 0, 0, paint);
         return bmpGrayscale;
+    }
+
+    public void setAllHuntsFocused()
+    {
+        for(Hunt h: getAllHunts()){
+            if(h.isFocused()) {
+                mSelectedHunts.add(h);
+                mFocusHunt = h;
+            }
+        }
+    }
+
+    public void addAllHunts(LinkedList<Hunt> ll){
+        for(Hunt h: ll){
+            mHunts.put(h.getID(), h);
+        }
     }
 }

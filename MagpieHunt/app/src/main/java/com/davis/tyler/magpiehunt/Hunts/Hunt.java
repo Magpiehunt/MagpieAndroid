@@ -17,8 +17,8 @@ public class Hunt implements Serializable {
     private int mID;
     private String mAbbreviation;
     private boolean mIsAvailable;
-    private Date mDateStart;
-    private Date mDateEnd;
+    private String mDateStart;
+    private String mDateEnd;
     private String mName;
     private boolean mIsOrdered;
     private String mDescription;
@@ -34,7 +34,7 @@ public class Hunt implements Serializable {
 
 
     public Hunt(HashMap<Integer, Badge> badges, Award award, boolean isCompleted, int id,
-                String abbreviation, boolean isAvailable, Date start, Date end, String name,
+                String abbreviation, boolean isAvailable, String start, String end, String name,
                 boolean isOrdered, String desc, String city, String state, int zip,
                 String sponsor){
         mBadges = badges;
@@ -70,8 +70,8 @@ public class Hunt implements Serializable {
         mAbbreviation = s;
     }
     public void setIsAvailable(boolean b){ mIsAvailable = b; }
-    public void setmDateStart(Date d){ mDateStart = d; }
-    public void setmDateEnd(Date d){ mDateEnd = d; }
+    public void setmDateStart(String d){ mDateStart = d; }
+    public void setmDateEnd(String d){ mDateEnd = d; }
     public void setmSponsor(String s){ mSponsor = s; }
     public void setmCity(String s){ mCity = s; }
     public void setmState(String s){ mState = s; }
@@ -87,6 +87,7 @@ public class Hunt implements Serializable {
                 setmIsCompleted(false);
             }
         }
+        //System.out.println("setting award: "+this+" to true");
         mAward.setIsNew(true);
     }
     public void setmIsDeleted(boolean b){mIsDeleted = b;}
@@ -118,8 +119,8 @@ public class Hunt implements Serializable {
     public int getID(){return mID;}
     public String getAbbreviation(){return mAbbreviation;}
     public boolean getIsAvailable(){return mIsAvailable;}
-    public Date getDateStart(){return mDateStart;}
-    public Date getDateEnd(){return mDateEnd;}
+    public String getDateStart(){return mDateStart;}
+    public String getDateEnd(){return mDateEnd;}
     public String getName(){return mName;}
     public boolean getIsOrdered(){return mIsOrdered;}
     public String getDescription(){return mDescription;}

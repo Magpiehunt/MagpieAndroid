@@ -18,7 +18,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="298dp"
 
-                android:scaleType="centerCrop"
+                android:scaleType="centerInside"
                 android:src="@drawable/magpie_logo_bird_name"
                 android:background="@color/colorMagpieWhite"/>
 

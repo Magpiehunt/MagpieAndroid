@@ -1,6 +1,8 @@
 package com.davis.tyler.magpiehunt.Fragments;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,6 +19,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +27,7 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.davis.tyler.magpiehunt.Activities.ActivityBase;
@@ -35,6 +39,8 @@ import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.CMS.JSONParser;
 import com.davis.tyler.magpiehunt.R;
 import com.davis.tyler.magpiehunt.Spinners.SpinnerSearchFilter;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.json.JSONArray;
 
@@ -67,6 +73,8 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
     private List<String> states;
     private ArrayList<String> mEntries;
     private LinkedList<Hunt> hunts;
+    //private ImageView test;
+    private Target target;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -125,7 +133,7 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
 
         View rootView = inflater.inflate(R.layout.fragment_search_collections, container, false);
 
-
+        //test = rootView.findViewById(R.id.imageView2);
         //init landmark_list_green
         mRecyclerView = rootView.findViewById(R.id.searchView);
         mLayoutManager = new LinearLayoutManager(getActivity());
@@ -148,13 +156,33 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
         mSearchText.setOnFocusChangeListener(this);
         setRecyclerViewLayoutManager();
 
+        target = new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                System.out.println("icon received: "+bitmap);
+                //test.setImageBitmap(bitmap);
+            }
 
+            @Override
+            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+                System.out.println("icon failed: ");
+                e.printStackTrace();
+            }
+
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+            }
+        };
 
 
         //get data from api
         //TODO make class to make http requests. pass that  class to this fragment
         //method call to query all hunts here that will return a list of hunts to display
-        hunts = mHuntManager.getAllUnCompletedHunts();
+
+        hunts = mHuntManager.getmSearchHunts();
+        if(hunts == null)
+            hunts = new LinkedList<>();
         mModelAdapter = new SearchCollectionAdapter(hunts, getContext(), mHuntManager, this);
         mRecyclerView.setAdapter(mModelAdapter);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -196,10 +224,13 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
                         Log.e(TAG, "Response gained");
                         JSONParser jsonparser = new JSONParser(jsonArray);
                         hunts = jsonparser.getAllHunts();
+                        mHuntManager.setmSearchHunts(hunts);
                         if(hunts == null){
                             Toast.makeText(getContext(), "No hunts found, please try again...", Toast.LENGTH_SHORT).show();
+                            mHuntManager.setmSearchHunts(new LinkedList<Hunt>());
                         }
-                        updateList();
+                        else
+                            updateList();
                         //TODO sort list by filter, then update list
 
                     }
@@ -223,10 +254,13 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
                         Log.e(TAG, "Response gained");
                         JSONParser jsonparser = new JSONParser(jsonArray);
                         hunts = jsonparser.getAllHunts();
+                        mHuntManager.setmSearchHunts(hunts);
                         if(hunts == null){
                             Toast.makeText(getContext(), "No hunts found, please try again...", Toast.LENGTH_SHORT).show();
+                            mHuntManager.setmSearchHunts(new LinkedList<Hunt>());
                         }
-                        updateList();
+                        else
+                            updateList();
                         //TODO sort list by filter, then update list
 
                     }
@@ -250,11 +284,14 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
                         Log.e(TAG, "Response gained");
                         JSONParser jsonparser = new JSONParser(jsonArray);
                         hunts = jsonparser.getAllHunts();
+                        mHuntManager.setmSearchHunts(hunts);
                         if(hunts == null){
-
+                            Toast.makeText(getContext(), "No hunts found, please try again...", Toast.LENGTH_SHORT).show();
+                            mHuntManager.setmSearchHunts(new LinkedList<Hunt>());
                         }
                         else {
                             updateList();
+
                         }
                         //TODO sort list by filter, then update list
 
@@ -280,6 +317,7 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
                         Log.e(TAG, "Response gained");
                         JSONParser jsonparser = new JSONParser(jsonArray);
                         hunts = jsonparser.getAllHunts();
+
                         updateList();
                         //TODO sort list by filter, then update list
 
@@ -292,6 +330,21 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
                     }
                 });
         queue.add(request);
+    }
+
+    public void getBadgeImage(String filename){
+        System.out.println("getting icon: "+filename);
+        String imageUrl = "http://206.189.204.95/badge/icon/"+filename;
+        someMethod(filename);
+
+    }
+
+
+    private void someMethod(String filename) {
+        Picasso.get().load("http://206.189.204.95/badge/icon/"+filename).into(target);
+    }
+    public void setImage(Bitmap bitmap){
+        //test.setImageBitmap(bitmap);
     }
     public void updateList(){
         mModelAdapter.updateList(hunts);

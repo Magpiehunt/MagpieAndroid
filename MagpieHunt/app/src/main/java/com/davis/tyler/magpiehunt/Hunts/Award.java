@@ -39,7 +39,6 @@ public class Award implements Serializable {
 
     }
 
-
     public int getID() {
         return mID;
     }
@@ -62,6 +61,8 @@ public class Award implements Serializable {
     public LatLng getLocation() {
         return new LatLng(mLatitude, mLongitude);
     }
+    public double getLat(){return this.mLatitude;}
+    public double getLong(){return this.mLongitude;}
 
     public String getTerms() {
         return mTerms;

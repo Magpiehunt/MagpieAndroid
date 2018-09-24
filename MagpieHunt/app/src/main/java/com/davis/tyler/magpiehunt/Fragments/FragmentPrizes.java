@@ -15,8 +15,8 @@ import com.davis.tyler.magpiehunt.R;
 
 public class FragmentPrizes extends Fragment implements FragmentPrizesList.OnHuntSelectedListener{
     private static final String TAG = "Prizes Fragment";
-    private static final int FRAGMENT_PRIZES_LIST = 0;
-    private static final int FRAGMENT_PRIZES_INFO = 1;
+    public static final int FRAGMENT_PRIZES_LIST = 0;
+    public static final int FRAGMENT_PRIZES_INFO = 1;
     private HuntManager mHuntManager;
     private FragmentPrizesList fragmentPrizesList;
     private FragmentPrizeInfo fragmentPrizeInfo;

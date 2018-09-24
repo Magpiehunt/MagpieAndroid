@@ -23,6 +23,7 @@ import com.davis.tyler.magpiehunt.Adapters.LandmarkAdapter;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
+import com.davis.tyler.magpiehunt.Listeners.OnSwipeTouchListener;
 import com.davis.tyler.magpiehunt.R;
 import com.davis.tyler.magpiehunt.Spinners.SpinnerHuntFilter;
 
@@ -88,6 +89,20 @@ public class FragmentLandmarkList extends Fragment {
 
         badgeCompleted = rootView.findViewById(R.id.badge_completed);
         badgeCompleted.setVisibility(View.GONE);
+        setPagerSwipe(true);
+        badgeCompleted.setOnTouchListener(new OnSwipeTouchListener(getActivity()){
+            public void onSwipeLeft() {
+                System.out.println("swiping to prize");
+                setPagerSwipe(true);
+                ((ActivityBase)getActivity()).swipedToPrize();
+            }
+
+            public void onSwipeRight() {
+                System.out.println("swiping to prize");
+                setPagerSwipe(true);
+                ((ActivityBase)getActivity()).swipedToPrize();
+            }
+        });
         //replace param with cid of collection from bundle
         selected_items = mHuntManager.getSelectedHunts();
         spinner_items = mHuntManager.getAllHunts();
@@ -199,17 +214,27 @@ public class FragmentLandmarkList extends Fragment {
         //if there is a single focused hunt, alert the user their super badge is complete
         if(mHuntManager.getSelectedHunts().size() == 1){
             Hunt h = mHuntManager.getSingleSelectedHunt();
-            h.updateIsCompleted();
+            //h.updateIsCompleted();
             if(h.getIsCompleted() && h.getAward().getIsNew()) {
+                System.out.println("award: "+h.getAward()+" award is new: "+h.getAward().getIsNew());
                 badgeCompleted.setVisibility(View.VISIBLE);
+                setPagerSwipe(false);
                 mHuntManager.setFocusAward(h.getID());
             }
-            else
+            else {
                 badgeCompleted.setVisibility(View.GONE);
+                setPagerSwipe(true);
+            }
         }
         else{
             badgeCompleted.setVisibility(View.GONE);
+            setPagerSwipe(true);
         }
+    }
+    public void setPagerSwipe(boolean b){
+        ActivityBase activityBase = (ActivityBase)getActivity();
+        if(activityBase != null)
+            activityBase.setPagerSwipe(b);
     }
     public void updateSpinner(){
         //TODO eventually make this get all downloaded hunts, as undownloaded hunts may be sitting in huntmanager

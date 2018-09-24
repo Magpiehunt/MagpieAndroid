@@ -11,10 +11,13 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
+import com.davis.tyler.magpiehunt.Hunts.Question;
 import com.davis.tyler.magpiehunt.R;
 import com.davis.tyler.magpiehunt.Views.ViewCheckbox;
 
+import java.util.Collections;
 import java.util.LinkedList;
 
 public class FragmentQuiz extends Fragment implements View.OnClickListener{
@@ -25,10 +28,11 @@ public class FragmentQuiz extends Fragment implements View.OnClickListener{
     private Button btn_submit;
     private TextView txt_question;
     private LinkedList<ViewCheckbox> checkboxes;
-    LinkedList<LinkedList<String>> choices;
-    LinkedList<String> questions;
-    LinkedList<String> answers;
+    LinkedList<String> choices;
+    private String answer;
+    LinkedList<Question> questionList;
     private int question_num;
+    private Badge badge;
 
 
     @Override
@@ -37,30 +41,15 @@ public class FragmentQuiz extends Fragment implements View.OnClickListener{
 
         txt_question = view.findViewById(R.id.txt_quiz_question);
         layout_answers = view.findViewById(R.id.layout_answers);
-        reset();
+
         btn_submit = view.findViewById(R.id.btn_submit_answer);
         btn_submit.setOnClickListener(this);
-        LinkedList<String> quiz_question;
-        questions = new LinkedList<>();
-        questions.add("Question one for our hypothetical quiz is right here, pick an answer.");
-        questions.add("This is the second question.");
-        answers = new LinkedList<>();
-        answers.add("answer");
-        answers.add("choice 2");
+        badge = mHuntManager.getFocusBadge();
+
+        questionList = badge.getQuiz().getQuestions();
         choices = new LinkedList<>();
-        quiz_question = new LinkedList<>();
         checkboxes = new LinkedList<>();
-        quiz_question.add("possiblility");
-        quiz_question.add("another possible answer");
-        quiz_question.add("another choice");
-        quiz_question.add("answer");
-        choices.add(quiz_question);
-        quiz_question = new LinkedList<>();
-        quiz_question.add("choice 1");
-        quiz_question.add("choice 2");
-        quiz_question.add("choice 3");
-        quiz_question.add("choice 4");
-        choices.add(quiz_question);
+        reset();
         updateQuiz();
 
         return view;
@@ -72,18 +61,27 @@ public class FragmentQuiz extends Fragment implements View.OnClickListener{
         f.setArguments(args);
         return f;
     }
+    public void updateFragment(){
+        reset();
+        updateQuiz();
+    }
 
     public void updateQuiz(){
-        if(question_num < choices.size()) {
-            LinkedList<String> a_list = choices.get(question_num);
+        if(question_num < questionList.size()) {
+            Question question = questionList.get(question_num);
+            LinkedList<String> a_list = question.getAllChoices();
+            Collections.shuffle(a_list);
+            System.out.println("Size: "+a_list.size());
+            answer = question.getAnswer();
             for (String s : a_list) {
                 ViewCheckbox temp = new ViewCheckbox(getContext());
                 temp.setAnswer(s);
                 temp.setOnClickListener(this);
+
                 temp.setListener(this);
                 checkboxes.add(temp);
                 layout_answers.addView(temp);
-                txt_question.setText(questions.get(question_num));
+                txt_question.setText(question.getQuestion());
             }
         }
         else{
@@ -101,6 +99,7 @@ public class FragmentQuiz extends Fragment implements View.OnClickListener{
 
     public void reset(){
         question_num = 0;
+        findFirstUncompletedQuestion();
         clearQuestion();
     }
 
@@ -110,6 +109,7 @@ public class FragmentQuiz extends Fragment implements View.OnClickListener{
                 cb.setListener(null);
         }
         layout_answers.removeAllViews();
+        checkboxes = new LinkedList<>();
     }
     public void clearCheckBoxes(){
         for(ViewCheckbox cb: checkboxes){
@@ -132,7 +132,7 @@ public class FragmentQuiz extends Fragment implements View.OnClickListener{
             boolean correct = false;
             for(ViewCheckbox cb: checkboxes){
                 if(cb.isChecked()){
-                    if(cb.getAnswer().equalsIgnoreCase(answers.get(question_num))){
+                    if(cb.getAnswer().equalsIgnoreCase(answer)){
                         correct = true;
                     }
                 }
@@ -154,9 +154,15 @@ public class FragmentQuiz extends Fragment implements View.OnClickListener{
             ((FragmentMap) f).setFragment(FragmentMap.FRAGMENT_TIMER);
         }
     }
+    public void findFirstUncompletedQuestion(){
+        while(question_num < questionList.size() && questionList.get(question_num).getIsCompleted()) {
+            question_num++;
+        }
 
+    }
     public void answeredCorrectly(){
-        question_num++;
+        questionList.get(question_num).setIsCompleted(true);
+        findFirstUncompletedQuestion();
         clearQuestion();
         updateQuiz();
     }

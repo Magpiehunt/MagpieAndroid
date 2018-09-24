@@ -17,6 +17,7 @@ import com.davis.tyler.magpiehunt.Fragments.FragmentPrizesList;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.R;
+import com.squareup.picasso.Picasso;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -75,6 +76,7 @@ public class PrizeHolder extends RecyclerView.ViewHolder implements View.OnClick
     // fields for CardView (While Condensed)
     private TextView txt_huntAbbr, txt_huntName;
     private ImageView img_superBadge;
+    private TextView txt_new;
 
     private Hunt currentObject;
     private LinearLayout card;
@@ -83,6 +85,7 @@ public class PrizeHolder extends RecyclerView.ViewHolder implements View.OnClick
         super(itemView);
         txt_huntAbbr = itemView.findViewById(R.id.tvAbbreviation_prize);
         txt_huntName = itemView.findViewById(R.id.tvTitle_prize);
+        txt_new = itemView.findViewById(R.id.txt_new);
         this.img_superBadge = itemView.findViewById(R.id.img_super_badge);
 
 
@@ -97,7 +100,14 @@ public class PrizeHolder extends RecyclerView.ViewHolder implements View.OnClick
         txt_huntName.setText(currentObject.getName());
         txt_huntAbbr.setText(currentObject.getAbbreviation());
         img_superBadge.setImageResource(R.drawable.magpie_test_cardview_collectionimage);
+        if(currentObject.getAward().getIsNew()) {
+            txt_new.setVisibility(View.VISIBLE);
+        }
+        else{
+            txt_new.setVisibility(View.GONE);
+        }
         this.currentObject = currentObject;
+        Picasso.get().load("http://206.189.204.95/superbadge/image/"+currentObject.getAward().getSuperBadgeIcon()).fit().centerCrop().into(img_superBadge);
         this.position = position;
     }//end setData
 

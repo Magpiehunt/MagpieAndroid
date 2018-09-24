@@ -15,8 +15,10 @@ import android.widget.TextView;
 
 
 import com.davis.tyler.magpiehunt.Fragments.FragmentLandmarkList;
+import com.davis.tyler.magpiehunt.GrayScaleTransformation;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.R;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -120,6 +122,11 @@ public class LandmarkAdapter extends RecyclerView.Adapter<LandmarkAdapter.Landma
             landmarkMiles.setText(""+currentObject.getDistance()); // need to get distance calculated
             landmarkTime.setText(""+currentObject.getMinutes()); // need to get time using lat and long from google services and their estimated time
             landmarkImage.setImageResource(R.drawable.magpie_test_cardview_collectionimage); // replace once we find out how to deal w/ images
+            if(currentObject.getIsCompleted())
+                Picasso.get().load("http://206.189.204.95/badge/icon/"+currentObject.getIcon()).resize(200,200).into(landmarkImage);
+            else
+                Picasso.get().load("http://206.189.204.95/badge/icon/"+currentObject.getIcon()).transform(new GrayScaleTransformation(Picasso.get())).resize(200,200).into(landmarkImage);
+
             //this.landmarkName.setTypeface(font);
             //this.minutestext.setTypeface(font);
             //this.milestext.setTypeface(font);

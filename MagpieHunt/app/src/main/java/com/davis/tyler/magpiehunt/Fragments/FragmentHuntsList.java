@@ -25,6 +25,7 @@ import com.davis.tyler.magpiehunt.R;
 import com.davis.tyler.magpiehunt.RecyclerItemHelpers.RecyclerItemTouchHelper;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -44,6 +45,7 @@ public class FragmentHuntsList extends Fragment implements View.OnClickListener,
     protected List<Hunt> mDataset;
     private Button addCollectionBtn;
     private HuntManager mHuntManager;
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
