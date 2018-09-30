@@ -19,16 +19,32 @@
         android:orientation="horizontal"
         android:background="@drawable/white_info_bubble"
         android:padding="10dp">
-        <ImageView
-            android:id="@+id/markerprofilepicture"
-            android:layout_width="@dimen/custom_info_picture_width"
-            android:layout_height="@dimen/custom_info_picture_height"
-            android:adjustViewBounds="true"
-            android:layout_marginRight="7dp"
-            android:scaleType="fitCenter"
-            android:layout_marginLeft="5dp"
-            app:srcCompat="@drawable/background_color"
-            android:layout_gravity="center_vertical"/>
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/markerprofilepicture"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginRight="7dp"
+                android:scaleType="fitCenter"
+                android:layout_marginLeft="5dp"
+                android:adjustViewBounds="true"
+                android:layout_gravity="center_vertical"
+                android:padding="6dp"
+                android:src="@drawable/background_color"/>
+
+            <ImageView
+                android:src="@drawable/frame"
+                android:layout_marginRight="7dp"
+                android:layout_marginLeft="5dp"
+                android:layout_gravity="center_vertical"
+                android:layout_width="60dp"
+                android:layout_height="60dp" />
+
+        </FrameLayout>
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -65,7 +81,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_alignParentLeft="true"
-                    android:src="@drawable/clock" />
+                    app:srcCompat="@drawable/ic_access_time_green_24dp" />
 
                 <TextView
                     android:id="@+id/landmarkTime"
@@ -106,7 +122,7 @@
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:src="@drawable/map_pin"
+                    app:srcCompat="@drawable/ic_place_previous_24dp"
                     android:id="@+id/mappin"
                     android:layout_alignParentLeft="true"/>
 

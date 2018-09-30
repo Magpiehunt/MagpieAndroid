@@ -18,8 +18,6 @@ import com.davis.tyler.magpiehunt.R;
 
 public class FragmentMap extends Fragment implements IFragmentSwitcherListener{
     private static final String TAG = "Map Fragment";
-    private static final String TAG_GOOGLE_MAPS = "googlemaps";
-    private static final String TAG_LANDMARK_INFO = "landmarkinfo";
     public static final int FRAGMENT_GOOGLE_MAPS = 0;
     public static final int FRAGMENT_LANDMARK_INFO = 1;
     public static final int FRAGMENT_QR_READER = 2;
@@ -90,11 +88,6 @@ public class FragmentMap extends Fragment implements IFragmentSwitcherListener{
                 fragmentGoogleMaps.saveCameraPosition();
         }
     }
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        //mListener = (IUpdateActionBar)getActivity();
-        Log.e(TAG,"onattach");
-    }
 
 
     @Override
@@ -103,21 +96,16 @@ public class FragmentMap extends Fragment implements IFragmentSwitcherListener{
         curFrag = i;
         Log.e(TAG, "curfrag set to: "+curFrag);
         if(i == FRAGMENT_GOOGLE_MAPS) {
-
             if(fragmentGoogleMaps == null) {
                 fragmentGoogleMaps = FragmentGoogleMaps.newInstance(mHuntManager, mCameraManager);
-                Log.e(TAG, "MAKING NEW GOOGLEMAPS FRAGMENT: "+fragmentGoogleMaps +"from: "+this);
             }
-            Log.e(TAG, "REPLACING TO FRAGMENT: "+fragmentGoogleMaps);
             ft.replace(R.id.currentfragment, fragmentGoogleMaps);
         }
         else if(i == FRAGMENT_LANDMARK_INFO){
 
             if(fragmentLandmarkInfo == null){
-                Log.e(TAG, "landmarkinfo null");
                 fragmentLandmarkInfo = FragmentLandmarkInfo.newInstance(mHuntManager);
             }
-            Log.e(TAG, "switching to landmarkinfo");
             ft.replace(R.id.currentfragment, fragmentLandmarkInfo);
         }
         else if(i == FRAGMENT_QR_READER) {
@@ -144,7 +132,6 @@ public class FragmentMap extends Fragment implements IFragmentSwitcherListener{
             ft.replace(R.id.currentfragment, fragmentBadgeObtained);
 
         }
-        Log.e(TAG, "committing...");
         ft.commit();
 
         if(i == FRAGMENT_TIMER) {

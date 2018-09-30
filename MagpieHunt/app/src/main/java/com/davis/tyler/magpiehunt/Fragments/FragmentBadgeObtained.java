@@ -15,6 +15,7 @@ import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
+import com.davis.tyler.magpiehunt.ImageManager;
 import com.davis.tyler.magpiehunt.R;
 import com.squareup.picasso.Picasso;
 
@@ -44,9 +45,11 @@ public class FragmentBadgeObtained extends Fragment implements View.OnClickListe
         h.updateIsCompleted();
 
         relativeLayout.setOnClickListener(this);
-        Picasso.get().load("http://206.189.204.95/badge/icon/"+mHuntManager.getFocusBadge().getIcon())
+        /*Picasso.get().load("http://206.189.204.95/badge/icon/"+mHuntManager.getFocusBadge().getIcon())
                 .resize(200,200)
-                .into(img_badge);
+                .into(img_badge);*/
+        ImageManager im = new ImageManager();
+        im.fillBadgeImage(getContext(), mHuntManager.getFocusBadge(), img_badge);
 
         return view;
     }
@@ -87,12 +90,12 @@ public class FragmentBadgeObtained extends Fragment implements View.OnClickListe
     @Override
     public void onClick(View view) {
         if(view.getId() == R.id.relativelayout){
-            if(getParentFragment() instanceof FragmentHome){
-                ((ActivityBase)getActivity()).changePage(2);
-                ((FragmentHome) getParentFragment()).updateFocusHunts();
+            if(getParentFragment() instanceof FragmentList){
+                ((ActivityBase)getActivity()).changePage(ActivityBase.FRAGMENT_LIST);
+                ((FragmentList) getParentFragment()).updateFocusHunts();
             }
             else if(getParentFragment() instanceof FragmentMap){
-                ((ActivityBase)getActivity()).changePage(0);
+                ((ActivityBase)getActivity()).changePage(ActivityBase.FRAGMENT_MAP);
             }
         }
     }

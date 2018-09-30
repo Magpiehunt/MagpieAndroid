@@ -4,12 +4,16 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.os.Environment;
 import android.util.Log;
 import android.widget.ImageView;
 
 import com.davis.tyler.magpiehunt.Hunts.Award;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Calendar;
@@ -350,14 +356,12 @@ public class FileSystemManager
         //File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
 
         // Create imageDir
-        System.out.println("here1");
+        System.out.println("file created: "+filename);
         File mypath=new File(c.getFilesDir()+"/images",filename);
-        System.out.println("here2: "+mypath);
         FileOutputStream fos = null;
 
         fos = new FileOutputStream(mypath);
         bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
-        System.out.println("here3: "+fos);
 
         fos.close();
     }
@@ -365,6 +369,7 @@ public class FileSystemManager
     public Bitmap loadImageFromStorage(Context c, String filename) throws FileNotFoundException
     {
         Bitmap b = null;
+
 
         File f=new File(c.getFilesDir()+"/images/", filename);
         System.out.println("here4: "+f);

@@ -49,7 +49,6 @@ import com.google.android.gms.tasks.Task;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
@@ -59,41 +58,88 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static final float DEFAULT_ZOOM = 15;
-    private boolean mLocationPermissionGranted = false;
+
+
+
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private GoogleMap mMap;
-    private ImageView mGps;
+    private ImageView btn_center_camera;
+    private boolean mLocationPermissionGranted = false;
+    private boolean mShowInfoWindow;
     private boolean mAnimateCamera;
     private HuntManager mHuntManager;
-    private LatLng locationToFocus;
-    private List<Hunt> spinner_items;
-    private Set<Hunt> selected_items;
+    private LatLng mLocationToFocus;
+
     private CameraManager mCameraManager;
-    private HashMap<Integer, Marker> markers;
-    private boolean showInfoWindow;
+    private HashMap<Integer, Marker> markers; //key: badgeid
+
     private DialogMoveCloser customDialog;
+    private Set<Hunt> selected_items;
     private SpinnerHuntFilter spinner;
     private CheckableSpinnerAdapter checkableSpinnerAdapter;
+
     private int width, height;
+    private Bitmap defaultMarker;
+    private Bitmap greyMarker;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_google_maps, container, false);
-          customDialog =new DialogMoveCloser(getActivity());
 
+        customDialog =new DialogMoveCloser(getActivity());
+
+        //Get reference to FilterSpinner and Center_Camera button
+        spinner = (SpinnerHuntFilter) view.findViewById(R.id.spinner);
+        btn_center_camera = (ImageView)view.findViewById(R.id.ic_gps);
+
+        //Set onclick listener to center camera when button is clicked
+        btn_center_camera.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                Log.d(TAG, "onClick: clicked gps icon");
+                mAnimateCamera = true;
+                centerOnPosition();
+            }
+        });
+        setupFilter();
+
+        setupMarkerGraphics();
+        getLocationPermission();
+
+        return view;
+    }
+
+    public void setupMarkerGraphics(){
+        //Obtain screen size
         Display display = getActivity().getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
-        width = size.x / 14;
-        height = (int)(width * 1.6);
 
-        mGps = (ImageView)view.findViewById(R.id.ic_gps);
-        spinner_items = mHuntManager.getAllHunts();
+        //Make marker width 1/15th of screen width so markers are a good size no matter the screen size
+        width = size.x / 15;
+        height = (int)(width * 1.4);
+
+        //Get bitmap Drawable for default blue-green gradient marker
+        BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.badgepin2);
+        Bitmap bitmap=bitmapdraw.getBitmap();
+        //Scale the bitmap so we dont waste space.
+        defaultMarker = Bitmap.createScaledBitmap(bitmap, width, height, false);
+        //free up space for new bitmaps
+        bitmap.recycle();
+
+        //Now do the same for the grey marker.
+        bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.ic_grey_marker);
+        bitmap=bitmapdraw.getBitmap();
+        height =(int)( width * 1.6);
+        greyMarker = Bitmap.createScaledBitmap(bitmap, width, height, false);
+        bitmap.recycle();
+    }
+    public void setupFilter(){
+
         selected_items = mHuntManager.getSelectedHunts();
-        Log.e(TAG, "OnCreateView");
         String headerText = "Filter";
-        spinner = (SpinnerHuntFilter) view.findViewById(R.id.spinner);
+
         //Set the max height of the dropdown spinner:
         try {
             Field popup = Spinner.class.getDeclaredField("mPopup");
@@ -106,46 +152,25 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
             popupWindow.setHeight(600);
         }
         catch (NoClassDefFoundError | ClassCastException | NoSuchFieldException | IllegalAccessException e) {
-            // silently fail...
+
         }
+
         checkableSpinnerAdapter = new CheckableSpinnerAdapter(getContext(), headerText, mHuntManager, selected_items);
         spinner.setAdapter(checkableSpinnerAdapter);
         spinner.setSpinnerEventsListener((ActivityBase)getActivity());
-        init();
-        getLocationPermission();
-
-        return view;
     }
-    public void init(){
-        mGps.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view){
-                Log.d(TAG, "onClick: clicked gps icon");
-                mAnimateCamera = true;
-                centerOnPosition();
-            }
-        });
-    }
-
     public static FragmentGoogleMaps newInstance(HuntManager huntManager, CameraManager cameraManager) {
+        /*
+        This is the constructor ( public 'classname'() constructors dont work, so this is a way to get references
+        into the fragment at start-up
+         */
+
         FragmentGoogleMaps f = new FragmentGoogleMaps();
         Bundle args = new Bundle();
         args.putSerializable("huntmanager", huntManager);
         args.putSerializable("cameramanager", cameraManager);
         f.setArguments(args);
         return f;
-    }
-
-    public void setCameraOnLandmark(Badge badge){
-        Log.e(TAG,"SETTING LANDMARK TO FOCUS ON");
-        showInfoWindow = true;
-        locationToFocus = badge.getLatLng();
-        if(markers != null) {
-            Marker m = markers.get(mHuntManager.getFocusBadge().getID());
-            if(m != null)
-                m.showInfoWindow();
-        }
-        repositionCamera();
     }
     @Override
     public void setArguments(@Nullable Bundle args) {
@@ -154,18 +179,39 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
         mCameraManager = (CameraManager)args.getSerializable("cameramanager");
     }
 
+    public void setCameraOnLandmark(Badge badge){
+        Log.e(TAG,"SETTING LANDMARK TO FOCUS ON");
+        /*
+        When this method is called, it get to this line before map is ready, so we need
+        to set a boolean flag to show the info window as soon as map is ready to be displayed
+         */
+        mShowInfoWindow = true;
 
+        //Set location to focus on before calling repositionCamera()
+        mLocationToFocus = badge.getLatLng();
+
+        /*
+        Find the marker in the hashmap being focused on
+         */
+        if(markers != null) {
+            Marker m = markers.get(mHuntManager.getFocusBadge().getID());
+            if(m != null)
+                m.showInfoWindow();
+        }
+
+        repositionCamera();
+    }
     private void initMap(){
         SupportMapFragment mMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mMapFragment.getMapAsync(this);
     }
 
-    /*
-    Checks to see if we have permission to user location
-     */
+
     private void getLocationPermission(){
+        //Store the two permissions we need to ask for before proceeding
         String[] permissions = {FINE_LOCATION, COURSE_LOCATION};
 
+        //Check to see we have both permissions, if not, ask for permission, else, intialize the map
         if(ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             if(ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
                 mLocationPermissionGranted = true;
@@ -182,15 +228,18 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
         }
     }
 
-    /*
-    This method handles what happens once we have the permission to use user location
-     */
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        //This method handles the response to the permission by the user
         mLocationPermissionGranted = false;
         switch (requestCode) {
             case LOCATION_PERMISSION_REQUEST_CODE: {
                 if (grantResults.length > 0) {
+                    /*
+                    For each permission we need, check to see if there is one we dont have permission for,
+                    if a single permission isnt granted, we cant initialize our map.
+                     */
                     for (int i = 0; i < grantResults.length; i++) {
                         if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                             mLocationPermissionGranted = false;
@@ -234,7 +283,7 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
             mMap.getUiSettings().setMyLocationButtonEnabled(false);// turn off default user location button
 
             //setup the center on user location button and place markers
-            init();
+
             updateFocusHunts();
 
             //set up our custom info windows for when user clicks on a marker
@@ -248,8 +297,8 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
 
                 }
             });
-            if(showInfoWindow){
-                showInfoWindow = false;
+            if(mShowInfoWindow){
+                mShowInfoWindow = false;
                 Marker m = markers.get(mHuntManager.getFocusBadge().getID());
                 m.showInfoWindow();
             }
@@ -257,14 +306,20 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
     }
 
 
-    //purpose: save camera position when moving to a new fragment
+
     public void saveCameraPosition(){
+        /*
+        Save the camera lat and lon into camera manager so that when we leave the fragment and return
+        the camera will be in the same spot we left it.
+         */
+
         mCameraManager.setLat(mMap.getCameraPosition().target.latitude);
         mCameraManager.setLon(mMap.getCameraPosition().target.longitude);
     }
 
-    //purpose: position camera where it last was before switching fragments
+
     public void repositionCamera(){
+        //
         if(mCameraManager.shouldMoveCloser()){
             customDialog.setBadge(mHuntManager.getFocusBadge());
             customDialog.show();
@@ -274,10 +329,10 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
                     m.showInfoWindow();
             }
         }
-        else if(locationToFocus != null) {
+        else if(mLocationToFocus != null) {
 
-            moveCamera(locationToFocus, DEFAULT_ZOOM);
-            locationToFocus = null;
+            moveCamera(mLocationToFocus, DEFAULT_ZOOM);
+            mLocationToFocus = null;
         }
         else if(mCameraManager.getLat() != 0) {
             Log.e(TAG, "Repositioning camera, lat: "+mCameraManager.getLat()+" lon: "+mCameraManager.getLon());
@@ -361,9 +416,9 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
                     if(task.isSuccessful()) {
                         Log.e(TAG, "onComplete "+this);
                         Location currentLocation = (Location) task.getResult();
-                        if(locationToFocus != null) {
-                            moveCamera(locationToFocus, DEFAULT_ZOOM);
-                            locationToFocus = null;
+                        if(mLocationToFocus != null) {
+                            moveCamera(mLocationToFocus, DEFAULT_ZOOM);
+                            mLocationToFocus = null;
                         }
                         else {
                             moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
@@ -404,23 +459,29 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
 
                     //if badge isn't completed place the corresponding hunt color as the marker color
                     if(!b.getIsCompleted()) {
-                        temp = new MarkerOptions().position(b
-                                .getLatLng())
-                                .title("" + b.getID())
-                                .icon(BitmapDescriptorFactory.defaultMarker(getHue(h.getID())));
+                        //If a hunt is being focused, give it the default gradient markers
+                        if(mHuntManager.getSelectedHuntsSize() == 1){
+                            temp = new MarkerOptions().position(b
+                                    .getLatLng())
+                                    .title("" + b.getID())
+                                    .icon(BitmapDescriptorFactory.fromBitmap(defaultMarker));
+
+                        }
+                        else {
+                            temp = new MarkerOptions().position(b
+                                    .getLatLng())
+                                    .title("" + b.getID())
+                                    .icon(BitmapDescriptorFactory.defaultMarker(getHue(h.getID())));
+                        }
                     }
                     else{
                         //if the badge is completed, place grey marker
+                            temp = new MarkerOptions().position(b
+                                    .getLatLng())
+                                    .title("" + b.getID())
+                                    .icon(BitmapDescriptorFactory.fromBitmap(greyMarker));
 
-                        BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.ic_grey_marker);
-                        Bitmap bitmap=bitmapdraw.getBitmap();
-                        Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, width, height, false);
-                        temp = new MarkerOptions().position(b
-                                .getLatLng())
-                                .title("" + b.getID())
-                                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
                     }
-
                     markers.put(b.getID(),mMap.addMarker(temp));
                 }
             }

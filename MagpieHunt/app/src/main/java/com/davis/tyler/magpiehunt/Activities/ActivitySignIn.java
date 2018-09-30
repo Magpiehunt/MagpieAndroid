@@ -32,12 +32,15 @@ public class ActivitySignIn extends AppCompatActivity implements FragmentSigninI
         checkQRPermission();
         getSupportActionBar().setBackgroundDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.action_bar_gradient, null));
         mFragmentSigninInitial = new FragmentSigninInitial();
+        goToLogin();
+    }
+
+    public void goToLogin(){
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.currentfragment, mFragmentSigninInitial);
 
         ft.commit();
     }
-
 
     @Override
     public void swipedLeftEvent() {

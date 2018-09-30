@@ -6,9 +6,9 @@
             android:title="@string/menu_map"
             android:icon="@drawable/menu_map" />
         <item
-            android:id="@+id/menu_account"
-            android:icon="@drawable/menu_account"
-            android:title="@string/menu_account" />
+            android:id="@+id/menu_list"
+            android:icon="@drawable/ic_menu_list"
+            android:title="@string/menu_list" />
 
         <item
             android:id="@+id/menu_home"

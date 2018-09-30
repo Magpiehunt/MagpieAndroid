@@ -17,8 +17,8 @@ import android.widget.Toast;
 import com.davis.tyler.magpiehunt.FileSystemManager;
 import com.davis.tyler.magpiehunt.Location.CameraManager;
 import com.davis.tyler.magpiehunt.Fragments.FragmentLandmarkList;
-import com.davis.tyler.magpiehunt.Fragments.FragmentAccount;
 import com.davis.tyler.magpiehunt.Fragments.FragmentHome;
+import com.davis.tyler.magpiehunt.Fragments.FragmentList;
 import com.davis.tyler.magpiehunt.Fragments.FragmentLandmarkInfo;
 import com.davis.tyler.magpiehunt.Fragments.FragmentMap;
 import com.davis.tyler.magpiehunt.Fragments.FragmentPrizes;
@@ -40,7 +40,7 @@ public class ActivityBase extends AppCompatActivity implements
         SpinnerHuntFilter.OnSpinnerEventsListener, SpinnerSearchFilter.OnSpinnerSearchEventsListener{
     public static final String TAG = "Activity_Base";
     public static final int FRAGMENT_MAP = 0;
-    public static final int FRAGMENT_ACCOUNT = 1;
+    public static final int FRAGMENT_LIST = 1;
     public static final int FRAGMENT_HOME = 2;
     public static final int FRAGMENT_SEARCH = 3;
     public static final int FRAGMENT_PRIZES = 4;
@@ -49,10 +49,12 @@ public class ActivityBase extends AppCompatActivity implements
     private FragmentMap fragmentMap;
     private FragmentSearch fragmentSearch;
     private FragmentHome fragmentHome;
+    private FragmentList fragmentList;
     private FragmentPrizes fragmentPrizes;
     private HuntManager mHuntManager;
     private LocationTracker mLocationTracker;
     private CameraManager mCameraManager;
+    private boolean canChangeMenu;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -65,6 +67,7 @@ public class ActivityBase extends AppCompatActivity implements
         else {
             mHuntManager = new HuntManager(this);
         }
+        canChangeMenu = true;
         mCameraManager = new CameraManager();
         FileSystemManager fm = new FileSystemManager();
         String ret = "";
@@ -129,17 +132,19 @@ public class ActivityBase extends AppCompatActivity implements
                                 mViewPager.setCurrentItem(FRAGMENT_MAP);
                                 fragmentMap.setFragment(FragmentMap.FRAGMENT_GOOGLE_MAPS);
                                 break;
-                            case R.id.menu_account:
-                                mViewPager.setCurrentItem(FRAGMENT_ACCOUNT);
+                            case R.id.menu_list:
+                                mViewPager.setCurrentItem(FRAGMENT_LIST);
+                                fragmentList.setFragment(FragmentList.FRAGMENT_LANDMARK_LIST);
+                                updateListFragment();
                                 break;
                             case R.id.menu_home:
                                 mViewPager.setCurrentItem(FRAGMENT_HOME);
-                                fragmentHome.setFragment(FragmentHome.FRAGMENT_LANDMARK_LIST);
-                                updateHome();
+
+
                                 break;
                             case R.id.menu_search:
                                 mViewPager.setCurrentItem(FRAGMENT_SEARCH);
-                                updateSearch();
+                                updateHuntsList();
                                 break;
                             case R.id.menu_prizes:
                                 if(fragmentPrizes != null){
@@ -164,12 +169,12 @@ public class ActivityBase extends AppCompatActivity implements
             // Get the fragment fragment manager - and pop the backstack
             fragmentMap.onBackPressed();
         }
-        else if(fragmentHome != null && mViewPager.getCurrentItem() == FRAGMENT_HOME){
-            fragmentHome.onBackPressed();
+        else if(fragmentList != null && mViewPager.getCurrentItem() == FRAGMENT_LIST){
+            fragmentList.onBackPressed();
         }
-        else if(fragmentSearch != null && mViewPager.getCurrentItem() == FRAGMENT_SEARCH){
+        /*else if(fragmentSearch != null && mViewPager.getCurrentItem() == FRAGMENT_SEARCH){
             fragmentSearch.onBackPressed();
-        }
+        }*/
         else if(fragmentPrizes != null && mViewPager.getCurrentItem() == FRAGMENT_PRIZES){
             fragmentPrizes.onBackPressed();
         }
@@ -180,6 +185,9 @@ public class ActivityBase extends AppCompatActivity implements
     }
 
     public void changePage(int page){
+        /*if(!canChangeMenu){
+            return;
+        }*/
         fragmentSearch.hideSoftKeyboard();
         //if a page is changed due to left/right swipes, update navigation menu, and actionbar title
         switch(page){
@@ -193,22 +201,26 @@ public class ActivityBase extends AppCompatActivity implements
                 fragmentMap.setFragment(FragmentMap.FRAGMENT_GOOGLE_MAPS);
 
                 break;
-            case FRAGMENT_HOME:
-                mNavigationView.setSelectedItemId(R.id.menu_home);
+            case FRAGMENT_LIST:
+                mNavigationView.setSelectedItemId(R.id.menu_list);
                 setHuntTitle();
-                if(fragmentHome != null){
-                    updateHome();
+                if(fragmentList != null){
+                    updateListFragment();
                 }
-                fragmentHome.setFragment(FragmentHome.FRAGMENT_LANDMARK_LIST);
-                fragmentHome.updateFocusHunts();
+                fragmentList.setFragment(FragmentList.FRAGMENT_LANDMARK_LIST);
+                fragmentList.updateFocusHunts();
+                break;
+            case FRAGMENT_HOME:
+                getSupportActionBar().setTitle("My Collections");
+                mNavigationView.setSelectedItemId(R.id.menu_home);
                 break;
             case FRAGMENT_SEARCH:
-                getSupportActionBar().setTitle("MY COLLECTIONS");
+                getSupportActionBar().setTitle("Search Collections");
                 mNavigationView.setSelectedItemId(R.id.menu_search);
-                updateSearch();
+                updateHuntsList();
                 break;
             case FRAGMENT_PRIZES:
-                getSupportActionBar().setTitle("MY PRIZES");
+                getSupportActionBar().setTitle("My Prizes");
                 if(fragmentPrizes != null){
                     fragmentPrizes.updateList();
                 }
@@ -222,12 +234,14 @@ public class ActivityBase extends AppCompatActivity implements
         //YOU NEED TO HAVE THIS IN THE SAME ORDER AS NAV MENU
         fragmentMap = FragmentMap.newInstance(mHuntManager, mCameraManager);
         fragmentSearch = FragmentSearch.newInstance(mHuntManager);
-        fragmentHome = FragmentHome.newInstance(mHuntManager);
+        fragmentList = FragmentList.newInstance(mHuntManager);
         fragmentPrizes = FragmentPrizes.newInstance(mHuntManager);
+        fragmentHome = FragmentHome.newInstance(mHuntManager);
 
         adapter.addFragment(fragmentMap, "MapFragment");
-        adapter.addFragment(new FragmentAccount(), "AccountFragment");
+        adapter.addFragment(fragmentList, "ListFragment");
         adapter.addFragment(fragmentHome, "HomeFragment");
+
         adapter.addFragment(fragmentSearch, "SearchFragment");
         adapter.addFragment(fragmentPrizes, "PrizesFragment");
         viewPager.setAdapter(adapter);
@@ -241,6 +255,9 @@ public class ActivityBase extends AppCompatActivity implements
 
             @Override
             public void onPageSelected(int position) {
+                /*if(!canChangeMenu){
+                    return;
+                }*/
                 fragmentSearch.hideSoftKeyboard();
                 //note: for children fragments, change support action bar title where fragmentTransaction is called;
                 switch(position){
@@ -251,24 +268,25 @@ public class ActivityBase extends AppCompatActivity implements
                             updateMap();
                         }
                         break;
-                    case FRAGMENT_ACCOUNT:
-                        getSupportActionBar().setTitle("MY ACCOUNT");
-                        mNavigationView.setSelectedItemId(R.id.menu_account);
+                    case FRAGMENT_LIST:
+                        setHuntTitle();
+                        if(fragmentList != null){
+                            updateListFragment();
+                        }
+                        mNavigationView.setSelectedItemId(R.id.menu_list);
                         break;
                     case FRAGMENT_HOME:
-                        setHuntTitle();
-                        if(fragmentHome != null){
-                            updateHome();
-                        }
+
+                        getSupportActionBar().setTitle("My Collections");
                         mNavigationView.setSelectedItemId(R.id.menu_home);
                         break;
                     case FRAGMENT_SEARCH:
-                        getSupportActionBar().setTitle("MY COLLECTIONS");
+                        getSupportActionBar().setTitle("Search Collections");
                         mNavigationView.setSelectedItemId(R.id.menu_search);
-                        updateSearch();
+                        updateHuntsList();
                         break;
                     case FRAGMENT_PRIZES:
-                        getSupportActionBar().setTitle("MY PRIZES");
+                        getSupportActionBar().setTitle("My Prizes");
                         if(fragmentPrizes != null){
                             fragmentPrizes.updateList();
                         }
@@ -287,7 +305,7 @@ public class ActivityBase extends AppCompatActivity implements
 
     public void setHuntTitle(){
         if(mHuntManager.getSelectedHuntsSize()== 1){
-            getSupportActionBar().setTitle(mHuntManager.getSingleSelectedHunt().getName().toUpperCase());
+            getSupportActionBar().setTitle(mHuntManager.getSingleSelectedHunt().getName());
         }
         else {
             getSupportActionBar().setTitle("Badges Near Me");
@@ -304,7 +322,7 @@ public class ActivityBase extends AppCompatActivity implements
     @Override
     public void onLandmarkSelected(Badge b) {
         mHuntManager.setFocusBadge(b.getID());
-        fragmentHome.setFragment(FragmentHome.FRAGMENT_LANDMARK_INFO);
+        fragmentList.setFragment(FragmentList.FRAGMENT_LANDMARK_INFO);
     }
 
     @Override
@@ -332,8 +350,8 @@ public class ActivityBase extends AppCompatActivity implements
     }
 
     public void notifyLocationChanged(){
-        if(fragmentHome != null)
-            fragmentHome.notifyLocationChanged();
+        if(fragmentList != null)
+            fragmentList.notifyLocationChanged();
 
     }
 
@@ -348,29 +366,29 @@ public class ActivityBase extends AppCompatActivity implements
         //when spinner closes, update focus hunts, markers shown, and landmarks listed
         if(fragmentMap != null)
             fragmentMap.updateFocusHunts();
-        if(fragmentHome != null)
-            fragmentHome.updateFocusHunts();
+        if(fragmentList != null)
+            fragmentList.updateFocusHunts();
         setHuntTitle();
     }
 
     public void updateList(){
         fragmentMap.updateFocusHunts();
-        fragmentHome.updateFocusHunts();
+        fragmentList.updateFocusHunts();
     }
     public void updateSpinner(){
         fragmentMap.updateSpinner();
-        fragmentHome.updateSpinner();
+        fragmentList.updateSpinner();
     }
 
-    public void updateHome(){
-        System.out.println("updating home");
-        fragmentHome.updateFocusHunts();
-        fragmentHome.updateSpinner();
+    public void updateListFragment(){
+        System.out.println("updating list fragment");
+        fragmentList.updateFocusHunts();
+        fragmentList.updateSpinner();
     }
 
-    public void updateSearch(){
-        if(fragmentSearch != null){
-            fragmentSearch.updateHuntsList();
+    public void updateHuntsList(){
+        if(fragmentHome != null){
+            fragmentHome.updateHuntsList();
         }
     }
     public void updateMap(){
@@ -391,7 +409,7 @@ public class ActivityBase extends AppCompatActivity implements
         mLocationTracker.updateDistances();
         updateSpinner();
         updateList();
-        fragmentSearch.updateHuntsList();
+        fragmentHome.updateHuntsList();
 
         Toast.makeText(this, "Successfully added hunt", Toast.LENGTH_SHORT).show();
     }
@@ -402,9 +420,13 @@ public class ActivityBase extends AppCompatActivity implements
         fragmentPrizes.setFragment(FragmentPrizes.FRAGMENT_PRIZES_INFO);
 
     }
+
     public HuntManager getmHuntManager() {
         return mHuntManager;
     }
 
     public void setPagerSwipe(boolean b){mViewPager.setPagingEnabled(b);}
+    public void setMenuChangeOnOff(boolean b){
+        canChangeMenu = b;
+    }
 }

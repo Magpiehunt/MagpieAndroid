@@ -123,4 +123,11 @@ public class Badge implements Serializable, Comparable<Badge>{
     public Quiz getQuiz(){return this.quiz;}
     public void setQuiz(Quiz quiz){ this.quiz = quiz;}
 
+    public String getBadgeImageFileName(){
+        return "badgeimage"+mID;
+    }
+    public String getLandmarkImageFileName(){
+        return "landmarkimage"+mID;
+    }
+
 }

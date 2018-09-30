@@ -115,4 +115,8 @@ public class Award implements Serializable {
         this.mValue = mValue;
     }
     public void setSuperBadgeIcon(String s){this.mSuperBadgeIcon= s;}
+
+    public String getSuperBadgeImageFileName(){
+        return "superbadgeimage"+mID;
+    }
 }

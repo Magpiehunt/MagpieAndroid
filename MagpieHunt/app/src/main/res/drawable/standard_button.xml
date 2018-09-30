@@ -7,6 +7,7 @@
             <gradient
                 android:angle="0"
                 android:endColor="@color/colorMagpieGreen"
+                android:centerColor="@color/colorMagpieBlend"
                 android:startColor="@color/colorMagpieBlue" />
             <corners android:radius="33dp" />
         </shape>
@@ -14,8 +15,8 @@
     <!-- create the stroke for top, left, bottom and right with the dp you want -->
     <item
         android:bottom="3dp"
-        android:left="3dp"
-        android:right="3dp"
+        android:left="2dp"
+        android:right="2dp"
         android:top="3dp">
         <shape android:shape="rectangle" >
             <!-- fill the inside in the color you want (could also be a gradient again if you want to, just change solid to gradient and enter angle, start, maybe center, and end color) -->

@@ -1,25 +1,48 @@
 package com.davis.tyler.magpiehunt.Adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.PictureDrawable;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
+import com.ahmadrosid.svgloader.SvgDecoder;
+import com.ahmadrosid.svgloader.SvgDrawableTranscoder;
+import com.ahmadrosid.svgloader.SvgSoftwareLayerSetter;
+import com.bumptech.glide.GenericRequestBuilder;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.model.StreamEncoder;
+import com.bumptech.glide.load.resource.file.FileToStreamDecoder;
+import com.caverock.androidsvg.SVG;
+import com.caverock.androidsvg.SVGParser;
 import com.davis.tyler.magpiehunt.Fragments.FragmentLandmarkList;
 import com.davis.tyler.magpiehunt.GrayScaleTransformation;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
+import com.davis.tyler.magpiehunt.ImageManager;
 import com.davis.tyler.magpiehunt.R;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 
 //import static com.loopj.android.http.AsyncHttpClient.log;
@@ -121,17 +144,22 @@ public class LandmarkAdapter extends RecyclerView.Adapter<LandmarkAdapter.Landma
             Log.e(TAG, "setting distance in list");
             landmarkMiles.setText(""+currentObject.getDistance()); // need to get distance calculated
             landmarkTime.setText(""+currentObject.getMinutes()); // need to get time using lat and long from google services and their estimated time
-            landmarkImage.setImageResource(R.drawable.magpie_test_cardview_collectionimage); // replace once we find out how to deal w/ images
-            if(currentObject.getIsCompleted())
+            //landmarkImage.setImageResource(R.drawable.magpie_test_cardview_collectionimage); // replace once we find out how to deal w/ images
+            //landmarkImage.loadUrl("http://206.189.204.95/badge/icon/"+currentObject.getIcon());
+           /*if(currentObject.getIsCompleted())
                 Picasso.get().load("http://206.189.204.95/badge/icon/"+currentObject.getIcon()).resize(200,200).into(landmarkImage);
             else
                 Picasso.get().load("http://206.189.204.95/badge/icon/"+currentObject.getIcon()).transform(new GrayScaleTransformation(Picasso.get())).resize(200,200).into(landmarkImage);
+*/
 
             //this.landmarkName.setTypeface(font);
             //this.minutestext.setTypeface(font);
             //this.milestext.setTypeface(font);
             //this.landmarkSponsor.setTypeface(font);
             this.currentObject = currentObject;
+            ImageManager im = new ImageManager();
+            im.fillBadgeImage(context, currentObject, landmarkImage);
+            //populateBadgeImage();
             this.position = position;
         }//end setData
 
@@ -156,10 +184,77 @@ public class LandmarkAdapter extends RecyclerView.Adapter<LandmarkAdapter.Landma
             }//end switch
         }// end onClick
 
-        private void startLandmark() {
 
+        public void populateBadgeImage(){
+            Target target = new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    /*ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+                    byte[] byteArray = byteArrayOutputStream.toByteArray();
+                    String imgageBase64 = Base64.encodeToString(byteArray, Base64.DEFAULT);
+                    String dataURL= "data:image/png;base64," + imgageBase64;*/
+
+                    //landmarkImage.loadUrl(dataURL);
+                    //landmarkImage.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", "");
+                    landmarkImage.setImageBitmap(bitmap);
+                }
+
+                @Override
+                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+                    System.out.println("error from landmark: "+e.toString());
+                    //landmarkImage.loadUrl("http://206.189.204.95/badge/icon/"+currentObject.getIcon());
+                }
+
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                }
+            };
+            if(currentObject.getIsCompleted())
+                Picasso.get().load("http://206.189.204.95/badge/icon/"+currentObject.getIcon()).resize(200,200).into(target);
+            else
+                Picasso.get().load("http://206.189.204.95/badge/icon/"+currentObject.getIcon()).transform(new GrayScaleTransformation(Picasso.get())).resize(200,200).into(target);
 
         }
+        /*private class HttpImageRequestTask extends AsyncTask<Void, Void, Drawable> {
+            @Override
+            protected Drawable doInBackground(Void... params) {
+                try {
+
+
+                    final URL url = new URL("http://upload.wikimedia.org/wikipedia/commons/e/e8/Svg_example3.svg");
+                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                    InputStream inputStream = urlConnection.getInputStream();
+                    SVG svg = SVG.getFromInputStream(inputStream);
+                    Drawable drawable = svg.createPictureDrawable();
+                    return drawable;
+                } catch (Exception e) {
+                    Log.e("MainActivity", e.getMessage(), e);
+                }
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Drawable drawable) {
+                // Update the view
+                updateImageView(drawable);
+            }
+        }
+        private void updateImageView(Drawable drawable){
+            if(drawable != null){
+
+                // Try using your library and adding this layer type before switching your SVG parsing
+                mImageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+                Picasso.with(this)
+                        .placeholder(drawable) //this is optional the image to display while the url image is downloading
+                        .error(Your Drawable Resource)         //this is also optional if some error has occurred in downloading the image this image would be displayed
+                        .into(imageView);
+
+            }
+        }
+*/
 
         // will be used at some point.
         //TODO: decide on gesture or button removal.

@@ -4,7 +4,7 @@
     <string name="signin_agreement">By logging into Magpie with your Google account, you are agreeing to our Privacy Policy and our Terms of Use. Magpie 2017.</string>
     <string name="menu_map">Map</string>
     <string name="magpie_logo">Magpie</string>
-    <string name="menu_account">Account</string>
+    <string name="menu_list">List</string>
     <string name="menu_home">Home</string>
     <string name="menu_search">Search</string>
     <string name="menu_prizes">Prizes</string>
@@ -18,4 +18,7 @@
     <string name="move_closer">PLEASE MOVE CLOSER TO COLLECT THIS BADGE</string>
     <string name="okay">OKAY</string>
     <string name="delete">DELETE</string>
+    <string name="walkthrough1">With Magpie, you can find tours, events, walks, scavenger hunts and more around you, known on Magpie as "collections."</string>
+    <string name="walkthrough2">Each collection will take you to a series of locations where you will learn fun facts, explore, and earn special badges. Find all the badges to complete your collections!</string>
+    <string name="walkthrough3">Win awesome prizes for completing collections. We partner up with some of the best businesses we can find to provide real prizes and exclusive discoutns where you live!</string>
 </resources>

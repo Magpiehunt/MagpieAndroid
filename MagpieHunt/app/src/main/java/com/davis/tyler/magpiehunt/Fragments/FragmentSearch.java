@@ -13,11 +13,10 @@ import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.R;
 
-public class FragmentSearch extends Fragment implements FragmentHuntsList.OnCollectionSelectedListener{
+public class FragmentSearch extends Fragment {
     private static final String TAG = "Search Fragment";
-    public static final int FRAGMENT_COLLECTIONS = 0;
     public static final int FRAGMENT_SEARCH = 1;
-    private FragmentHuntsList collectionFragment;
+
     private HuntManager mHuntManager;
     private FragmentSearchHunts searchCollectionsFragment;
     private int curFrag;
@@ -28,7 +27,7 @@ public class FragmentSearch extends Fragment implements FragmentHuntsList.OnColl
         View view = inflater.inflate(R.layout.fragment_search, container, false);
         Log.e(TAG, "ONCREATE");
         curFrag = 0;
-        setFragment(FRAGMENT_COLLECTIONS);
+        setFragment(FRAGMENT_SEARCH);
 
         return view;
     }
@@ -46,19 +45,9 @@ public class FragmentSearch extends Fragment implements FragmentHuntsList.OnColl
         super.setArguments(args);
         mHuntManager = (HuntManager)args.getSerializable("huntmanager");
     }
-    @Override
-    public void onCollectionSelected(int id, String name) {
 
-        mHuntManager.setFocusHunt(id);
-        ((ActivityBase)getActivity()).changePage(ActivityBase.FRAGMENT_MAP);
-        ((ActivityBase)getActivity()).updateList();
 
-    }
 
-    public void updateHuntsList(){
-        if(collectionFragment != null)
-            collectionFragment.updateList();
-    }
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
@@ -70,24 +59,11 @@ public class FragmentSearch extends Fragment implements FragmentHuntsList.OnColl
         }
     }
 
-    public void onBackPressed(){
-        Log.e(TAG, "curfrag: "+curFrag);
-        if(curFrag == FRAGMENT_SEARCH){
-            setFragment(FRAGMENT_COLLECTIONS);
-            curFrag = FRAGMENT_COLLECTIONS;
-        }
-    }
 
     public void setFragment(int i) {
         curFrag = i;
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-        if(i == FRAGMENT_COLLECTIONS) {
-            if(collectionFragment == null) {
-                collectionFragment = FragmentHuntsList.newInstance(mHuntManager);
-            }
-            ft.replace(R.id.currentfragment, collectionFragment);
-        }
-        else if(i == FRAGMENT_SEARCH) {
+        if(i == FRAGMENT_SEARCH) {
             if(searchCollectionsFragment == null) {
                 searchCollectionsFragment = FragmentSearchHunts.newInstance(mHuntManager);
             }

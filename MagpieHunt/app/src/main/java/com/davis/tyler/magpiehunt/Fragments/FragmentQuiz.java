@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.Hunts.Question;
@@ -88,8 +89,8 @@ public class FragmentQuiz extends Fragment implements View.OnClickListener{
             Fragment f = getParentFragment();
             mHuntManager.getFocusBadge().setmIsCompleted(true);
 
-            if(f instanceof FragmentHome){
-                ((FragmentHome) f).setFragment(FragmentHome.FRAGMENT_BADGE_OBTAINED);
+            if(f instanceof FragmentList){
+                ((FragmentList) f).setFragment(FragmentList.FRAGMENT_BADGE_OBTAINED);
             }
             else if(f instanceof FragmentMap){
                 ((FragmentMap) f).setFragment(FragmentMap.FRAGMENT_BADGE_OBTAINED);
@@ -146,9 +147,10 @@ public class FragmentQuiz extends Fragment implements View.OnClickListener{
     }
 
     public void answeredIncorrectly(){
+        ((ActivityBase)getActivity()).setPagerSwipe(false);
         Fragment f = getParentFragment();
-        if(f instanceof FragmentHome){
-            ((FragmentHome) f).setFragment(FragmentHome.FRAGMENT_TIMER);
+        if(f instanceof FragmentList){
+            ((FragmentList) f).setFragment(FragmentList.FRAGMENT_TIMER);
         }
         else if(f instanceof FragmentMap){
             ((FragmentMap) f).setFragment(FragmentMap.FRAGMENT_TIMER);

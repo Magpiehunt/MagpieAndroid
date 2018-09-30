@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
+import com.davis.tyler.magpiehunt.ImageManager;
 import com.davis.tyler.magpiehunt.MarkerCallback;
 import com.davis.tyler.magpiehunt.R;
 import com.google.android.gms.maps.GoogleMap;
@@ -49,16 +50,12 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter, Goo
         Badge badge = mHuntManager.getBadgeByID(title);
 
             landmarkTitle.setText(badge.getName());
-        Bitmap landmarkpic = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ewu);
             //((ImageView)view.findViewById(R.id.markerprofilepicture)).setImageBitmap(badge.getLandmarkPicture());
         //((ImageView)view.findViewById(R.id.markerprofilepicture)).setImageBitmap(landmarkpic);
 
         System.out.println("landmark img is: "+badge.getLandmarkImage());
-        Picasso.get()
-                .load("http://206.189.204.95/landmark/image/"+badge.getLandmarkImage())
-                .resize(iconWidth, iconHeight)
-                .centerCrop()
-                .into(mProfilePicture, new MarkerCallback(marker));
+        ImageManager im = new ImageManager();
+        im.fillCustomInfoWindowLandmark(mContext,badge,mProfilePicture,iconWidth,iconHeight, marker);
 
         //String snippet = marker.getSnippet();
         TextView landmarkMiles = (TextView) view.findViewById(R.id.landmarkMiles);

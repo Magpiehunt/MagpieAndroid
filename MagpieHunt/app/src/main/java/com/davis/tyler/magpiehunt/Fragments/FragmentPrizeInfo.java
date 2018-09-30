@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.davis.tyler.magpiehunt.Hunts.Award;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
+import com.davis.tyler.magpiehunt.ImageManager;
 import com.davis.tyler.magpiehunt.R;
 import com.squareup.picasso.Picasso;
 
@@ -40,10 +41,9 @@ public class FragmentPrizeInfo extends Fragment {
         txt_prize.setText(award.getName());
         txt_terms.setText("Redeemable only at "+award.getAddress()+". "+award.getTerms());
 
-        Picasso.get().load("http://206.189.204.95/superbadge/image/"+award.getSuperBadgeIcon())
-                .fit()
-                .centerCrop()
-                .into(img_badge);
+
+        ImageManager imageManager = new ImageManager();
+        imageManager.fillAwardFinished(getContext(), award, img_badge);
 
         return view;
     }

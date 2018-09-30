@@ -34,8 +34,6 @@ import static android.app.Activity.RESULT_OK;
 //TODO result of qr scan could be handled better
 public class FragmentQR extends Fragment implements ZXingScannerView.ResultHandler{
     private static final String TAG = "Fragment QR";
-    private boolean status = false, isChildOfLandmark = false;
-    private Button scanButton;
     private ZXingScannerView scanner;
     private OnFragmentInteractionListener mListener;
     private Badge mBadge;
@@ -72,7 +70,6 @@ public class FragmentQR extends Fragment implements ZXingScannerView.ResultHandl
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_qr, container, false);
-        //scanButton = view.findViewById(R.id.scan_button);
         scanner = view.findViewById(R.id.qr_scanner);
         if(checkQRPermission()) {
             scanner.setResultHandler(this);
@@ -100,9 +97,6 @@ public class FragmentQR extends Fragment implements ZXingScannerView.ResultHandl
         }
     }
 
-    public void childOfLandmark(){
-        isChildOfLandmark = true;
-    }
 
     public boolean checkQRPermission() {
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
@@ -149,20 +143,14 @@ public class FragmentQR extends Fragment implements ZXingScannerView.ResultHandl
     @Override
     public void handleResult(Result result) {
         Log.e(TAG, "Handling result");
-        if(isChildOfLandmark){
-            Intent i = new Intent(getContext(), FragmentQR.class);
-            i.putExtra("qrresult", result.getText());
-            getTargetFragment().onActivityResult(getTargetRequestCode(), RESULT_OK, i);
-            getFragmentManager().popBackStack();
-        }
-        else{
+
             if(mBadge.getQRurl() != null && mBadge.getQRurl().equals(result.getText())) {
                 Toast.makeText(getContext(), "Found: " + result.getText(), Toast.LENGTH_SHORT).show();
                 Fragment f = getParentFragment();
                 mHuntManager.getFocusBadge().setmIsCompleted(true);
 
-                if(f instanceof FragmentHome){
-                    ((FragmentHome) f).setFragment(FragmentHome.FRAGMENT_BADGE_OBTAINED);
+                if(f instanceof FragmentList){
+                    ((FragmentList) f).setFragment(FragmentList.FRAGMENT_BADGE_OBTAINED);
                 }
                 else if(f instanceof FragmentMap){
                     ((FragmentMap) f).setFragment(FragmentMap.FRAGMENT_BADGE_OBTAINED);
@@ -174,11 +162,11 @@ public class FragmentQR extends Fragment implements ZXingScannerView.ResultHandl
                 if(parent instanceof FragmentMap){
                     ((FragmentMap) parent).setFragment(FragmentMap.FRAGMENT_LANDMARK_INFO);
                 }
-                else if(parent instanceof FragmentHome){
-                    ((FragmentHome) parent).setFragment(FragmentHome.FRAGMENT_LANDMARK_INFO);
+                else if(parent instanceof FragmentList){
+                    ((FragmentList) parent).setFragment(FragmentList.FRAGMENT_LANDMARK_INFO);
                 }
             }
-        }
+
     }
 
     public interface OnFragmentInteractionListener {

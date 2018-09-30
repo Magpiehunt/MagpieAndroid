@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.davis.tyler.magpiehunt.Fragments.FragmentHuntsList;
 import com.davis.tyler.magpiehunt.GrayScaleTransformation;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
+import com.davis.tyler.magpiehunt.ImageManager;
 import com.davis.tyler.magpiehunt.R;
 import com.github.aakira.expandablelayout.ExpandableLayoutListenerAdapter;
 import com.github.aakira.expandablelayout.ExpandableLinearLayout;
@@ -170,22 +171,11 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
 
             this.collectionTitle.setText(currentObject.getName());
             this.collectionAbbreviation.setText(currentObject.getAbbreviation());
-            //this.imgThumb.setImageResource(R.drawable.magpie_test_cardview_collectionimage);
-            if(currentObject.getIsCompleted())
-                Picasso.get().load("http://206.189.204.95/superbadge/image/"+currentObject.getAward().getSuperBadgeIcon())
-                        .fit()
-                        .centerCrop()
-                        .into(imgThumb);
-            else
-                Picasso.get().load("http://206.189.204.95/superbadge/image/"+currentObject.getAward().getSuperBadgeIcon())
-                        .transform(new GrayScaleTransformation(Picasso.get()))
-                        .fit()
-                        .centerCrop()
-                        .into(imgThumb);
 
-            // use the following line once images are in the DB. for now, we will use a dummy.
-//            this.imgThumb.setImageResource(currentObject.getImage());
-//            setListeners(); // uncomment when click functionality implemented.
+            ImageManager imageManager = new ImageManager();
+            imageManager.fillSuperBadgeImage(context, currentObject, imgThumb);
+
+
         }//end setCondensedData
 
         public void setListeners() {

@@ -37,7 +37,10 @@ public class JSONParser
                 JSONObject jObj = this.array.getJSONObject(i);
                 mEntries.add(jObj.toString());
                 System.out.println("test "+jObj.toString());
-                huntList.add(parseHunt(jObj));
+                Hunt h = parseHunt(jObj);
+                if(h != null) {
+                    huntList.add(parseHunt(jObj));
+                }
             }
             catch(JSONException e)
             {
@@ -59,6 +62,12 @@ public class JSONParser
             /*Date dateEnd = parseDate(jObj.getString("date_end"));
             Date dateStart = parseDate(jObj.getString("date_start"));*/
             JSONObject huntObj = jObj.getJSONObject("hunt");
+
+            String status = huntObj.getString("status");
+            if(!status.equalsIgnoreCase("published")){
+                return null;
+            }
+
             hunt.setID(huntObj.getInt("huntId"));
             System.out.println("questions1");
             hunt.setDescription(huntObj.getString("summary"));

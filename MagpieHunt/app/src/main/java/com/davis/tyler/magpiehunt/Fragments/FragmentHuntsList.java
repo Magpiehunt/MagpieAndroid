@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 
+import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Adapters.CollectionAdapter;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
@@ -164,7 +165,7 @@ public class FragmentHuntsList extends Fragment implements View.OnClickListener,
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button_addCollection_collection:
-                ((FragmentSearch)getParentFragment()).setFragment(FragmentSearch.FRAGMENT_SEARCH);
+                ((ActivityBase)getActivity()).changePage(ActivityBase.FRAGMENT_SEARCH);
                 break;
 
 

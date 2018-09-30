@@ -15,9 +15,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.davis.tyler.magpiehunt.CMS.DownloadImage;
 import com.davis.tyler.magpiehunt.FileSystemManager;
 import com.davis.tyler.magpiehunt.Fragments.FragmentSearch;
 import com.davis.tyler.magpiehunt.Fragments.FragmentSearchHunts;
+import com.davis.tyler.magpiehunt.Hunts.Award;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
@@ -28,6 +30,7 @@ import com.github.aakira.expandablelayout.Utils;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -224,16 +227,10 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
                         currentObject.setmIsDownloaded(true);
                         huntManager.addHunt(currentObject);
                         huntManager.getSelectedHunts().add(currentObject);
-                        FileSystemManager fm = new FileSystemManager();
-                        try {
-                            fm.addHuntList(listener.getContext(), huntManager.getAllHunts());
-                        }catch(Exception e){
-                            e.printStackTrace();
-                            Toast.makeText(listener.getContext(), "Download failed.", Toast.LENGTH_LONG).show();
-                        }
                         listener.onAddHuntListener();
+                        addHuntsToFileSystem();
                         //TODO implement this
-                        //saveImagesToFileSystem(h);
+                        saveImagesToFileSystem(currentObject);
 
                         //TODO IMPORTANT
                         //wherever there is an img, use picasso to get img from filesystem
@@ -246,64 +243,56 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
             }//end switch
         }//end onClick
 
+        private void addHuntsToFileSystem(){
+            FileSystemManager fm = new FileSystemManager();
+                        try {
+                            fm.addHuntList(listener.getContext(), huntManager.getAllHunts());
+                        }catch(Exception e){
+                            e.printStackTrace();
+                            Toast.makeText(listener.getContext(), "Download failed.", Toast.LENGTH_LONG).show();
+                        }
+                        listener.onAddHuntListener();
+        }
+
         private void saveImagesToFileSystem(Hunt h){
             LinkedList<Badge> badges = h.getAllBadges();
+
+            FileSystemManager fm = new FileSystemManager();
             for(Badge b: badges){
-                Target target = new Target() {
-                    @Override
-                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        System.out.println("icon received: "+bitmap);
-                        //call filemethod
-                    }
-
-                    @Override
-                    public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-                        e.printStackTrace();
-                    }
-
-
-                    @Override
-                    public void onPrepareLoad(Drawable placeHolderDrawable) {
-                    }
-                };
-                Picasso.get().load("http://206.189.204.95/badge/icon/"+b.getIcon()).into(target);
-                Target targetlandmark = new Target() {
-                    @Override
-                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        System.out.println("icon received: "+bitmap);
-                        // call file method
-                    }
-
-                    @Override
-                    public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-                        e.printStackTrace();
-                    }
-
-
-                    @Override
-                    public void onPrepareLoad(Drawable placeHolderDrawable) {
-                    }
-                };
-                Picasso.get().load("http://206.189.204.95/landmark/image/"+b.getLandmarkImage()).into(targetlandmark);
-            }
-            Target targetsuper = new Target() {
-                @Override
-                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    System.out.println("icon received: "+bitmap);
-                    // call file method
+                System.out.println("Attempting to make file for badge: "+b.getName());
+                //fm.imageDownload(context, b.getBadgeImageFileName(), "http://206.189.204.95/badge/icon/"+b.getIcon());
+                /*try {
+                    fm.saveImageToInternalStorage(context, fm.getBitmapFromURL("http://206.189.204.95/badge/icon/" + b.getIcon())
+                            , b.getBadgeImageFileName());
+                }catch (Exception e){
+                    e.printStackTrace();
+                }*/
+                String src = "http://206.189.204.95/badge/icon/"+b.getIcon();
+                try {
+                    URL url = new URL(src);
+                    new DownloadImage(context, b.getBadgeImageFileName()).execute(url );
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
-
-                @Override
-                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+                src = "http://206.189.204.95/landmark/image/"+b.getLandmarkImage();
+                try {
+                    URL url = new URL(src);
+                    new DownloadImage(context, b.getLandmarkImageFileName()).execute(url );
+                }catch (Exception e){
                     e.printStackTrace();
                 }
 
-
-                @Override
-                public void onPrepareLoad(Drawable placeHolderDrawable) {
-                }
-            };
-            Picasso.get().load("http://206.189.204.95/superbadge/image/"+h.getAward().getSuperBadgeIcon()).into(targetsuper);
+                //fm.imageDownload(context, b.getLandmarkImageFileName(), "http://206.189.204.95/landmark/image/"+b.getLandmarkImage());
+            }
+            Award award = h.getAward();
+            //fm.imageDownload(context, award.getSuperBadgeImageFileName(), "http://206.189.204.95/superbadge/image/"+award.getSuperBadgeIcon());
+            String src = "http://206.189.204.95/superbadge/image/"+award.getSuperBadgeIcon();
+            try {
+                URL url = new URL(src);
+                new DownloadImage(context, award.getSuperBadgeImageFileName()).execute(url );
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
 
 

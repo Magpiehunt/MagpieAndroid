@@ -82,12 +82,12 @@
             android:layout_alignParentRight="true"
             android:background="@drawable/standard_button_gray"/>
         <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_alignRight="@+id/spinner"
             android:layout_marginRight="10dp"
             android:layout_centerVertical="true"
-            android:src="@drawable/temp_dropdown_arrow_down"
+            app:srcCompat="@drawable/ic_arrow_drop_down_green_24dp"
             />
     </RelativeLayout>
 

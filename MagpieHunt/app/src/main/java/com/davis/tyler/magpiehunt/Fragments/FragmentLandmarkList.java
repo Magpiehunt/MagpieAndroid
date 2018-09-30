@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -26,6 +27,7 @@ import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.Listeners.OnSwipeTouchListener;
 import com.davis.tyler.magpiehunt.R;
 import com.davis.tyler.magpiehunt.Spinners.SpinnerHuntFilter;
+import com.squareup.picasso.Picasso;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -53,6 +55,7 @@ public class FragmentLandmarkList extends Fragment {
     private TextView txt_select_hunts;
     private CheckableSpinnerAdapter checkableSpinnerAdapter;
     private RelativeLayout badgeCompleted;
+    private ImageView superBadge;
 
 
 
@@ -90,6 +93,8 @@ public class FragmentLandmarkList extends Fragment {
         badgeCompleted = rootView.findViewById(R.id.badge_completed);
         badgeCompleted.setVisibility(View.GONE);
         setPagerSwipe(true);
+        superBadge = rootView.findViewById(R.id.img_super_badge);
+
         badgeCompleted.setOnTouchListener(new OnSwipeTouchListener(getActivity()){
             public void onSwipeLeft() {
                 System.out.println("swiping to prize");
@@ -217,6 +222,10 @@ public class FragmentLandmarkList extends Fragment {
             //h.updateIsCompleted();
             if(h.getIsCompleted() && h.getAward().getIsNew()) {
                 System.out.println("award: "+h.getAward()+" award is new: "+h.getAward().getIsNew());
+                Picasso.get().load("http://206.189.204.95/superbadge/image/"+h.getAward().getSuperBadgeIcon())
+                        .fit()
+                        .centerCrop()
+                        .into(superBadge);
                 badgeCompleted.setVisibility(View.VISIBLE);
                 setPagerSwipe(false);
                 mHuntManager.setFocusAward(h.getID());

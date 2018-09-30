@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.davis.tyler.magpiehunt.Fragments.FragmentPrizesList;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
+import com.davis.tyler.magpiehunt.ImageManager;
 import com.davis.tyler.magpiehunt.R;
 import com.squareup.picasso.Picasso;
 
@@ -99,7 +100,6 @@ public class PrizeHolder extends RecyclerView.ViewHolder implements View.OnClick
 
         txt_huntName.setText(currentObject.getName());
         txt_huntAbbr.setText(currentObject.getAbbreviation());
-        img_superBadge.setImageResource(R.drawable.magpie_test_cardview_collectionimage);
         if(currentObject.getAward().getIsNew()) {
             txt_new.setVisibility(View.VISIBLE);
         }
@@ -107,7 +107,9 @@ public class PrizeHolder extends RecyclerView.ViewHolder implements View.OnClick
             txt_new.setVisibility(View.GONE);
         }
         this.currentObject = currentObject;
-        Picasso.get().load("http://206.189.204.95/superbadge/image/"+currentObject.getAward().getSuperBadgeIcon()).fit().centerCrop().into(img_superBadge);
+        //Picasso.get().load("http://206.189.204.95/superbadge/image/"+currentObject.getAward().getSuperBadgeIcon()).fit().centerCrop().into(img_superBadge);
+        ImageManager imageManager = new ImageManager();
+        imageManager.fillSuperBadgeImage(context, currentObject, img_superBadge);
         this.position = position;
     }//end setData
 

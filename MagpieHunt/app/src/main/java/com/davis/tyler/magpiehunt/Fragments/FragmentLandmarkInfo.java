@@ -18,9 +18,9 @@ import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.GrayScaleTransformation;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
+import com.davis.tyler.magpiehunt.ImageManager;
 import com.davis.tyler.magpiehunt.R;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Transformation;
 
 public class FragmentLandmarkInfo extends Fragment implements View.OnClickListener {
     private static final String TAG = "LandmarkInfo Fragment";
@@ -55,8 +55,8 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
                         if (getParentFragment() instanceof FragmentMap) {
 
                             ((FragmentMap) getParentFragment()).setFragment(FragmentMap.FRAGMENT_BADGE_OBTAINED);
-                        } else if (getParentFragment() instanceof FragmentHome) {
-                            ((FragmentHome) getParentFragment()).setFragment(FragmentHome.FRAGMENT_BADGE_OBTAINED);
+                        } else if (getParentFragment() instanceof FragmentList) {
+                            ((FragmentList) getParentFragment()).setFragment(FragmentList.FRAGMENT_BADGE_OBTAINED);
                         }
                     }
                     else if(mBadge.getQuiz() != null) {
@@ -64,8 +64,8 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
                         if (getParentFragment() instanceof FragmentMap) {
 
                             ((FragmentMap) getParentFragment()).setFragment(FragmentMap.FRAGMENT_QUIZ);
-                        } else if (getParentFragment() instanceof FragmentHome) {
-                            ((FragmentHome) getParentFragment()).setFragment(FragmentHome.FRAGMENT_QUIZ);
+                        } else if (getParentFragment() instanceof FragmentList) {
+                            ((FragmentList) getParentFragment()).setFragment(FragmentList.FRAGMENT_QUIZ);
                         }
                     }
                     else{
@@ -73,8 +73,8 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
                         if (getParentFragment() instanceof FragmentMap) {
 
                             ((FragmentMap) getParentFragment()).setFragment(FragmentMap.FRAGMENT_QR_READER);
-                        } else if (getParentFragment() instanceof FragmentHome) {
-                            ((FragmentHome) getParentFragment()).setFragment(FragmentHome.FRAGMENT_QR_READER);
+                        } else if (getParentFragment() instanceof FragmentList) {
+                            ((FragmentList) getParentFragment()).setFragment(FragmentList.FRAGMENT_QR_READER);
                         }
                     }
                 }
@@ -105,22 +105,19 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
         mListener = ((onClickListener)getActivity());
         foregroundView.setOnClickListener(this);
         btn_map.setOnClickListener(this);
-        Bitmap bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.example_badge);
-        Bitmap landmarkpic = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.ewu);
 
         mBadge = mHuntManager.getFocusBadge();
-        if(!mBadge.getIsCompleted()){
-            //TODO do this but for the badge image.
-            //landmarkpic = mHuntManager.toGrayscale(landmarkpic);
-        }
-        img_badgeButton.setImageBitmap(bitmap);
         img_badgeButton.setOnClickListener(this);
-        //img_landmark.setImageBitmap(landmarkpic);
-        Picasso.get().load("http://206.189.204.95/landmark/image/"+mBadge.getLandmarkImage()).fit().centerCrop().into(img_landmark);
+
+        ImageManager imageManager = new ImageManager();
+        imageManager.fillLandmarkImage(getContext(),mBadge, img_landmark);
+        imageManager.fillBadgeImage(getContext(), mBadge, img_badgeButton);
+        /*Picasso.get().load("http://206.189.204.95/landmark/image/"+mBadge.getLandmarkImage()).fit().centerCrop().into(img_landmark);
         if(mBadge.getIsCompleted())
             Picasso.get().load("http://206.189.204.95/badge/icon/"+mBadge.getIcon()).resize(200,200).into(img_badgeButton);
         else
             Picasso.get().load("http://206.189.204.95/badge/icon/"+mBadge.getIcon()).transform(new GrayScaleTransformation(Picasso.get())).resize(200,200).into(img_badgeButton);
+            */
         txt_Title.setText(mBadge.getLandmarkName());
         if(mBadge.getIsCompleted()){
             txt_Collect.setText("YOU ROCK!");

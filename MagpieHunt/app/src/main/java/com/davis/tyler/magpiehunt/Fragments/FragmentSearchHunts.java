@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -216,7 +217,7 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
     }
     public void searchByZip(String zip){
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        JsonArrayRequest request = new JsonArrayRequest("http://206.189.204.95/api/v3/hunts/zip/"+zip,
+        JsonArrayRequest request = new JsonArrayRequest("http://206.189.204.95/api/v3/hunts/zipcode/"+zip,
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray jsonArray) {
@@ -272,6 +273,7 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
 
                     }
                 });
+
         queue.add(request);
     }
     public void searchByCity(final String city){
@@ -329,6 +331,7 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
                         Toast.makeText(getActivity(), "Unable to fetch data: " + volleyError.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
+
         queue.add(request);
     }
 

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -34,12 +35,12 @@
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="15dp" />
         <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_alignRight="@+id/spinner"
             android:layout_marginRight="10dp"
             android:layout_centerVertical="true"
-            android:src="@drawable/temp_dropdown_arrow_down"
+            app:srcCompat="@drawable/ic_arrow_drop_down_green_24dp"
             android:layout_marginEnd="10dp"
             android:layout_alignEnd="@+id/spinner" />
     </RelativeLayout>
