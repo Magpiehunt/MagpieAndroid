@@ -146,6 +146,8 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
         private TextView age;
         private TextView rewardName;
         private TextView rewardWorth;
+        private TextView distance;
+        private TextView time;
 
         private Button addCollectionBtn;
 
@@ -156,7 +158,7 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
             this.collectionAbbreviation = itemView.findViewById(R.id.tvAbbreviation_search);
             this.imgThumb = itemView.findViewById(R.id.img_thumb_search);
             this.expandArrow = itemView.findViewById(R.id.expandArrow_search);
-
+            this.distance = itemView.findViewById(R.id.collectionDistance_search);
 
             // expanded views
             this.expandableLinearLayout = itemView.findViewById(R.id.expandableLayout_search);
@@ -166,6 +168,7 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
             this.age = itemView.findViewById(R.id.collectionAge_search);
             this.rewardName = itemView.findViewById(R.id.collectionRewardName);
             this.rewardWorth = itemView.findViewById(R.id.collectionRewardWorth);
+            time = itemView.findViewById(R.id.collectionTime_search);
         }//end DVC
 
         void setCondensedData(int position) {
@@ -176,7 +179,9 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
             this.collectionTitle.setText(currentObject.getName());
             this.collectionAbbreviation.setText(currentObject.getAbbreviation());
             this.imgThumb.setImageResource(R.drawable.magpie_test_cardview_collectionimage);
-
+            currentObject.shortestPath();
+            distance.setText(currentObject.getmDistance()+"");
+            time.setText(currentObject.getTime()+"");
             // use the following line once images are in the DB. for now, we will use a dummy.
 //            this.imgThumb.setImageResource(currentObject.getImage());
 //            setListeners(); // uncomment when click functionality implemented.

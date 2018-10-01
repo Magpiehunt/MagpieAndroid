@@ -24,6 +24,8 @@ import com.github.aakira.expandablelayout.ExpandableLinearLayout;
 import com.github.aakira.expandablelayout.Utils;
 import com.squareup.picasso.Picasso;
 
+import org.w3c.dom.Text;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -145,6 +147,8 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
         private TextView numBadges;
         private TextView rewardWorth;
         private TextView rewardName;
+        private TextView distance;
+        private TextView time;
         public RelativeLayout viewBackground;
         public LinearLayout viewForeground;
 
@@ -163,6 +167,8 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
             this.numBadges = itemView.findViewById(R.id.collectionBadges);
             this.rewardWorth = itemView.findViewById(R.id.collectionRewardWorth);
             this.rewardName = itemView.findViewById(R.id.collectionRewardName);
+            time = itemView.findViewById(R.id.collectionTime);
+            distance = itemView.findViewById(R.id.collectionDistance);
 
         }//end DVC
 
@@ -174,6 +180,8 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
 
             ImageManager imageManager = new ImageManager();
             imageManager.fillSuperBadgeImage(context, currentObject, imgThumb);
+            distance.setText(""+currentObject.getmDistance());
+            time.setText(""+currentObject.getTime());
 
 
         }//end setCondensedData

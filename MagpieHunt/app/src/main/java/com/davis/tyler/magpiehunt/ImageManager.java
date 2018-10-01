@@ -43,7 +43,7 @@ public class ImageManager {
         }
         String url = award.getSuperBadgeIcon();
         String[] arr = url.split("\\.");
-        if(arr.length >0 && arr[1].equalsIgnoreCase("svg")){
+        if(arr.length >1 && arr[1].equalsIgnoreCase("svg")){
             getSVGImage(context, "http://206.189.204.95/superbadge/image/"+award.getSuperBadgeIcon(), imageView);
         }
         else{

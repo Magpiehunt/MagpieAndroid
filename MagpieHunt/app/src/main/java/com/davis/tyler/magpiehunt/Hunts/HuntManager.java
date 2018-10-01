@@ -13,6 +13,7 @@ import com.davis.tyler.magpiehunt.R;
 
 import java.io.Serializable;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -91,6 +92,10 @@ public class HuntManager implements Serializable{
         mHunts.put(hunt1.getID(), hunt1);
     }*/
 
+    public void getSortedHuntsByDistance(LinkedList<Hunt> hunts)
+    {
+        Collections.sort(hunts);
+    }
     public void addHunt(Hunt hunt){
         mHunts.put(hunt.getID(), hunt);
     }

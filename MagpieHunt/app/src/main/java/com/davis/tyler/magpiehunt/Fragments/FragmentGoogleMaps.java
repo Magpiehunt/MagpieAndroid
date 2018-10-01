@@ -485,6 +485,8 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
                     markers.put(b.getID(),mMap.addMarker(temp));
                 }
             }
+
+            //if (mHuntManager.getSelectedHuntsSize() == 1) all markers in the markers hashmap are what needs to be all on screen
         }
     }
 

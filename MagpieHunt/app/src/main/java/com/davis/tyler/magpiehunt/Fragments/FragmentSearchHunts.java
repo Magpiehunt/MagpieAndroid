@@ -190,7 +190,7 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
         mCMSCommunicator = new CMSCommunicator();
 
         SpinnerSearchFilter spinner = (SpinnerSearchFilter) rootView.findViewById(R.id.spinner);
-        CheckableSpinnerSearchAdapter adapter = new CheckableSpinnerSearchAdapter(getContext());
+        CheckableSpinnerSearchAdapter adapter = new CheckableSpinnerSearchAdapter(getContext(), this);
         spinner.setAdapter(adapter);
         spinner.setSpinnerSearchEventsListener((ActivityBase)getActivity());
 
@@ -199,6 +199,10 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
     }
 
 
+    public void sortWalkingDistance(){
+        mHuntManager.getSortedHuntsByDistance(hunts);
+        mModelAdapter.notifyDataSetChanged();
+    }
     private void searchForHunts(String query){
         Log.e(TAG, query);
         if(Pattern.matches("^[\\d]{5}$", query)){

@@ -10,8 +10,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.davis.tyler.magpiehunt.Activities.ActivityBase;
+import com.davis.tyler.magpiehunt.FileSystemManager;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
@@ -50,8 +52,20 @@ public class FragmentBadgeObtained extends Fragment implements View.OnClickListe
                 .into(img_badge);*/
         ImageManager im = new ImageManager();
         im.fillBadgeImage(getContext(), mHuntManager.getFocusBadge(), img_badge);
+        addHuntsToFileSystem();
 
         return view;
+    }
+
+    private void addHuntsToFileSystem(){
+        FileSystemManager fm = new FileSystemManager();
+        try {
+            fm.addHuntList(getContext(), mHuntManager.getAllHunts());
+        }catch(Exception e){
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Download failed.", Toast.LENGTH_LONG).show();
+        }
+
     }
 
     public static FragmentBadgeObtained newInstance(HuntManager huntManager) {

@@ -12,6 +12,7 @@ import android.widget.Filter;
 import android.widget.TextView;
 
 import com.davis.tyler.magpiehunt.Activities.ActivityBase;
+import com.davis.tyler.magpiehunt.Fragments.FragmentSearchHunts;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.R;
 
@@ -26,12 +27,12 @@ public class CheckableSpinnerSearchAdapter extends BaseAdapter {
     private List<String> all_items;
     private List<FilterHolder> holders;
     private FilterHolder titleHolder;
-    private ActivityBase listener;
+    private FragmentSearchHunts listener;
 
-    public CheckableSpinnerSearchAdapter(Context context){
+    public CheckableSpinnerSearchAdapter(Context context, FragmentSearchHunts listener){
         holders = new LinkedList<>();
         this.context = context;
-
+        this.listener = listener;
         this.all_items = new LinkedList<>();
         all_items.add("CLOSEST TO ME");
         all_items.add("NUMBER OF BADGES");
@@ -102,6 +103,9 @@ public class CheckableSpinnerSearchAdapter extends BaseAdapter {
                         holders.get(0).title.setText(selected_item);
                         titleHolder.title.setText(selected_item);
                         Log.e(TAG,"checked: "+filter+" holder is: "+titleHolder);
+                        if(selected_item.equalsIgnoreCase("walking distance")){
+                            listener.sortWalkingDistance();
+                        }
 
                     }
                     else {

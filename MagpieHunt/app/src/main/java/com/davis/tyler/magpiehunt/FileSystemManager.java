@@ -93,7 +93,10 @@ public class FileSystemManager
             out.write((h.getZip()+"\r\n"));
             out.write((h.getSponsor()+"\r\n"));
             out.write((h.getRating()+"\r\n"));
-
+            out.write(h.getmDistance()+"\r\n"); //TODO: alter other methods for this
+            out.write(h.getAudience()+"\r\n"); //TODO: alter other methods for this
+            out.write(h.getIsDeleted()+"\r\n"); //TODO: alter other methods for this
+            out.write(h.getIsDownloaded()+"\r\n"); //TODO: alter other methods for this
             out.write("^^^^^^^^^^^^^^^^^^^^\r\n"); //beginning of award marker
             Award award = huntList.get(i).getAward();
             out.write((award.getID()+"\r\n"));
@@ -108,6 +111,8 @@ public class FileSystemManager
             out.write((award.getTerms()+"\r\n"));
             out.write((award.getWorth()+"\r\n"));
             out.write((award.getValue()+"\r\n"));
+            out.write((award.getIsNew()+"\r\n")); //TODO: alter other methods for this
+
 
             LinkedList<Badge> ll = huntList.get(i).getAllBadges();
             for(int j = 0; j < ll.size(); j++)
@@ -127,6 +132,7 @@ public class FileSystemManager
                 out.write((toAdd.getDistance()+"\r\n"));
                 out.write((toAdd.getHuntID()+"\r\n"));
                 out.write((toAdd.getQRurl()+"\r\n"));
+
 
                 //System.out.println("writing badge, "+toAdd.getName());
             }
@@ -216,6 +222,14 @@ public class FileSystemManager
                 newString = br.readLine();
                 String rating = newString;
                 newString = br.readLine();
+                double huntDistance = Double.parseDouble(newString);
+                newString = br.readLine();
+                String audience = newString;
+                newString = br.readLine();
+                boolean isDeleted = Boolean.parseBoolean(newString);
+                newString = br.readLine();
+                boolean isDownloaded = Boolean.parseBoolean(newString);
+                newString = br.readLine();
 
                 //AWARD DATA
                 newString = br.readLine();
@@ -244,11 +258,17 @@ public class FileSystemManager
                 newString = br.readLine();
                 String awardTerms = newString;
                 newString = br.readLine();
-                String awardWorth = newString;
+                int awardWorth = Integer.parseInt(newString);
                 newString = br.readLine();
-                String awardValue = newString;
+                int awardValue = Integer.parseInt(newString);
+                newString = br.readLine();
+                boolean isNew = Boolean.parseBoolean(newString);
                 newString = br.readLine();
                 Award newAward = new Award(awardID, awardAddress, awardDescription, awardName, awardLocationDescription, awardLat, awardLong, awardSuperBadge);
+                newAward.setmTerms(awardTerms);
+                newAward.setmWorth(awardWorth);
+                newAward.setmValue(awardValue);
+                newAward.setIsNew(isNew);
 
                 //GET BADGE INFO
                 HashMap<Integer, Badge> badges = new HashMap<>();
@@ -292,6 +312,7 @@ public class FileSystemManager
                     String QRurl = newString;
                     newString = br.readLine();
                     Badge newB = new Badge(bid, bdescription, icon, landmarkName, blatitude, blongitude, bname, bisCompleted, bHuntID, landmarkImg);
+                    newB.setQRurl(QRurl);
                     badges.put(bid, newB);
                     if(newString == null)
                         contBadges = false;
@@ -299,6 +320,10 @@ public class FileSystemManager
                         contBadges = false;
                 }
                 Hunt h = new Hunt(badges, newAward, isCompleted, id, abbr, isAvailable, dateStart, dateEnd, name, isOrdered, description, city, state, zip, sponsor);
+                h.setmDistance(huntDistance);
+                h.setmAudience(Integer.parseInt(audience));
+                h.setmIsDeleted(isDeleted);
+                h.setmIsDownloaded(isDownloaded);
                 huntList.add(h);
                 if(newString == null)
                     cont = false;
