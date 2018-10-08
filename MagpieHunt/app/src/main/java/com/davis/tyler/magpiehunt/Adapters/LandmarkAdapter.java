@@ -214,7 +214,7 @@ public class LandmarkAdapter extends RecyclerView.Adapter<LandmarkAdapter.Landma
             if(currentObject.getIsCompleted())
                 Picasso.get().load("http://206.189.204.95/badge/icon/"+currentObject.getIcon()).resize(200,200).into(target);
             else
-                Picasso.get().load("http://206.189.204.95/badge/icon/"+currentObject.getIcon()).transform(new GrayScaleTransformation(Picasso.get())).resize(200,200).into(target);
+                Picasso.get().load("http://206.189.204.95/badge/icon/"+currentObject.getIcon()).transform(new GrayScaleTransformation()).resize(200,200).into(target);
 
         }
         /*private class HttpImageRequestTask extends AsyncTask<Void, Void, Drawable> {

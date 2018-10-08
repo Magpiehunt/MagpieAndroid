@@ -1,54 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingRight="60dp"
-    android:paddingLeft="60dp">
-
-    <TextView
-        android:id="@+id/txt_quiz_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="POP QUIZ!"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="60dp"
-        android:textSize="40sp"
-        android:textColor="@color/colorMagpieDarkGray"
-        />
-
-    <TextView
-        android:id="@+id/txt_quiz_question"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/txt_quiz_title"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp"
-        android:fontFamily="@font/montserrat_regular"
-        android:text="Which of the following items is located directly to the left of the goat sculpture?"
-        android:textColor="@color/colorMagpieBlack"
-        android:textSize="14sp" />
-    <LinearLayout
-        android:id="@+id/layout_answers"
-        android:layout_below="@id/txt_quiz_question"
-        android:orientation="vertical"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp">
+        android:layout_height="match_parent"
+        android:paddingRight="60dp"
+        android:paddingLeft="60dp">
 
-    </LinearLayout>
+        <TextView
+            android:id="@+id/txt_quiz_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="POP QUIZ!"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="60dp"
+            android:textSize="40sp"
+            android:textColor="@color/colorMagpieDarkGray"
+            />
 
-    <Button
-        android:id="@+id/btn_submit_answer"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_gravity="center|top"
-        android:layout_marginBottom="20dp"
-        android:layout_marginTop="30dp"
-        android:background="@drawable/standard_button"
-        android:layout_below="@+id/layout_answers"
-        android:fontFamily="@font/montserrat_regular"
-        android:text="SUBMIT"
-        android:textColor="@color/colorMagpieLightGray"
-        android:textSize="16sp"
-        android:textStyle="bold" />
-</RelativeLayout>
+        <TextView
+            android:id="@+id/txt_quiz_question"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/txt_quiz_title"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"
+            android:fontFamily="@font/montserrat_regular"
+            android:text="Which of the following items is located directly to the left of the goat sculpture?"
+            android:textColor="@color/colorMagpieBlack"
+            android:textSize="14sp" />
+        <LinearLayout
+            android:id="@+id/layout_answers"
+            android:layout_below="@id/txt_quiz_question"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp">
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_submit_answer"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_gravity="center|top"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/standard_button"
+            android:layout_below="@+id/layout_answers"
+            android:fontFamily="@font/montserrat_regular"
+            android:text="SUBMIT"
+            android:textColor="@color/colorMagpieLightGray"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+</ScrollView>

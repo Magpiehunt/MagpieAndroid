@@ -41,11 +41,30 @@ public class DownloadImage extends AsyncTask<URL, Void, Bitmap> {
 
     @Override
     protected void onPostExecute(Bitmap result) {
+
         try {
-            fm.saveImageToInternalStorage(context, result, filename);
+
+            Thread t = new Thread(new DownloadImageThread(result));
+            t.start();
+
+
         }catch(Exception e){
             e.printStackTrace();
         }
 
+    }
+    private class DownloadImageThread implements Runnable{
+        private Bitmap bitmap;
+        DownloadImageThread(Bitmap bitmap){
+            this.bitmap = bitmap;
+        }
+        @Override
+        public void run() {
+            try {
+                fm.saveImageToInternalStorage(context, bitmap, filename);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
     }
 }

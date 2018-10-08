@@ -5,7 +5,9 @@
         <!-- create gradient you want to use with the angle you want to use -->
         <shape android:shape="rectangle" >
             <solid android:color="@color/colorMagpieWhite"></solid>
-            <corners android:radius="4dp" />
+            <corners android:radius="1dp"
+                android:bottomRightRadius="0dp" android:bottomLeftRadius="0dp"
+                android:topLeftRadius="20dp" android:topRightRadius="20dp"/>
         </shape>
     </item>
     <!-- create the stroke for top, left, bottom and right with the dp you want -->

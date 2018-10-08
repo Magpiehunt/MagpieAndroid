@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="2dp"
+    android:layout_marginRight="2dp"
+    android:background="@android:color/transparent"
+    >
+
+
+    <LinearLayout
+        android:id="@+id/custom_info_outline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/white_info_bubble"
+        android:paddingBottom="10dp">
+
+
+            <ImageView
+                android:id="@+id/landmarkImage"
+                android:layout_width="250dp"
+                android:layout_height="250dp"
+                android:scaleType="fitCenter"
+                android:layout_margin="15dp"
+                android:adjustViewBounds="true"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/background_color"
+                />
+
+
+        <RelativeLayout
+            android:id="@+id/info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginRight="5dp">
+
+
+            <TextView
+                android:id="@+id/landmarkName"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="@font/montserrat_regular"
+                android:gravity="left|center"
+                android:text="Landmark Name Lousianna"
+                android:textAlignment="center"
+                android:textColor="@color/colorMagpieBlack"
+                android:textSize="14sp"
+                android:typeface="sans" />
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/landmarkName">
+                <RelativeLayout
+                    android:id="@+id/minutesconatiner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:layout_marginBottom="5dp">
+
+                    <ImageView
+                        android:id="@+id/clock"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentLeft="true"
+                        app:srcCompat="@drawable/ic_access_time_green_24dp" />
+
+                    <TextView
+                        android:id="@+id/landmarkTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="3dp"
+                        android:layout_marginRight="3dp"
+                        android:layout_toRightOf="@+id/clock"
+                        android:layout_centerVertical="true"
+                        android:fontFamily="@font/montserrat_medium"
+                        android:gravity="right|top"
+                        android:text="14"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:layout_toRightOf="@+id/landmarkTime"
+                        android:fontFamily="@font/montserrat_medium"
+                        android:gravity="left|top"
+                        android:text="HR"
+                        android:textColor="@color/colorMagpieLightGray"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@+id/minutesconatiner">
+
+                    <ImageView
+                        android:id="@+id/mappin"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentLeft="true"
+                        app:srcCompat="@drawable/ic_place_previous_24dp" />
+
+                    <TextView
+                        android:id="@+id/landmarkMiles"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="3dp"
+                        android:layout_marginRight="3dp"
+                        android:layout_toRightOf="@+id/mappin"
+                        android:fontFamily="@font/montserrat_medium"
+                        android:gravity="right|top"
+                        android:text=".84"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/literal_miles"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:layout_toRightOf="@+id/landmarkMiles"
+                        android:fontFamily="@font/montserrat_medium"
+                        android:gravity="left|top"
+                        android:text="MI"
+                        android:textColor="@color/colorMagpieLightGray"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                </RelativeLayout>
+            </RelativeLayout>
+            </RelativeLayout>
+
+
+        <Button
+            android:layout_width="230dp"
+            android:layout_height="35dp"
+            android:layout_gravity="center_horizontal"
+            android:text="Let's wing it"
+            android:textSize="12dp"
+            android:background="@drawable/standard_button" />
+
+    </LinearLayout>
+    <ImageView
+        android:layout_width="25dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="-3dp"
+        android:layout_below="@+id/custom_info_outline"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/bottom_triangle"
+        android:rotation="90" />
+
+
+
+</RelativeLayout>
+

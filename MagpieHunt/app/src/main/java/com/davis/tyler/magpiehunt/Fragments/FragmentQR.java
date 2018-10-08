@@ -2,9 +2,11 @@ package com.davis.tyler.magpiehunt.Fragments;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -15,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.R;
@@ -38,25 +41,22 @@ public class FragmentQR extends Fragment implements ZXingScannerView.ResultHandl
     private OnFragmentInteractionListener mListener;
     private Badge mBadge;
     private HuntManager mHuntManager;
-
-    public FragmentQR() {
-        // Required empty public constructor
-    }
+    private SharedPreferences preferences;
 
 
     // TODO: Rename and change types and number of parameters
     @Override
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
-        mHuntManager = (HuntManager)args.getSerializable("huntmanager");
-        mBadge = mHuntManager.getFocusBadge();
+        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
+        //mBadge = mHuntManager.getFocusBadge();
 
     }
 
     public static FragmentQR newInstance(HuntManager huntManager) {
         FragmentQR f = new FragmentQR();
         Bundle args = new Bundle();
-        args.putSerializable("huntmanager", huntManager);
+        //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
         return f;
     }
@@ -69,15 +69,26 @@ public class FragmentQR extends Fragment implements ZXingScannerView.ResultHandl
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        mHuntManager = ((ActivityBase)getActivity()).getData();
+        mBadge = mHuntManager.getFocusBadge();
         View view = inflater.inflate(R.layout.fragment_qr, container, false);
         scanner = view.findViewById(R.id.qr_scanner);
-        if(checkQRPermission()) {
+        ((ActivityBase)getActivity()).setBackButtonOnOff(true);
+        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+
+        if(preferences.getBoolean("camera", false)) {
             scanner.setResultHandler(this);
             scanner.startCamera();
         }
         else{
-            Toast.makeText(getContext(), "Camera permissions required to use QR functionality.", Toast.LENGTH_SHORT).show();
-            //go back to previous window?
+            Toast.makeText(getContext(), "Cannot collect badge without camera permission", Toast.LENGTH_SHORT).show();
+            Fragment parent = getParentFragment();
+            if(parent instanceof FragmentMap){
+                ((FragmentMap) parent).setFragment(FragmentMap.FRAGMENT_LANDMARK_INFO);
+            }
+            else if(parent instanceof FragmentList){
+                ((FragmentList) parent).setFragment(FragmentList.FRAGMENT_LANDMARK_INFO);
+            }
         }
         return view;
 
@@ -98,7 +109,7 @@ public class FragmentQR extends Fragment implements ZXingScannerView.ResultHandl
     }
 
 
-    public boolean checkQRPermission() {
+    /*public boolean checkQRPermission() {
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED
@@ -119,11 +130,9 @@ public class FragmentQR extends Fragment implements ZXingScannerView.ResultHandl
                     && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
                 return true;
             }
-            else{
-                return false;
-            }
         }
-    }
+        return false;
+    }*/
 
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
@@ -147,13 +156,26 @@ public class FragmentQR extends Fragment implements ZXingScannerView.ResultHandl
             if(mBadge.getQRurl() != null && mBadge.getQRurl().equals(result.getText())) {
                 Toast.makeText(getContext(), "Found: " + result.getText(), Toast.LENGTH_SHORT).show();
                 Fragment f = getParentFragment();
-                mHuntManager.getFocusBadge().setmIsCompleted(true);
 
-                if(f instanceof FragmentList){
-                    ((FragmentList) f).setFragment(FragmentList.FRAGMENT_BADGE_OBTAINED);
+                //If there is a quiz in badge object, go to quiz screen next
+                if(mBadge.getQuiz() != null) {
+                    Log.e(TAG, "Switching to Quiz fragment...");
+                    if (getParentFragment() instanceof FragmentMap) {
+
+                        ((FragmentMap) getParentFragment()).setFragment(FragmentMap.FRAGMENT_QUIZ);
+                    } else if (getParentFragment() instanceof FragmentList) {
+                        ((FragmentList) getParentFragment()).setFragment(FragmentList.FRAGMENT_QUIZ);
+                    }
                 }
-                else if(f instanceof FragmentMap){
-                    ((FragmentMap) f).setFragment(FragmentMap.FRAGMENT_BADGE_OBTAINED);
+                else {
+                    //There is no quiz so user gets badge
+                    mHuntManager.getFocusBadge().setmIsCompleted(true);
+
+                    if (f instanceof FragmentList) {
+                        ((FragmentList) f).setFragment(FragmentList.FRAGMENT_BADGE_OBTAINED);
+                    } else if (f instanceof FragmentMap) {
+                        ((FragmentMap) f).setFragment(FragmentMap.FRAGMENT_BADGE_OBTAINED);
+                    }
                 }
             }
             else {

@@ -31,6 +31,8 @@ public class FragmentTimer extends Fragment {
         return f;
     }
     public void startTimer(){
+        ((ActivityBase)getActivity()).setBackButtonOnOff(false);
+        ((ActivityBase)getActivity()).setNavigationViewVisibility(View.GONE);
         txt_num = 10;
         new CountDownTimer(10000, 1000) {
 
@@ -46,6 +48,7 @@ public class FragmentTimer extends Fragment {
 
             public void onFinish() {
                 ((ActivityBase)getActivity()).setPagerSwipe(true);
+                ((ActivityBase)getActivity()).setNavigationViewVisibility(View.VISIBLE);
                 Fragment f = getParentFragment();
                 if(f instanceof FragmentMap){
                     ((FragmentMap) f).setFragment(FragmentMap.FRAGMENT_QUIZ);

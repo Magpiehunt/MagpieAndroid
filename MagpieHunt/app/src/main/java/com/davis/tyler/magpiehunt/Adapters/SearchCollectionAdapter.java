@@ -52,7 +52,6 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
 
     private static final String TAG = "SearchCollectionAdapter";
     private final Context context;
-
     private List<Hunt> collectionList;
     private SparseBooleanArray expandState;
     protected HuntManager huntManager;
@@ -75,10 +74,8 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
     @Override
     public CollectionHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // Create new view
-        // this.context = parent.getContext();
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.card_search_hunt, parent, false);
-
         return new CollectionHolder(view);
     }//end onCreateViewHolder
 
@@ -117,7 +114,7 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
 
     private ObjectAnimator changeRotate(ImageView button, float to, float from) {
         ObjectAnimator animator = ObjectAnimator.ofFloat(button, "rotation", to, from);
-        animator.setDuration(300);
+        animator.setDuration(200);
         animator.setInterpolator(Utils.createInterpolator(Utils.LINEAR_INTERPOLATOR));
         return animator;
     }
@@ -168,7 +165,7 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
             this.age = itemView.findViewById(R.id.collectionAge_search);
             this.rewardName = itemView.findViewById(R.id.collectionRewardName);
             this.rewardWorth = itemView.findViewById(R.id.collectionRewardWorth);
-            time = itemView.findViewById(R.id.collectionTime_search);
+            this.time = itemView.findViewById(R.id.collectionTime_search);
         }//end DVC
 
         void setCondensedData(int position) {
@@ -194,6 +191,12 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
             this.numBadges.setText(""+currentObject.getNumBadges());
             this.rewardName.setText(currentObject.getAward().getName());
             this.rewardWorth.setText(currentObject.getAward().getWorth()+"$");
+            Hunt h = huntManager.getHuntByID(currentObject.getID());
+            if(h == null){
+                addCollectionBtn.setText("ADD COLLECTION");
+            }
+            else
+                addCollectionBtn.setText("DOWNLOADED");
 
 //            this.rating.setText(currentObject.getRating());
         }//end setExpandedData
@@ -227,20 +230,17 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
                 case R.id.button_addCollection_search:
                     Hunt h = huntManager.getHuntByID(currentObject.getID());
                     if(h == null){
-                        Log.e(TAG, "adding hunt: "+currentObject.getName());
                         currentObject.setIsFocused(true);
                         currentObject.setmIsDownloaded(true);
                         huntManager.addHunt(currentObject);
                         huntManager.getSelectedHunts().add(currentObject);
                         listener.onAddHuntListener();
                         addHuntsToFileSystem();
-                        //TODO implement this
                         saveImagesToFileSystem(currentObject);
-
-                        //TODO IMPORTANT
-                        //wherever there is an img, use picasso to get img from filesystem
-                        //if failed, use picasso to query the cms for img
-
+                        notifyDataSetChanged();
+                    }
+                    else{
+                        Toast.makeText(context, "Hunt already downloaded", Toast.LENGTH_LONG).show();
                     }
                     //     break;
                 default:
@@ -262,16 +262,8 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
         private void saveImagesToFileSystem(Hunt h){
             LinkedList<Badge> badges = h.getAllBadges();
 
-            FileSystemManager fm = new FileSystemManager();
+            //FileSystemManager fm = new FileSystemManager();
             for(Badge b: badges){
-                System.out.println("Attempting to make file for badge: "+b.getName());
-                //fm.imageDownload(context, b.getBadgeImageFileName(), "http://206.189.204.95/badge/icon/"+b.getIcon());
-                /*try {
-                    fm.saveImageToInternalStorage(context, fm.getBitmapFromURL("http://206.189.204.95/badge/icon/" + b.getIcon())
-                            , b.getBadgeImageFileName());
-                }catch (Exception e){
-                    e.printStackTrace();
-                }*/
                 String src = "http://206.189.204.95/badge/icon/"+b.getIcon();
                 try {
                     URL url = new URL(src);
@@ -287,10 +279,8 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
                     e.printStackTrace();
                 }
 
-                //fm.imageDownload(context, b.getLandmarkImageFileName(), "http://206.189.204.95/landmark/image/"+b.getLandmarkImage());
             }
             Award award = h.getAward();
-            //fm.imageDownload(context, award.getSuperBadgeImageFileName(), "http://206.189.204.95/superbadge/image/"+award.getSuperBadgeIcon());
             String src = "http://206.189.204.95/superbadge/image/"+award.getSuperBadgeIcon();
             try {
                 URL url = new URL(src);
@@ -315,40 +305,7 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
             notifyItemRangeChanged(position, collectionList.size());
         }//end addItem
 
-        /*private void addCollectionToDB(Collection c) {
-            final MagpieDatabase db = MagpieDatabase.getMagpieDatabase(context);
-            db.collectionDao().addCollection(c);
-            log.d(TAG, c.getName() + " added to MagpieDatabase");
-            ApiService apiService = ServiceGenerator.createService(ApiService.class);
 
-            Call<List<Landmark>> call = apiService.getLandmarks(c.getCID());
-
-            call.enqueue(new Callback<List<Landmark>>() {
-                @Override
-                public void onResponse(Call<List<Landmark>> call, Response<List<Landmark>> response) {
-                    List<Landmark> landmarks = response.body();
-                    if (landmarks != null) {
-                        for (Landmark l : landmarks) {
-                            ImageDownloader imageDownloader = new ImageDownloader();
-                            Landmark li = imageDownloader.downloadImage(l);
-                            db.landmarkDao().addLandmark(li);
-                            log.d(TAG, l.getLandmarkName() + " added to MagpieDatabase");
-
-                        }
-
-                    }
-
-                }
-
-                @Override
-                public void onFailure(Call<List<Landmark>> call, Throwable t) {
-                    log.e(TAG, "Failed call to add landmarks to DB");
-                    log.e(TAG, t.getMessage());
-
-                }
-            });
-
-        }*/
     }//end inner class: CollectionHolder
 
 

@@ -39,6 +39,7 @@ public class FragmentQuiz extends Fragment implements View.OnClickListener{
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_quiz, container, false);
+        mHuntManager = ((ActivityBase)getActivity()).getData();
 
         txt_question = view.findViewById(R.id.txt_quiz_question);
         layout_answers = view.findViewById(R.id.layout_answers);
@@ -50,6 +51,7 @@ public class FragmentQuiz extends Fragment implements View.OnClickListener{
         questionList = badge.getQuiz().getQuestions();
         choices = new LinkedList<>();
         checkboxes = new LinkedList<>();
+        ((ActivityBase)getActivity()).setBackButtonOnOff(true);
         reset();
         updateQuiz();
 
@@ -58,7 +60,7 @@ public class FragmentQuiz extends Fragment implements View.OnClickListener{
     public static FragmentQuiz newInstance(HuntManager huntManager) {
         FragmentQuiz f = new FragmentQuiz();
         Bundle args = new Bundle();
-        args.putSerializable("huntmanager", huntManager);
+        //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
         return f;
     }
@@ -121,7 +123,7 @@ public class FragmentQuiz extends Fragment implements View.OnClickListener{
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
         Log.e(TAG, "setArguments, args: "+args);
-        mHuntManager = (HuntManager)args.getSerializable("huntmanager");
+        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
         Log.e(TAG, "setArguments, huntman: "+mHuntManager);
 
 

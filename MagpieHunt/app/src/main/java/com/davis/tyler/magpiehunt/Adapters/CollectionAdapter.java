@@ -122,6 +122,7 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
         // NOTE: don't call notifyDataSetChanged()
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, collectionList.size());
+
     }
 
     public void restoreItem(Hunt item, int position) {

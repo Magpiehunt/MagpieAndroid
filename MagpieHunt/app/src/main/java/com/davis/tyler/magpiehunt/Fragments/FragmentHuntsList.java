@@ -20,6 +20,7 @@ import android.widget.LinearLayout;
 
 import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Adapters.CollectionAdapter;
+import com.davis.tyler.magpiehunt.FileSystemManager;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.R;
@@ -36,50 +37,30 @@ import java.util.List;
 public class FragmentHuntsList extends Fragment implements View.OnClickListener, RecyclerItemTouchHelper.RecyclerItemTouchHelperListener {
 
     private static final String TAG = "FragmentHuntsList";
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
     protected RecyclerView mRecyclerView;
     protected CollectionAdapter mModelAdapter;
     protected RecyclerView.LayoutManager mLayoutManager;
     protected List<Hunt> mDataset;
     private Button addCollectionBtn;
     private HuntManager mHuntManager;
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
     private LinearLayout linearLayout;
-
     private OnCollectionSelectedListener mListener;
 
-    public FragmentHuntsList() {
-        // Required empty public constructor
-    }
-
-
-    //    // TODO: Rename and change types and number of parameters
     public static FragmentHuntsList newInstance() {
         FragmentHuntsList fragment = new FragmentHuntsList();
         Bundle args = new Bundle();
         return fragment;
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        initializeData();
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
+        mHuntManager = ((ActivityBase)getActivity()).getData();
         View rootView = inflater.inflate(R.layout.fragment_my_collections, container, false);
         rootView.setTag(TAG);
-
+        initializeData();
         linearLayout = rootView.findViewById(R.id.container);
 
         this.addCollectionBtn = rootView.findViewById(R.id.button_addCollection_collection);
@@ -104,7 +85,7 @@ public class FragmentHuntsList extends Fragment implements View.OnClickListener,
     public static FragmentHuntsList newInstance(HuntManager huntManager) {
         FragmentHuntsList f = new FragmentHuntsList();
         Bundle args = new Bundle();
-        args.putSerializable("huntmanager", huntManager);
+        //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
         return f;
     }
@@ -113,7 +94,7 @@ public class FragmentHuntsList extends Fragment implements View.OnClickListener,
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
         Log.e(TAG, "setArguments, args: "+args);
-        mHuntManager = (HuntManager)args.getSerializable("huntmanager");
+        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
         Log.e(TAG, "setArguments, huntman: "+mHuntManager);
 
 
@@ -130,6 +111,8 @@ public class FragmentHuntsList extends Fragment implements View.OnClickListener,
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
+        Log.e(TAG, "onsave");
+
         super.onSaveInstanceState(savedInstanceState);
 
         //TODO: saved state of fragment here
@@ -168,7 +151,6 @@ public class FragmentHuntsList extends Fragment implements View.OnClickListener,
                 ((ActivityBase)getActivity()).changePage(ActivityBase.FRAGMENT_SEARCH);
                 break;
 
-
             default:
                 break;
         }//end switch
@@ -181,46 +163,6 @@ public class FragmentHuntsList extends Fragment implements View.OnClickListener,
 
 
         mDataset.addAll(mHuntManager.getAllHunts());
-        /*Hunt testCollection = new Hunt();
-        testCollection.setName("Test Walk Talk");
-        testCollection.setAbbreviation("TWT");
-        testCollection.setDescription("hello this is testing the description display for the collection fragments");
-        mDataset.add(testCollection);
-
-        testCollection = new Hunt();
-        testCollection.setName("Walk Test Mag");
-        testCollection.setAbbreviation("WTM");
-        mDataset.add(testCollection);
-
-        testCollection = new Hunt();
-        testCollection.setName("Card Walk Test");
-        testCollection.setAbbreviation("CWT");
-        mDataset.add(testCollection);
-
-        testCollection = new Hunt();
-        testCollection.setName("Walk onthe Wildside");
-        testCollection.setAbbreviation("WOW");
-        mDataset.add(testCollection);
-
-        testCollection = new Hunt();
-        testCollection.setName("No Skipping Allowed");
-        testCollection.setAbbreviation("NSA");
-        mDataset.add(testCollection);
-
-        testCollection = new Hunt();
-        testCollection.setName("Cards Are Easy");
-        testCollection.setAbbreviation("CAE");
-        mDataset.add(testCollection);
-
-        testCollection = new Hunt();
-        testCollection.setName("Walk With Me");
-        testCollection.setAbbreviation("WWM");
-        mDataset.add(testCollection);
-
-        testCollection = new Hunt();
-        testCollection.setName("The Last Walk");
-        testCollection.setAbbreviation("TLW");
-        mDataset.add(testCollection);*/
 
     }//end
 
@@ -239,6 +181,12 @@ public class FragmentHuntsList extends Fragment implements View.OnClickListener,
             // remove the item from recycler view
             mModelAdapter.removeItem(viewHolder.getAdapterPosition());
             mHuntManager.deleteHuntByID(deletedItem.getID());
+            /*FileSystemManager fm = new FileSystemManager();
+            try {
+                fm.addHuntList(getContext(), mHuntManager.getAllHunts());
+            }catch(Exception e){
+                e.printStackTrace();
+            }*/
             // showing snack bar with Undo option
             Snackbar snackbar = Snackbar
                     .make(linearLayout, name + " removed from collection!", Snackbar.LENGTH_LONG);
@@ -251,6 +199,12 @@ public class FragmentHuntsList extends Fragment implements View.OnClickListener,
                     mModelAdapter.restoreItem(deletedItem, deletedIndex);
                     mHuntManager.addHunt(deletedItem);
                     mModelAdapter.notifyDataSetChanged();
+                    /*FileSystemManager fm = new FileSystemManager();
+                    try {
+                        fm.addHuntList(getContext(), mHuntManager.getAllHunts());
+                    }catch(Exception e){
+                        e.printStackTrace();
+                    }*/
                 }
             });
             snackbar.setActionTextColor(Color.YELLOW);

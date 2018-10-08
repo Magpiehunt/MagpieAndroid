@@ -2,6 +2,7 @@ package com.davis.tyler.magpiehunt;
 
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
@@ -12,6 +13,8 @@ import android.widget.ImageView;
 import com.davis.tyler.magpiehunt.Hunts.Award;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
+import com.davis.tyler.magpiehunt.Hunts.Question;
+import com.davis.tyler.magpiehunt.Hunts.Quiz;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -37,6 +40,7 @@ import java.util.List;
 public class FileSystemManager
 {
     String intStorageDir;
+
 
     public FileSystemManager()
     {
@@ -67,8 +71,16 @@ public class FileSystemManager
 
     }
 
+    public void clearFileSystem(Context c)throws IOException{
+        String intStorageDir = c.getFilesDir().toString();
+        this.intStorageDir = intStorageDir;
+        File hunts = new File(intStorageDir, "hunts.txt");
+        hunts.getAbsoluteFile().delete();
+
+    }
     public void addHuntList(Context c, LinkedList<Hunt> huntList) throws IOException
     {
+        System.out.println("saving hunts, size: "+huntList.size());
         //System.out.println("check: entered method, context: "+c);
         OutputStreamWriter out = new OutputStreamWriter(c.openFileOutput("hunts.txt", Context.MODE_PRIVATE));
         //FileOutputStream out = new FileOutputStream(new File(c.getFilesDir()+"hunts.txt"));
@@ -95,8 +107,11 @@ public class FileSystemManager
             out.write((h.getRating()+"\r\n"));
             out.write(h.getmDistance()+"\r\n"); //TODO: alter other methods for this
             out.write(h.getAudience()+"\r\n"); //TODO: alter other methods for this
+            System.out.println("check -> audience: "+h.getAudience());
             out.write(h.getIsDeleted()+"\r\n"); //TODO: alter other methods for this
+            System.out.println("check -> deleted: "+h.getIsDeleted());
             out.write(h.getIsDownloaded()+"\r\n"); //TODO: alter other methods for this
+            System.out.println("check -> downloaded: "+h.getIsDownloaded());
             out.write("^^^^^^^^^^^^^^^^^^^^\r\n"); //beginning of award marker
             Award award = huntList.get(i).getAward();
             out.write((award.getID()+"\r\n"));
@@ -114,10 +129,12 @@ public class FileSystemManager
             out.write((award.getIsNew()+"\r\n")); //TODO: alter other methods for this
 
 
+
             LinkedList<Badge> ll = huntList.get(i).getAllBadges();
             for(int j = 0; j < ll.size(); j++)
             {
                 Badge toAdd = ll.get(j);
+                //System.out.println("does badge have quiz: "+toAdd.getQuiz());
                 out.write("--------------------\r\n"); //beginning of badge marker
                 out.write((toAdd.getID()+"\r\n"));
                 out.write((toAdd.getDescription()+"\r\n"));
@@ -132,11 +149,34 @@ public class FileSystemManager
                 out.write((toAdd.getDistance()+"\r\n"));
                 out.write((toAdd.getHuntID()+"\r\n"));
                 out.write((toAdd.getQRurl()+"\r\n"));
+                if(toAdd.getQuiz() != null)
+                {
+                    //System.out.println("does badge have quiz: "+toAdd.getQuiz());
+                    LinkedList<Question> q = toAdd.getQuiz().getQuestions();
+                    out.write("?????"+"\r\n");
+                    for(int x = 0; x < q.size(); x++)
+                    {
+                        Question question = q.get(x);
+                        out.write(question.getAnswer()+"\r\n");
+                        out.write(question.getIsCompleted()+"\r\n");
+                        out.write(question.getQuestion()+"\r\n");
+                        out.write("////////\r\n");
+                        LinkedList<String> choices = question.getAllChoices();
+                        for(int y = 0; y < choices.size(); y++)
+                        {
+                            out.write(choices.get(y)+"\r\n");
+                            out.write("??????\r\n");
+                        }
+                        out.write("?????\r\n");
+
+                    }
+                    out.write("???????\r\n");
+                }
 
 
                 //System.out.println("writing badge, "+toAdd.getName());
             }
-            //System.out.println("writing hunt, "+h.getName());
+            System.out.println("writing hunt, "+h.getName());
         }
         out.close();
     }
@@ -167,8 +207,10 @@ public class FileSystemManager
         return ret;
     }
 
-    public LinkedList<Hunt> getHuntsFromFile(Context c) throws IOException, ParseException
+    public LinkedList<Hunt> getHuntsFromFile(Context c) throws IOException, ParseException //TODO FIX THIS
     {
+        //System.out.println("print: "+this.readHuntsFile(c));
+
         FileInputStream is = c.openFileInput("hunts.txt");
 
         LinkedList<Hunt> huntList = null;
@@ -179,13 +221,13 @@ public class FileSystemManager
             String newString = "";
             boolean cont = true;
             newString = br.readLine();
-            System.out.println("check: newStringRead: "+newString);
+            //System.out.println("check: newStringRead: "+newString);
             if(newString == null)
                 cont = false;
             huntList = new LinkedList<>();
             while(cont)
             {
-                System.out.println("check: in while loop");
+                //System.out.println("check: in while loop");
                 //HUNT DATA
                 newString = br.readLine();
                 boolean isCompleted = Boolean.parseBoolean(newString);
@@ -206,11 +248,11 @@ public class FileSystemManager
                 newString = br.readLine();
                 String description = "";
                 while(!newString.equals("////////")) {
-                    System.out.println("check: in desc1 while");
+                    //System.out.println("check: in desc1 while");
                     description += newString;
                     newString = br.readLine();
                 }
-                System.out.println("check: exited while loop");
+                //System.out.println("check: exited while loop");
                 newString = br.readLine();
                 String city = newString;
                 newString = br.readLine();
@@ -239,12 +281,12 @@ public class FileSystemManager
                 newString = br.readLine();
                 String awardDescription = "";
                 while(!newString.equals("////////")) {
-                    System.out.println("check: in desc2 while");
+                    //System.out.println("check: in desc2 while");
                     awardDescription += newString;
                     newString = br.readLine();
 
                 }
-                System.out.println("check: exited while");
+                //System.out.println("check: exited while");
                 newString = br.readLine();
                 String awardName = newString;
                 newString = br.readLine();
@@ -276,27 +318,28 @@ public class FileSystemManager
                 boolean contBadges = true;
                 while(contBadges)
                 {
+                    bdescription = "";
                     newString = br.readLine();
                     //System.out.println("Should be bid: "+newString);
                     int bid = Integer.parseInt(newString);
                     newString = br.readLine();
-                    System.out.println("Should be desc: "+newString);
+                    //System.out.println("Should be desc: "+newString);
                     while(!newString.equals("////////")) {
-                        System.out.println("check: in desc3 while");
+                        //System.out.println("check: in desc3 while");
                         bdescription += newString;
                         newString = br.readLine();
                     }
-                    System.out.println("check: exited desc3 while");
+                    //System.out.println("check: exited desc3 while");
                     newString = br.readLine();
                     String icon = newString;
                     newString = br.readLine();
                     String landmarkImg = newString;
-                    System.out.println("limg: "+newString);
+                    //System.out.println("limg: "+newString);
                     newString = br.readLine();
-                    System.out.println("lName: "+newString);
+                    //System.out.println("lName: "+newString);
                     String landmarkName = newString;
                     newString = br.readLine();
-                    System.out.println("LONGITUDE: "+newString);
+                    //System.out.println("LONGITUDE: "+newString);
                     double blongitude = Double.parseDouble(newString);
                     newString = br.readLine();
                     double blatitude = Double.parseDouble(newString);
@@ -313,11 +356,89 @@ public class FileSystemManager
                     newString = br.readLine();
                     Badge newB = new Badge(bid, bdescription, icon, landmarkName, blatitude, blongitude, bname, bisCompleted, bHuntID, landmarkImg);
                     newB.setQRurl(QRurl);
-                    badges.put(bid, newB);
+                    //System.out.println("The newstring is: " + newString);
+                    //System.out.println("newString boolean: "+ newString.equals("?????"));
                     if(newString == null)
                         contBadges = false;
+                    else if(newString.equals("?????"))
+                    {
+                        System.out.println("did it ?????");
+                        LinkedList<Question> q = new LinkedList<>();
+                        boolean qDone = false;
+                        Quiz newQuiz = new Quiz();
+                        newString = br.readLine();//answer
+                        while(!qDone) {
+                            System.out.println("this loop? (1): "+newString);
+
+                            String answer = newString;
+                            System.out.println("Should be an answer: "+ answer);
+                            newString = br.readLine();//iscomplete
+                            boolean questionisCompleted = Boolean.parseBoolean(newString);
+                            boolean questionNotDone = true;
+                            String questiontoAdd = "";
+                            newString = br.readLine();//question1
+                            while (questionNotDone) {
+                                //System.out.println("this loop? (2)");
+                                if(!newString.equals("////////"))
+                                    questiontoAdd += newString;
+                                else
+                                    break;
+                                newString = br.readLine();
+                                System.out.println("qnewstring: "+ newString);
+                                if (newString.equals("////////"))
+                                    questionNotDone = false;
+
+                            }
+                            System.out.println("Should be the question: " + questiontoAdd);
+                            boolean choicesNotDone = true;
+                            LinkedList<String> choices = new LinkedList<>();
+                            newString = br.readLine();//choice1 or ?????
+                            if(newString.equals("?????"))
+                                choicesNotDone = false;
+                            while (choicesNotDone) { //looping here for some reason
+                                System.out.println("newString in choices:" +newString);
+                                if(!newString.equalsIgnoreCase("??????"))
+                                    choices.add(newString);
+                                newString = br.readLine();//??????
+                                System.out.println("should be ??????: "+newString);
+                                if(newString == null){
+                                    //choicesNotDone = false;
+                                    break;
+                                }
+                                else if (newString.equals("?????")) {
+                                    //choicesNotDone = false;
+                                    break;
+                                }
+                            }
+                            Question newQ = new Question();
+                            newQ.setAllChoices(choices);
+                            newQ.setAnswer(answer);
+                            newQ.setIsCompleted(questionisCompleted);
+                            newQ.setQuestion(questiontoAdd);
+                            q.add(newQ);
+
+
+                            newString = br.readLine();//read next answer
+                            if(newString == null)
+                                qDone = true;
+                            else if(newString.equals("???????"))
+                                qDone = true;
+                        }
+                        newQuiz.setQuestions(q);
+                        newB.setQuiz(newQuiz);
+
+                        newString = br.readLine();//read eof ------------------
+                        if(newString == null)
+                            contBadges = false;
+                        else if(!newString.equals("--------------------"))
+                            contBadges = false;
+
+                    }
                     else if(!newString.equals("--------------------"))
                         contBadges = false;
+
+
+                    badges.put(bid, newB);
                 }
                 Hunt h = new Hunt(badges, newAward, isCompleted, id, abbr, isAvailable, dateStart, dateEnd, name, isOrdered, description, city, state, zip, sponsor);
                 h.setmDistance(huntDistance);
@@ -325,15 +446,22 @@ public class FileSystemManager
                 h.setmIsDeleted(isDeleted);
                 h.setmIsDownloaded(isDownloaded);
                 huntList.add(h);
-                if(newString == null)
+                System.out.println("Finished reading in hunt, id: "+h.getID());
+                if(newString == null) {
+                    System.out.println("Finished reading in hunt, newstring null");
                     cont = false;
+                }
+                else{
+                    System.out.println("Finished reading in hunt, newstring: "+newString);
+                }
 
 
 
             }
         }
         is.close();
-        System.out.println("HUNTLIST: "+huntList.toString());
+        System.out.println("return hunt size: "+huntList.size());
+        //System.out.println("HUNTLIST: "+huntList.toString());
         return huntList;
     }
     public void addTestHunt(Context c) throws IOException

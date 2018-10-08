@@ -1,8 +1,10 @@
 package com.davis.tyler.magpiehunt.Fragments;
 
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -36,50 +38,61 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
     private Badge mBadge;
     private onClickListener mListener;
     private View foregroundView;
+    private SharedPreferences preferences;
 
     @Override
     public void onClick(View view) {
         if(mListener != null){
-            if(view.getId() == R.id.mapButton)
+            if(view.getId() == R.id.mapButton) {
                 mListener.onMapClicked(mBadge);
+            }
             else if(view.getId() == R.id.collectButton || view.getId() == R.id.collectText || view.getId() == R.id.foregroundCollect){
                 if(mBadge.getIsCompleted()){
                     Toast.makeText(getContext(), "Badge already completed.", Toast.LENGTH_LONG ).show();
                     return;
                 }
-                if(((ActivityBase)getActivity()).isCloseEnough(mBadge)) {
-                    System.out.println("qr code: "+mBadge.getQRurl());
-                    if((mBadge.getQRurl() == null || mBadge.getQRurl().equalsIgnoreCase("null"))&& mBadge.getQuiz() == null){
-                        Toast.makeText(getContext(), "No quiz or qr code found...", Toast.LENGTH_LONG).show();
-                        mBadge.setmIsCompleted(true);
-                        if (getParentFragment() instanceof FragmentMap) {
+                if(!preferences.getBoolean("camera", false)) {
+                    Toast.makeText(getContext(), "Cannot open QR Scanner without camera permission", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                //If there is a qr code, dont check distance, just go to qr scanner
+                if(mBadge.getQRurl() != null && !mBadge.getQRurl().equalsIgnoreCase("null")) {
+                    if (getParentFragment() instanceof FragmentMap) {
 
-                            ((FragmentMap) getParentFragment()).setFragment(FragmentMap.FRAGMENT_BADGE_OBTAINED);
-                        } else if (getParentFragment() instanceof FragmentList) {
-                            ((FragmentList) getParentFragment()).setFragment(FragmentList.FRAGMENT_BADGE_OBTAINED);
-                        }
-                    }
-                    else if(mBadge.getQuiz() != null) {
-                        Log.e(TAG, "Switching to Quiz fragment...");
-                        if (getParentFragment() instanceof FragmentMap) {
-
-                            ((FragmentMap) getParentFragment()).setFragment(FragmentMap.FRAGMENT_QUIZ);
-                        } else if (getParentFragment() instanceof FragmentList) {
-                            ((FragmentList) getParentFragment()).setFragment(FragmentList.FRAGMENT_QUIZ);
-                        }
-                    }
-                    else{
-                        Log.e(TAG, "Switching to QR code fragment...");
-                        if (getParentFragment() instanceof FragmentMap) {
-
-                            ((FragmentMap) getParentFragment()).setFragment(FragmentMap.FRAGMENT_QR_READER);
-                        } else if (getParentFragment() instanceof FragmentList) {
-                            ((FragmentList) getParentFragment()).setFragment(FragmentList.FRAGMENT_QR_READER);
-                        }
+                        ((FragmentMap) getParentFragment()).setFragment(FragmentMap.FRAGMENT_QR_READER);
+                    } else if (getParentFragment() instanceof FragmentList) {
+                        ((FragmentList) getParentFragment()).setFragment(FragmentList.FRAGMENT_QR_READER);
                     }
                 }
-                else
-                    mListener.onCollectMoveCloser(mBadge);
+                else if(((ActivityBase)getActivity()).getmLocationTracker().hasLocPermission()) {
+                    if(((ActivityBase)getActivity()).isCloseEnough(mBadge)) {
+                        System.out.println("qr code: " + mBadge.getQRurl());
+                        if (mBadge.getQuiz() == null) {
+                            Toast.makeText(getContext(), "No quiz or qr code found...", Toast.LENGTH_LONG).show();
+                            mBadge.setmIsCompleted(true);
+                            if (getParentFragment() instanceof FragmentMap) {
+
+                                ((FragmentMap) getParentFragment()).setFragment(FragmentMap.FRAGMENT_BADGE_OBTAINED);
+                            } else if (getParentFragment() instanceof FragmentList) {
+                                ((FragmentList) getParentFragment()).setFragment(FragmentList.FRAGMENT_BADGE_OBTAINED);
+                            }
+                        } else if (mBadge.getQuiz() != null) {
+                            Log.e(TAG, "Switching to Quiz fragment...");
+                            if (getParentFragment() instanceof FragmentMap) {
+
+                                ((FragmentMap) getParentFragment()).setFragment(FragmentMap.FRAGMENT_QUIZ);
+                            } else if (getParentFragment() instanceof FragmentList) {
+                                ((FragmentList) getParentFragment()).setFragment(FragmentList.FRAGMENT_QUIZ);
+                            }
+                        }
+                    }
+                    else
+                        mListener.onCollectMoveCloser(mBadge);
+                }
+                else{
+                    Toast.makeText(getContext(), "Turn On location permission to collect this badge", Toast.LENGTH_LONG).show();
+                }
+
             }
         }
     }
@@ -93,6 +106,7 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_landmark_info, container, false);
         Log.e(TAG, "on create");
+        mHuntManager = ((ActivityBase)getActivity()).getData();
         img_badgeButton = (ImageView)view.findViewById(R.id.collectButton);
         foregroundView = (View)view.findViewById(R.id.foregroundCollect);
         img_landmark = (ImageView)view.findViewById(R.id.landmarkImage);
@@ -105,6 +119,9 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
         mListener = ((onClickListener)getActivity());
         foregroundView.setOnClickListener(this);
         btn_map.setOnClickListener(this);
+        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+
+
 
         mBadge = mHuntManager.getFocusBadge();
         img_badgeButton.setOnClickListener(this);
@@ -112,12 +129,9 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
         ImageManager imageManager = new ImageManager();
         imageManager.fillLandmarkImage(getContext(),mBadge, img_landmark);
         imageManager.fillBadgeImage(getContext(), mBadge, img_badgeButton);
-        /*Picasso.get().load("http://206.189.204.95/landmark/image/"+mBadge.getLandmarkImage()).fit().centerCrop().into(img_landmark);
-        if(mBadge.getIsCompleted())
-            Picasso.get().load("http://206.189.204.95/badge/icon/"+mBadge.getIcon()).resize(200,200).into(img_badgeButton);
-        else
-            Picasso.get().load("http://206.189.204.95/badge/icon/"+mBadge.getIcon()).transform(new GrayScaleTransformation(Picasso.get())).resize(200,200).into(img_badgeButton);
-            */
+
+        ((ActivityBase)getActivity()).setBackButtonOnOff(true);
+
         txt_Title.setText(mBadge.getLandmarkName());
         if(mBadge.getIsCompleted()){
             txt_Collect.setText("YOU ROCK!");
@@ -130,14 +144,14 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
     @Override
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
-        mHuntManager = (HuntManager)args.getSerializable("huntmanager");
+        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
 
     }
 
     public static FragmentLandmarkInfo newInstance(HuntManager huntManager) {
         FragmentLandmarkInfo f = new FragmentLandmarkInfo();
         Bundle args = new Bundle();
-        args.putSerializable("huntmanager", huntManager);
+        //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
         return f;
     }

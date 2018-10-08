@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Adapters.PrizesAdapter;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
@@ -36,7 +37,7 @@ public class FragmentPrizesList extends Fragment {
     public static FragmentPrizesList newInstance(HuntManager huntManager) {
         FragmentPrizesList f = new FragmentPrizesList();
         Bundle args = new Bundle();
-        args.putSerializable("huntmanager", huntManager);
+        //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
         return f;
     }
@@ -45,7 +46,7 @@ public class FragmentPrizesList extends Fragment {
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
         Log.e(TAG, "setArguments, args: "+args);
-        mHuntManager = (HuntManager)args.getSerializable("huntmanager");
+        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
         Log.e(TAG, "setArguments, huntman: "+mHuntManager);
 
 
@@ -56,6 +57,7 @@ public class FragmentPrizesList extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         Log.e(TAG, "OnCreateView");
+        mHuntManager = ((ActivityBase)getActivity()).getData();
         View rootView = inflater.inflate(R.layout.fragment_prizes_list, container, false);
 
         prize_items = mHuntManager.getAllCompletedHunts();

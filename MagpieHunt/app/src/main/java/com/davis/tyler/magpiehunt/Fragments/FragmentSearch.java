@@ -25,6 +25,7 @@ public class FragmentSearch extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
+        mHuntManager = ((ActivityBase)getActivity()).getData();
         Log.e(TAG, "ONCREATE");
         curFrag = 0;
         setFragment(FRAGMENT_SEARCH);
@@ -35,7 +36,7 @@ public class FragmentSearch extends Fragment {
     public static FragmentSearch newInstance(HuntManager huntManager) {
         FragmentSearch f = new FragmentSearch();
         Bundle args = new Bundle();
-        args.putSerializable("huntmanager", huntManager);
+        //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
         return f;
     }
@@ -43,10 +44,17 @@ public class FragmentSearch extends Fragment {
     @Override
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
-        mHuntManager = (HuntManager)args.getSerializable("huntmanager");
+        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
     }
 
+    public void updateActionBar(){
+        ActivityBase activityBase = ((ActivityBase) getActivity());
 
+        activityBase.getSupportActionBar().setTitle("Search Collections");
+        activityBase.menuSettingsVisibility(false);
+        activityBase.setBackButtonOnOff(false);
+
+    }
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {

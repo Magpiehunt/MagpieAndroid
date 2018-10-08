@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Hunts.Award;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
@@ -30,6 +31,7 @@ public class FragmentPrizeInfo extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_prize_code, container, false);
+        mHuntManager = ((ActivityBase)getActivity()).getData();
         txt_code = view.findViewById(R.id.txt_prize_code);
         txt_prize = view.findViewById(R.id.txt_prize_name);
         txt_terms = view.findViewById(R.id.txt_redeemable_at);
@@ -41,6 +43,7 @@ public class FragmentPrizeInfo extends Fragment {
         txt_prize.setText(award.getName());
         txt_terms.setText("Redeemable only at "+award.getAddress()+". "+award.getTerms());
 
+        ((ActivityBase)getActivity()).setBackButtonOnOff(true);
 
         ImageManager imageManager = new ImageManager();
         imageManager.fillAwardFinished(getContext(), award, img_badge);
@@ -51,7 +54,7 @@ public class FragmentPrizeInfo extends Fragment {
     public static FragmentPrizeInfo newInstance(HuntManager huntManager) {
         FragmentPrizeInfo f = new FragmentPrizeInfo();
         Bundle args = new Bundle();
-        args.putSerializable("huntmanager", huntManager);
+        //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
         return f;
     }
@@ -60,7 +63,7 @@ public class FragmentPrizeInfo extends Fragment {
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
         Log.e(TAG, "setArguments, args: " + args);
-        mHuntManager = (HuntManager) args.getSerializable("huntmanager");
+        //mHuntManager = (HuntManager) args.getSerializable("huntmanager");
         Log.e(TAG, "setArguments, huntman: " + mHuntManager);
 
 

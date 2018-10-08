@@ -63,7 +63,7 @@ public class FragmentLandmarkList extends Fragment {
     public static FragmentLandmarkList newInstance(HuntManager huntManager) {
         FragmentLandmarkList f = new FragmentLandmarkList();
         Bundle args = new Bundle();
-        args.putSerializable("huntmanager", huntManager);
+        //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
         return f;
     }
@@ -72,7 +72,7 @@ public class FragmentLandmarkList extends Fragment {
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
         Log.e(TAG, "setArguments, args: "+args);
-        mHuntManager = (HuntManager)args.getSerializable("huntmanager");
+        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
         Log.e(TAG, "setArguments, huntman: "+mHuntManager);
 
 
@@ -84,6 +84,7 @@ public class FragmentLandmarkList extends Fragment {
         // Inflate the layout for this fragment
 
         Log.e(TAG, "OnCreateView"+this);
+        mHuntManager = ((ActivityBase)getActivity()).getData();
         View rootView = inflater.inflate(R.layout.fragment_landmark_list, container, false);
 
         if(savedInstanceState != null){
@@ -258,8 +259,9 @@ public class FragmentLandmarkList extends Fragment {
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
+        Log.e(TAG, "onsave");
+
         super.onSaveInstanceState(outState);
-        Log.e(TAG, "ON SAVE ");
-        outState.putSerializable("huntmanager", mHuntManager);
+        //outState.putSerializable("huntmanager", mHuntManager);
     }
 }

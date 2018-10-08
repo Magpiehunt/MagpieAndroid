@@ -1,6 +1,8 @@
 package com.davis.tyler.magpiehunt.Adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +12,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Filter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Fragments.FragmentSearchHunts;
@@ -28,6 +31,7 @@ public class CheckableSpinnerSearchAdapter extends BaseAdapter {
     private List<FilterHolder> holders;
     private FilterHolder titleHolder;
     private FragmentSearchHunts listener;
+    private SharedPreferences preferences;
 
     public CheckableSpinnerSearchAdapter(Context context, FragmentSearchHunts listener){
         holders = new LinkedList<>();
@@ -93,23 +97,33 @@ public class CheckableSpinnerSearchAdapter extends BaseAdapter {
             holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                    if(isChecked){
-                        for(FilterHolder h: holders){
-                            if(!holder.equals(h)){
-                                h.checkBox.setChecked(false);
-                            }
-                        }
-                        selected_item = filter;
-                        holders.get(0).title.setText(selected_item);
-                        titleHolder.title.setText(selected_item);
-                        Log.e(TAG,"checked: "+filter+" holder is: "+titleHolder);
-                        if(selected_item.equalsIgnoreCase("walking distance")){
-                            listener.sortWalkingDistance();
-                        }
+                    preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
+                    boolean permission = preferences.getBoolean("location", false);
+                    if(permission) {
+                        if (isChecked) {
+                            for (FilterHolder h : holders) {
+                                if (!holder.equals(h)) {
+                                    h.checkBox.setChecked(false);
+                                }
+                            }
+                            selected_item = filter;
+                            holders.get(0).title.setText(selected_item);
+                            titleHolder.title.setText(selected_item);
+                            Log.e(TAG, "checked: " + filter + " holder is: " + titleHolder);
+                            if (selected_item.equalsIgnoreCase("walking distance")) {
+                                listener.sortWalkingDistance();
+                            } else if (selected_item.equalsIgnoreCase("number of badges")) {
+                                listener.sortNumberBadges();
+                            } else if (selected_item.equalsIgnoreCase("closest to me")) {
+                                listener.sortClosest();
+                            }
+
+                        } else {
+                        }
                     }
-                    else {
-                    }
+                    else
+                        Toast.makeText(context, "Must enable location permission to filter", Toast.LENGTH_LONG).show();
                 }
             });
 

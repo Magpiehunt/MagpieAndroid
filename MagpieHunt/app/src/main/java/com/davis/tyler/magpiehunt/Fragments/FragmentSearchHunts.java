@@ -57,63 +57,23 @@ import java.util.regex.Pattern;
  * RecyclerView for this fragment is SearchCollectionAdapter
  */
 public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeListener{
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
     private static final String TAG = "SearchCollectionsFrag";
-
-
     protected RecyclerView mRecyclerView;
     protected SearchCollectionAdapter mModelAdapter;
     protected RecyclerView.LayoutManager mLayoutManager;
     protected Context context;
     private HuntManager mHuntManager;
-    private CMSCommunicator mCMSCommunicator;
     private EditText mSearchText;
-    private List<String> states;
-    private ArrayList<String> mEntries;
     private LinkedList<Hunt> hunts;
-    //private ImageView test;
     private Target target;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-
-    public FragmentSearchHunts() {
-        // Required empty public constructor
-    }
-
     /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
      * @return A new instance of fragment FragmentSearchHunts.
      */
-    // TODO: Rename and change types and number of parameters
-    public static FragmentSearchHunts newInstance() {
-        FragmentSearchHunts fragment = new FragmentSearchHunts();
-        Bundle args = new Bundle();
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-        this.context = this.getActivity();
-        mCMSCommunicator = new CMSCommunicator();
-
-    }
     public static FragmentSearchHunts newInstance(HuntManager huntManager) {
         FragmentSearchHunts f = new FragmentSearchHunts();
         Bundle args = new Bundle();
-        args.putSerializable("huntmanager", huntManager);
+        //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
         return f;
     }
@@ -122,7 +82,7 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
         Log.e(TAG, "setArguments, args: "+args);
-        mHuntManager = (HuntManager)args.getSerializable("huntmanager");
+        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
         Log.e(TAG, "setArguments, huntman: "+mHuntManager);
 
 
@@ -131,9 +91,9 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
+        mHuntManager = ((ActivityBase)getActivity()).getData();
         View rootView = inflater.inflate(R.layout.fragment_search_collections, container, false);
-
+        this.context = this.getActivity();
         //test = rootView.findViewById(R.id.imageView2);
         //init landmark_list_green
         mRecyclerView = rootView.findViewById(R.id.searchView);
@@ -187,7 +147,6 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
         mModelAdapter = new SearchCollectionAdapter(hunts, getContext(), mHuntManager, this);
         mRecyclerView.setAdapter(mModelAdapter);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mCMSCommunicator = new CMSCommunicator();
 
         SpinnerSearchFilter spinner = (SpinnerSearchFilter) rootView.findViewById(R.id.spinner);
         CheckableSpinnerSearchAdapter adapter = new CheckableSpinnerSearchAdapter(getContext(), this);
@@ -203,17 +162,19 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
         mHuntManager.getSortedHuntsByDistance(hunts);
         mModelAdapter.notifyDataSetChanged();
     }
+    public void sortClosest(){
+        mHuntManager.getSortedHuntsByClosestBadge(hunts, ((ActivityBase)getActivity()).getmLocationTracker());
+        mModelAdapter.notifyDataSetChanged();
+    }
+    public void sortNumberBadges(){
+        mHuntManager.getSortedHuntsByNumberOfBadges(hunts);
+        mModelAdapter.notifyDataSetChanged();
+    }
     private void searchForHunts(String query){
         Log.e(TAG, query);
         if(Pattern.matches("^[\\d]{5}$", query)){
             searchByZip(query);
         }
-        /*else if(Pattern.matches("^[a-zA-Z]{2}$", query)){
-            Log.e(TAG, "State search result: "+mCMSCommunicator.getHuntsByState(query));
-        }
-        else if(Pattern.matches("^[a-zA-Z]+(?:[\\s-][a-zA-Z]+)*$", query)){
-            Log.e(TAG, "City search result: "+mCMSCommunicator.getHuntsByCity(query));
-        }*/
         else{
             searchByCity(query);
 

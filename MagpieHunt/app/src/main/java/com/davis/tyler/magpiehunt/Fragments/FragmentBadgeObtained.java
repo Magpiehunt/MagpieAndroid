@@ -41,6 +41,9 @@ public class FragmentBadgeObtained extends Fragment implements View.OnClickListe
             mHuntManager.getSingleSelectedHunt().updateIsCompleted();
         }
         */
+
+        ((ActivityBase)getActivity()).setBackButtonOnOff(true);
+        mHuntManager = ((ActivityBase)getActivity()).getData();
         Badge b = mHuntManager.getFocusBadge();
         txt_name.setText(b.getName());
         Hunt h = mHuntManager.getHuntByID(b.getHuntID());
@@ -63,7 +66,6 @@ public class FragmentBadgeObtained extends Fragment implements View.OnClickListe
             fm.addHuntList(getContext(), mHuntManager.getAllHunts());
         }catch(Exception e){
             e.printStackTrace();
-            Toast.makeText(getContext(), "Download failed.", Toast.LENGTH_LONG).show();
         }
 
     }
@@ -71,7 +73,7 @@ public class FragmentBadgeObtained extends Fragment implements View.OnClickListe
     public static FragmentBadgeObtained newInstance(HuntManager huntManager) {
         FragmentBadgeObtained f = new FragmentBadgeObtained();
         Bundle args = new Bundle();
-        args.putSerializable("huntmanager", huntManager);
+        //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
         return f;
     }
@@ -80,7 +82,7 @@ public class FragmentBadgeObtained extends Fragment implements View.OnClickListe
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
         Log.e(TAG, "setArguments, args: " + args);
-        mHuntManager = (HuntManager) args.getSerializable("huntmanager");
+        //mHuntManager = (HuntManager) args.getSerializable("huntmanager");
         Log.e(TAG, "setArguments, huntman: " + mHuntManager);
 
 

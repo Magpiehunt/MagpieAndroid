@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.R;
@@ -25,7 +26,7 @@ public class FragmentPrizes extends Fragment implements FragmentPrizesList.OnHun
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_prizes, container, false);
-
+        mHuntManager = ((ActivityBase)getActivity()).getData();
         setFragment(FRAGMENT_PRIZES_LIST);
         return view;
     }
@@ -33,16 +34,29 @@ public class FragmentPrizes extends Fragment implements FragmentPrizesList.OnHun
     public static FragmentPrizes newInstance(HuntManager huntManager) {
         FragmentPrizes f = new FragmentPrizes();
         Bundle args = new Bundle();
-        args.putSerializable("huntmanager", huntManager);
+        //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
         return f;
     }
 
+    public void updateActionBar(){
+        ActivityBase activityBase = ((ActivityBase) getActivity());
+
+        activityBase.getSupportActionBar().setTitle("My Prizes");
+        activityBase.menuSettingsVisibility(false);
+        if(curFrag == FRAGMENT_PRIZES_LIST) {
+            activityBase.setBackButtonOnOff(false);
+        }
+        else if(curFrag == FRAGMENT_PRIZES_INFO){
+            activityBase.setBackButtonOnOff(true);
+        }
+
+    }
     @Override
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
         Log.e(TAG, "setArguments, args: "+args);
-        mHuntManager = (HuntManager)args.getSerializable("huntmanager");
+        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
         Log.e(TAG, "setArguments, huntman: "+mHuntManager);
 
 

@@ -55,7 +55,7 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter, Goo
 
         System.out.println("landmark img is: "+badge.getLandmarkImage());
         ImageManager im = new ImageManager();
-        im.fillCustomInfoWindowLandmark(mContext,badge,mProfilePicture,iconWidth,iconHeight, marker);
+        im.fillBadgeImage(mContext,badge,mProfilePicture, marker);
 
         //String snippet = marker.getSnippet();
         TextView landmarkMiles = (TextView) view.findViewById(R.id.landmarkMiles);

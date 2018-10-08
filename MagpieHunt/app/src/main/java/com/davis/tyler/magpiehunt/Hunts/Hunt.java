@@ -2,6 +2,8 @@ package com.davis.tyler.magpiehunt.Hunts;
 
 import android.location.Location;
 
+import com.davis.tyler.magpiehunt.Location.LocationTracker;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -11,7 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class Hunt implements Serializable, Comparable<Hunt> {
+public class Hunt implements Serializable {
     public static final int AGE_ALL = 0;
     public static final int AGE_TEEN = 1;
     public static final int AGE_YOUNG_ADULT = 2;
@@ -154,15 +156,25 @@ public class Hunt implements Serializable, Comparable<Hunt> {
         }
         return ll;
     }
-    public int compareTo(Hunt h)
+    public double getClosestBadgeLocation(LocationTracker lt)
     {
-        double x = this.mDistance - h.getmDistance();
-        if(x < 0)
-            return -1;
-        else if(x > 0)
-            return 1;
-        else
-            return 0;
+        double min = 1000000.00;
+
+        LinkedList<Badge> badges = getAllBadges();
+        for(int x = 0; x < badges.size(); x++)
+        {
+            Badge b = badges.get(x);
+            Location temp = new Location("temp");
+            temp.setLatitude(b.getLatitude());
+            temp.setLongitude(b.getLongitude());
+            double distance = lt.distanceToPoint(temp);
+            if(min > distance)
+                min = distance;
+
+
+
+        }
+        return min;
     }
     public LinkedList<Badge> getAllBadges(){
         LinkedList<Badge> ll = new LinkedList();
@@ -178,7 +190,7 @@ public class Hunt implements Serializable, Comparable<Hunt> {
     }
     public double getmDistance(){return mDistance;}
     public void setmDistance(double distance){this.mDistance = distance;}
-    public double getTime(){return round(getmDistance() / 3.1, 1);}
+    public double getTime(){return round((getmDistance() / 2.6) + 3.0/60 * getAllBadges().size(), 1);}
 
     public double getDistanceBetweenBadges(Badge b1, Badge b2)
     {

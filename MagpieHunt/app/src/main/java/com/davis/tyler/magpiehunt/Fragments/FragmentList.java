@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.R;
 
@@ -32,6 +33,7 @@ public class FragmentList extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_list, container, false);
+        mHuntManager = ((ActivityBase)getActivity()).getData();
         Log.e(TAG, "onCreateView");
         curFrag = 0;
         setFragment(FRAGMENT_LANDMARK_LIST);
@@ -43,21 +45,10 @@ public class FragmentList extends Fragment {
         mLandmarkListFragment.updateList();
     }
 
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if(isVisibleToUser){
-            Log.e(TAG,"visible");
-        }
-        else{
-            Log.e(TAG,"not visible");
-        }
-    }
-
     public static FragmentList newInstance(HuntManager huntManager) {
         FragmentList f = new FragmentList();
         Bundle args = new Bundle();
-        args.putSerializable("huntmanager", huntManager);
+        //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
         return f;
     }
@@ -65,13 +56,13 @@ public class FragmentList extends Fragment {
     @Override
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
-        mHuntManager = (HuntManager)args.getSerializable("huntmanager");
+        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
     }
 
     public void onBackPressed(){
         //todo implement backpress in map fragment
-        Log.e(TAG, "curfrag: "+curFrag);
         if(curFrag == FRAGMENT_LANDMARK_INFO){
+            ((ActivityBase)getActivity()).setBackButtonOnOff(false);
             setFragment(FRAGMENT_LANDMARK_LIST);
         }
         else if(curFrag == FRAGMENT_QR_READER){
@@ -79,24 +70,33 @@ public class FragmentList extends Fragment {
         }
     }
 
+    public void updateActionBar(){
+        ActivityBase activityBase = ((ActivityBase) getActivity());
+        if(mHuntManager.getSelectedHuntsSize()== 1){
+            activityBase.getSupportActionBar().setTitle(mHuntManager.getSingleSelectedHunt().getName());
+        }
+        else {
+            activityBase.getSupportActionBar().setTitle("Badges Near Me");
+        }
+        activityBase.menuSettingsVisibility(false);
+        activityBase.setBackButtonOnOff(false);
+        if(curFrag == FRAGMENT_BADGE_OBTAINED){
+            activityBase.setBackButtonOnOff(false);
+        }
+    }
+
     public void setFragment(int i) {
         curFrag = i;
-        Log.e(TAG, "curfrag set to: "+curFrag);
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         if(i == FRAGMENT_LANDMARK_LIST) {
-            Log.e(TAG, "Switching to list");
             if(mLandmarkListFragment == null) {
-                Log.e(TAG, "landmarklist null");
-                //collectionFragment = FragmentGoogleMaps.newInstance(mHuntManager);
                 mLandmarkListFragment = FragmentLandmarkList.newInstance(mHuntManager);
             }
             mLandmarkListFragment.onUpdateTextView();
             ft.replace(R.id.currentfragment, mLandmarkListFragment);
         }
         else if(i == FRAGMENT_LANDMARK_INFO){
-            Log.e(TAG, "Switching to info");
             if(mFragmentLandmarkInfo == null){
-
                 mFragmentLandmarkInfo = FragmentLandmarkInfo.newInstance(mHuntManager);
             }
             ft.replace(R.id.currentfragment, mFragmentLandmarkInfo);
@@ -133,7 +133,6 @@ public class FragmentList extends Fragment {
         }
         if(i == FRAGMENT_TIMER) {
             fragmentTimer.startTimer();
-            Log.e(TAG, "timer started");
         }
         else if(i == FRAGMENT_BADGE_OBTAINED){
             fragmentBadgeObtained.updateInfo(mHuntManager.getFocusBadge());

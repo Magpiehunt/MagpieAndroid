@@ -17,6 +17,7 @@
         tools:context=".MapsActivity"
         android:name="com.google.android.gms.maps.SupportMapFragment" />
 
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -32,6 +33,7 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:background="@drawable/standard_button_gray"
+            android:popupBackground="@drawable/filter_background"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="15dp" />
         <ImageView
@@ -57,5 +59,25 @@
         android:src="@drawable/ic_gps"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="30dp" />
+    <Button
+        android:id="@+id/btn_slide_in"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="slide in"
+        android:layout_above="@+id/ic_gps"/>
 
+    <RelativeLayout
+        android:id="@+id/slidable_view"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@drawable/popup_background"
+        android:layout_alignParentBottom="true">
+        <Button
+            android:id="@+id/btn_slide_down"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Slide down"/>
+
+    </RelativeLayout>
 </RelativeLayout>

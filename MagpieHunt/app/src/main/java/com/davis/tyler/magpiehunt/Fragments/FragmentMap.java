@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Location.CameraManager;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
@@ -38,14 +39,13 @@ public class FragmentMap extends Fragment implements IFragmentSwitcherListener{
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_map, container, false);
         Log.e(TAG, "onCreateView");
-
+        mHuntManager = ((ActivityBase)getActivity()).getData();
         if(savedInstanceState == null) {
             //Log.e(TAG, "MAKING NEW HUNT MANAGER: "+mHuntManager);
             curFrag = 0;
         }
         else{
             Log.e(TAG,"BUNDLE NOT NULL");
-            mHuntManager = (HuntManager)savedInstanceState.getSerializable("huntmanager");
             curFrag = savedInstanceState.getInt("currentfragment");
         }
         Log.e(TAG,"oncreate calling setfragment: "+mHuntManager);
@@ -57,7 +57,7 @@ public class FragmentMap extends Fragment implements IFragmentSwitcherListener{
     public static FragmentMap newInstance(HuntManager huntManager, CameraManager cameraManager) {
         FragmentMap f = new FragmentMap();
         Bundle args = new Bundle();
-        args.putSerializable("huntmanager", huntManager);
+        //args.putSerializable("huntmanager", huntManager);
         args.putSerializable("cameramanager", cameraManager);
         f.setArguments(args);
         return f;
@@ -67,13 +67,27 @@ public class FragmentMap extends Fragment implements IFragmentSwitcherListener{
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
         Log.e(TAG, "setArguments, args: "+args);
-        mHuntManager = (HuntManager)args.getSerializable("huntmanager");
+        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
         mCameraManager = (CameraManager)args.getSerializable("cameramanager");
         Log.e(TAG, "setArguments, huntman: "+mHuntManager);
 
 
     }
+    public void updateActionBar(){
+        ActivityBase activityBase = ((ActivityBase) getActivity());
+        if(mHuntManager.getSelectedHuntsSize()== 1){
+            activityBase.getSupportActionBar().setTitle(mHuntManager.getSingleSelectedHunt().getName());
+        }
+        else {
+            activityBase.getSupportActionBar().setTitle("Badges Near Me");
+        }
+        activityBase.menuSettingsVisibility(false);
+        activityBase.setBackButtonOnOff(false);
+        if(curFrag == FRAGMENT_BADGE_OBTAINED){
+            activityBase.setBackButtonOnOff(false);
+        }
 
+    }
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
@@ -147,6 +161,7 @@ public class FragmentMap extends Fragment implements IFragmentSwitcherListener{
     public void onBackPressed(){
         Log.e(TAG, "curfrag: "+curFrag);
         if(curFrag == FRAGMENT_LANDMARK_INFO){
+            ((ActivityBase)getActivity()).setBackButtonOnOff(false);
             setFragment(FRAGMENT_GOOGLE_MAPS);
             curFrag = FRAGMENT_GOOGLE_MAPS;
             fragmentGoogleMaps.repositionCamera();
@@ -157,9 +172,10 @@ public class FragmentMap extends Fragment implements IFragmentSwitcherListener{
     }
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
+        Log.e(TAG, "onsave");
+
         super.onSaveInstanceState(outState);
-        Log.e(TAG, "ONSAVE");
-        outState.putSerializable("huntmanager", mHuntManager);
+        //outState.putSerializable("huntmanager", mHuntManager);
         outState.putInt("currentfragment", curFrag);
     }
 
@@ -177,5 +193,8 @@ public class FragmentMap extends Fragment implements IFragmentSwitcherListener{
         if(fragmentGoogleMaps != null){
             fragmentGoogleMaps.updateSpinner();
         }
+    }
+    public void updatePermissionLocation(boolean b){
+        fragmentGoogleMaps.updatePermissionLocation(b);
     }
 }

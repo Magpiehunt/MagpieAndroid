@@ -1,12 +1,14 @@
 package com.davis.tyler.magpiehunt.Fragments;
 
 import android.Manifest;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -17,7 +19,13 @@ import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.TranslateAnimation;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -51,6 +59,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Set;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
         GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = "Fragment_Google_Maps";
@@ -64,15 +74,18 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private GoogleMap mMap;
     private ImageView btn_center_camera;
-    private boolean mLocationPermissionGranted = false;
     private boolean mShowInfoWindow;
     private boolean mAnimateCamera;
     private HuntManager mHuntManager;
     private LatLng mLocationToFocus;
 
+
+    private RelativeLayout slidableview;
+    private Button btn_slideIn, btn_slideOut;
+
     private CameraManager mCameraManager;
     private HashMap<Integer, Marker> markers; //key: badgeid
-
+    private boolean slidableViewUp;
     private DialogMoveCloser customDialog;
     private Set<Hunt> selected_items;
     private SpinnerHuntFilter spinner;
@@ -81,34 +94,123 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
     private int width, height;
     private Bitmap defaultMarker;
     private Bitmap greyMarker;
+    private SharedPreferences preferences;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_google_maps, container, false);
-
+        mHuntManager = ((ActivityBase)getActivity()).getData();
         customDialog =new DialogMoveCloser(getActivity());
 
         //Get reference to FilterSpinner and Center_Camera button
         spinner = (SpinnerHuntFilter) view.findViewById(R.id.spinner);
         btn_center_camera = (ImageView)view.findViewById(R.id.ic_gps);
 
+        slidableViewUp = false;
+        slidableview = view.findViewById(R.id.slidable_view);
+        btn_slideIn = view.findViewById(R.id.btn_slide_in);
+        btn_slideOut = view.findViewById(R.id.btn_slide_down);
+        slidableview.setVisibility(View.INVISIBLE);
+
+        initSlideView();
+
+        setupFilter();
+
+        setupMarkerGraphics();
+        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+
+        if(hasLocPermission()){
+            getLocationPermission();
+        }
+        //getLocationPermission();
+        initMap();
+        return view;
+    }
+
+    public void initSlideView(){
+        btn_slideIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                slidableview.setVisibility(View.VISIBLE);
+                if(isSlidableViewUp()){
+                    return;
+                }
+                AnimationSet set = new AnimationSet(true);
+
+                Animation anim = new AlphaAnimation(0.0f, 1.0f);
+                anim.setDuration(200);
+                TranslateAnimation animation = new TranslateAnimation(0, 0, slidableview.getHeight(),0);
+                animation.setDuration(200);
+                animation.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        slidableViewUp = true;
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+
+                set.addAnimation(anim);
+                set.addAnimation(animation);
+                slidableview.startAnimation(set);
+            }
+        });
+        btn_slideOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!isSlidableViewUp()){
+                    return;
+                }
+                AnimationSet set = new AnimationSet(true);
+
+                Animation anim = new AlphaAnimation(1.0f, 0.0f);
+                anim.setDuration(200);
+                TranslateAnimation animation = new TranslateAnimation(0, 0, 0,slidableview.getHeight());
+                animation.setDuration(200);
+
+                set.addAnimation(anim);
+                set.addAnimation(animation);
+                animation.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        slidableViewUp = false;
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        slidableview.setVisibility(View.INVISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+                slidableview.startAnimation(set);
+            }
+        });
+
         //Set onclick listener to center camera when button is clicked
         btn_center_camera.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
                 Log.d(TAG, "onClick: clicked gps icon");
-                mAnimateCamera = true;
-                centerOnPosition();
+                if(!isSlidableViewUp()) {
+                    mAnimateCamera = true;
+                    centerOnPosition();
+                }
             }
         });
-        setupFilter();
-
-        setupMarkerGraphics();
-        getLocationPermission();
-
-        return view;
     }
+    public boolean isSlidableViewUp(){return slidableViewUp;}
 
     public void setupMarkerGraphics(){
         //Obtain screen size
@@ -134,6 +236,9 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
         height =(int)( width * 1.6);
         greyMarker = Bitmap.createScaledBitmap(bitmap, width, height, false);
         bitmap.recycle();
+    }
+    public boolean hasLocPermission(){
+        return preferences.getBoolean("fine", false) && preferences.getBoolean("coarse", false);
     }
     public void setupFilter(){
 
@@ -167,7 +272,7 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
 
         FragmentGoogleMaps f = new FragmentGoogleMaps();
         Bundle args = new Bundle();
-        args.putSerializable("huntmanager", huntManager);
+        //args.putSerializable("huntmanager", huntManager);
         args.putSerializable("cameramanager", cameraManager);
         f.setArguments(args);
         return f;
@@ -175,9 +280,10 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
     @Override
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
-        mHuntManager = (HuntManager)args.getSerializable("huntmanager");
+        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
         mCameraManager = (CameraManager)args.getSerializable("cameramanager");
     }
+
 
     public void setCameraOnLandmark(Badge badge){
         Log.e(TAG,"SETTING LANDMARK TO FOCUS ON");
@@ -189,7 +295,6 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
 
         //Set location to focus on before calling repositionCamera()
         mLocationToFocus = badge.getLatLng();
-
         /*
         Find the marker in the hashmap being focused on
          */
@@ -199,7 +304,20 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
                 m.showInfoWindow();
         }
 
-        repositionCamera();
+        /*if(!hasLocPermission()){
+            if (mLocationToFocus != null) {
+
+                moveCamera(mLocationToFocus, DEFAULT_ZOOM);
+                mLocationToFocus = null;
+            } else if (mCameraManager.getLat() != 0) {
+                Log.e(TAG, "Repositioning camera, lat: " + mCameraManager.getLat() + " lon: " + mCameraManager.getLon());
+
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCameraManager.getLat(), mCameraManager.getLon()), DEFAULT_ZOOM));
+            }
+        }
+        else {*/
+            repositionCamera();
+        //}
     }
     private void initMap(){
         SupportMapFragment mMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
@@ -214,7 +332,8 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
         //Check to see we have both permissions, if not, ask for permission, else, intialize the map
         if(ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             if(ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-                mLocationPermissionGranted = true;
+                preferences.edit().putBoolean("fine", true).apply();
+                preferences.edit().putBoolean("coarse", true).apply();
                 Log.e(TAG, "init map from getLocationPermission()");
                 initMap();
             }
@@ -232,7 +351,6 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         //This method handles the response to the permission by the user
-        mLocationPermissionGranted = false;
         switch (requestCode) {
             case LOCATION_PERMISSION_REQUEST_CODE: {
                 if (grantResults.length > 0) {
@@ -242,11 +360,14 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
                      */
                     for (int i = 0; i < grantResults.length; i++) {
                         if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                            mLocationPermissionGranted = false;
+                            System.out.println("distance permission denied from map");
+                            preferences.edit().putBoolean("fine", false).apply();
+                            preferences.edit().putBoolean("coarse", false).apply();
                             return;
                         }
                     }
-                    mLocationPermissionGranted = true;
+                    preferences.edit().putBoolean("fine", true).apply();
+                    preferences.edit().putBoolean("coarse", true).apply();
                     //initialize our map
                     initMap();
                 }
@@ -262,24 +383,27 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
         //save reference to the map object
         mMap = googleMap;
 
+        System.out.println("Map is: "+mMap);
         // turns off default googlemaps toolbar
         mMap.getUiSettings().setMapToolbarEnabled(false);
 
         //Check if we have permission to use user location
-        if(mLocationPermissionGranted){
+
 
             //if camera was already at a location, move to that location, else, center on user location
-            if(mCameraManager.getLat()!= 0)
+            if (mCameraManager.getLat() != 0)
                 repositionCamera();
             else
                 getDeviceLocation();
 
             //This if() is necessary to use the setMyLocationEnabled() method
-            if(ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                    && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
+        if(hasLocPermission()) {
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
             mMap.setMyLocationEnabled(true);//marks my location on the map
+        }
             mMap.getUiSettings().setMyLocationButtonEnabled(false);// turn off default user location button
 
             //setup the center on user location button and place markers
@@ -293,16 +417,16 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
                 public void onInfoWindowClick(Marker marker) {
                     saveCameraPosition();
                     mHuntManager.setFocusBadge(Integer.parseInt(marker.getTitle()));
-                    ((IFragmentSwitcherListener)getParentFragment()).setFragment(FragmentMap.FRAGMENT_LANDMARK_INFO);
+                    ((IFragmentSwitcherListener) getParentFragment()).setFragment(FragmentMap.FRAGMENT_LANDMARK_INFO);
 
                 }
             });
-            if(mShowInfoWindow){
+            if (mShowInfoWindow) {
                 mShowInfoWindow = false;
                 Marker m = markers.get(mHuntManager.getFocusBadge().getID());
                 m.showInfoWindow();
             }
-        }
+
     }
 
 
@@ -312,32 +436,43 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
         Save the camera lat and lon into camera manager so that when we leave the fragment and return
         the camera will be in the same spot we left it.
          */
+            mCameraManager.setLat(mMap.getCameraPosition().target.latitude);
+            mCameraManager.setLon(mMap.getCameraPosition().target.longitude);
 
-        mCameraManager.setLat(mMap.getCameraPosition().target.latitude);
-        mCameraManager.setLon(mMap.getCameraPosition().target.longitude);
     }
 
 
     public void repositionCamera(){
         //
-        if(mCameraManager.shouldMoveCloser()){
-            customDialog.setBadge(mHuntManager.getFocusBadge());
-            customDialog.show();
-            if(markers != null) {
-                Marker m = markers.get(mHuntManager.getFocusBadge().getID());
-                if(m != null)
-                    m.showInfoWindow();
+        if(hasLocPermission()) {
+            if (mCameraManager.shouldMoveCloser()) {
+                customDialog.setBadge(mHuntManager.getFocusBadge());
+                customDialog.show();
+                if (markers != null) {
+                    Marker m = markers.get(mHuntManager.getFocusBadge().getID());
+                    if (m != null)
+                        m.showInfoWindow();
+                }
+            } else if (mLocationToFocus != null) {
+
+                moveCamera(mLocationToFocus, DEFAULT_ZOOM);
+                mLocationToFocus = null;
+            } else if (mCameraManager.getLat() != 0) {
+                Log.e(TAG, "Repositioning camera, lat: " + mCameraManager.getLat() + " lon: " + mCameraManager.getLon());
+
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCameraManager.getLat(), mCameraManager.getLon()), DEFAULT_ZOOM));
             }
         }
-        else if(mLocationToFocus != null) {
+        else{
+            if (mLocationToFocus != null) {
 
-            moveCamera(mLocationToFocus, DEFAULT_ZOOM);
-            mLocationToFocus = null;
-        }
-        else if(mCameraManager.getLat() != 0) {
-            Log.e(TAG, "Repositioning camera, lat: "+mCameraManager.getLat()+" lon: "+mCameraManager.getLon());
+                moveCamera(mLocationToFocus, DEFAULT_ZOOM);
+                mLocationToFocus = null;
+            } else if (mCameraManager.getLat() != 0) {
+                Log.e(TAG, "Repositioning camera, lat: " + mCameraManager.getLat() + " lon: " + mCameraManager.getLon());
 
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCameraManager.getLat(), mCameraManager.getLon()), DEFAULT_ZOOM));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCameraManager.getLat(), mCameraManager.getLon()), DEFAULT_ZOOM));
+            }
         }
     }
 
@@ -362,7 +497,7 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         int i =0;
-        if(mLocationPermissionGranted)
+        if(hasLocPermission())
             i = 1;
         outState.putInt("permissions", i);
         Log.e(TAG, "ONSAVE ");
@@ -374,31 +509,35 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
     the user's current location
      */
     private void centerOnPosition(){
-        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
-        try{
-            Task location = mFusedLocationProviderClient.getLastLocation();
-            location.addOnCompleteListener(new OnCompleteListener() {
-                @Override
-                public void onComplete(@NonNull Task task) {
-                    if(task.isSuccessful()) {
-                        Log.e(TAG, "onComplete from centerOnPosition "+this);
-                        Location currentLocation = (Location) task.getResult();
+        Log.e(TAG, " centerOnPosition ");
+        if(hasLocPermission()) {
+            Log.e(TAG, "centerOnPosition has permission");
+            mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
+            try {
+                Task location = mFusedLocationProviderClient.getLastLocation();
+                location.addOnCompleteListener(new OnCompleteListener() {
+                    @Override
+                    public void onComplete(@NonNull Task task) {
+                        if (task.isSuccessful()) {
+                            Log.e(TAG, "onComplete from centerOnPosition " + this);
+                            if(hasLocPermission()) {
+                                Location currentLocation = (Location) task.getResult();
 
-                            moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
-                                    DEFAULT_ZOOM);
+                                moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
+                                        DEFAULT_ZOOM);
+                            }
+
+                        } else {
+                            Log.d(TAG, "onComplete: current location is null");
+                            Toast.makeText(getContext(), "unable to get current location", Toast.LENGTH_SHORT).show();
+                        }
 
 
                     }
-                    else{
-                        Log.d(TAG, "onComplete: current location is null");
-                        Toast.makeText(getContext(), "unable to get current location", Toast.LENGTH_SHORT).show();
-                    }
-
-
-                }
-            });
-        }catch(SecurityException e){
-            Log.e(TAG, "getDeviceLocation: SecurityException: " + e.getMessage());
+                });
+            } catch (SecurityException e) {
+                Log.e(TAG, "getDeviceLocation: SecurityException: " + e.getMessage());
+            }
         }
     }
 
@@ -407,31 +546,31 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
     to that location when the map is first loaded.
      */
     private void getDeviceLocation(){
-        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
-        try{
-            Task location = mFusedLocationProviderClient.getLastLocation();
-            location.addOnCompleteListener(new OnCompleteListener() {
-                @Override
-                public void onComplete(@NonNull Task task) {
-                    if(task.isSuccessful()) {
-                        Log.e(TAG, "onComplete "+this);
-                        Location currentLocation = (Location) task.getResult();
-                        if(mLocationToFocus != null) {
-                            moveCamera(mLocationToFocus, DEFAULT_ZOOM);
-                            mLocationToFocus = null;
-                        }
-                        else {
-                            moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
-                                    DEFAULT_ZOOM);
+        if(hasLocPermission()) {
+            mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
+            try {
+                Task location = mFusedLocationProviderClient.getLastLocation();
+                location.addOnCompleteListener(new OnCompleteListener() {
+                    @Override
+                    public void onComplete(@NonNull Task task) {
+                        if (task.isSuccessful()) {
+                            Log.e(TAG, "onComplete " + this);
+                            Location currentLocation = (Location) task.getResult();
+                            if (mLocationToFocus != null) {
+                                moveCamera(mLocationToFocus, DEFAULT_ZOOM);
+                                mLocationToFocus = null;
+                            } else {
+                                moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
+                                        DEFAULT_ZOOM);
+                            }
+                        } else {
+                            Toast.makeText(getContext(), "unable to get current location", Toast.LENGTH_SHORT).show();
                         }
                     }
-                    else{
-                        Toast.makeText(getContext(), "unable to get current location", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        }catch(SecurityException e){
-            Log.e(TAG, "getDeviceLocation: SecurityException: " + e.getMessage());
+                });
+            } catch (SecurityException e) {
+                Log.e(TAG, "getDeviceLocation: SecurityException: " + e.getMessage());
+            }
         }
     }
     @Override
@@ -443,51 +582,50 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
         This is called to clear the map and redraw all markers for the selected hunts.
      */
     public void updateFocusHunts(){
+            if (mMap != null) {
+                //clear the map of all markers
+                mMap.clear();
+                markers = new HashMap<>();
 
-        if(mMap != null){
-            //clear the map of all markers
-            mMap.clear();
-            markers = new HashMap<>();
+                // for each hunt in the collection of selected hunts, place marker at each badge's location
+                for (Hunt h : selected_items) {
+                    LinkedList<Badge> ll = h.getAllBadges();
+                    Log.e(TAG, "badge list size: " + ll.size());
+                    for (Badge b : ll) {
+                        Log.e(TAG, "adding marker");
+                        MarkerOptions temp;
 
-            // for each hunt in the collection of selected hunts, place marker at each badge's location
-            for(Hunt h: selected_items){
-                LinkedList<Badge> ll = h.getAllBadges();
-                Log.e(TAG, "badge list size: "+ll.size());
-                for(Badge b: ll){
-                    Log.e(TAG, "adding marker");
-                    MarkerOptions temp;
+                        //if badge isn't completed place the corresponding hunt color as the marker color
+                        if (!b.getIsCompleted()) {
+                            //If a hunt is being focused, give it the default gradient markers
+                            if (mHuntManager.getSelectedHuntsSize() == 1) {
+                                temp = new MarkerOptions().position(b
+                                        .getLatLng())
+                                        .title("" + b.getID())
+                                        .icon(BitmapDescriptorFactory.fromBitmap(defaultMarker));
 
-                    //if badge isn't completed place the corresponding hunt color as the marker color
-                    if(!b.getIsCompleted()) {
-                        //If a hunt is being focused, give it the default gradient markers
-                        if(mHuntManager.getSelectedHuntsSize() == 1){
-                            temp = new MarkerOptions().position(b
-                                    .getLatLng())
-                                    .title("" + b.getID())
-                                    .icon(BitmapDescriptorFactory.fromBitmap(defaultMarker));
+                            } else {
+                                temp = new MarkerOptions().position(b
+                                        .getLatLng())
+                                        .title("" + b.getID())
+                                        .icon(BitmapDescriptorFactory.fromBitmap(greyMarker));
 
-                        }
-                        else {
+                            }
+                        } else {
+                            //if the badge is completed, place grey marker
                             temp = new MarkerOptions().position(b
                                     .getLatLng())
                                     .title("" + b.getID())
                                     .icon(BitmapDescriptorFactory.defaultMarker(getHue(h.getID())));
-                        }
-                    }
-                    else{
-                        //if the badge is completed, place grey marker
-                            temp = new MarkerOptions().position(b
-                                    .getLatLng())
-                                    .title("" + b.getID())
-                                    .icon(BitmapDescriptorFactory.fromBitmap(greyMarker));
 
+                        }
+                        markers.put(b.getID(), mMap.addMarker(temp));
                     }
-                    markers.put(b.getID(),mMap.addMarker(temp));
                 }
+
+                //if (mHuntManager.getSelectedHuntsSize() == 1) all markers in the markers hashmap are what needs to be all on screen
             }
 
-            //if (mHuntManager.getSelectedHuntsSize() == 1) all markers in the markers hashmap are what needs to be all on screen
-        }
     }
 
     //temporary method to decide the hunt color.
@@ -521,5 +659,24 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
         //TODO eventually make this get all downloaded hunts, as undownloaded hunts may be sitting in huntmanager
         checkableSpinnerAdapter.updateSpinnerItems();
         checkableSpinnerAdapter.notifyDataSetChanged();
+    }
+    public void updatePermissionLocation(boolean onElseOff){
+        if(onElseOff){
+            if(mMap != null){
+                System.out.println("permission mmap not null, turn on");
+                if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                System.out.println("permission didnt return");
+
+                mMap.setMyLocationEnabled(true);//marks my location on the map
+            }
+        }else{
+            System.out.println("permission mmap not null, turn off");
+            if(mMap != null){
+                mMap.setMyLocationEnabled(false);
+            }
+        }
     }
 }

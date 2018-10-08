@@ -3,11 +3,13 @@ package com.davis.tyler.magpiehunt.Location;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.PermissionChecker;
@@ -46,21 +48,27 @@ public class LocationTracker implements ActivityCompat.OnRequestPermissionsResul
     private Activity a;
     private Context context;
     private GoogleMap gMap;
-    private boolean hasPermission = false;
     //private GPSTracker gpsTracker;
-    private static double validDistanceInMiles = 4;//change this later to whatever the valid distance you decide on then
+    private static double validDistanceInMiles = 1;//change this later to whatever the valid distance you decide on then
     private LocationManager mLocationManager;
     private LocationListener mLocationListener;
     private HuntManager mHuntManager;
     private Location currLoc;
     private LatLng coords;
+    private SharedPreferences preferences;
 
     public LocationTracker(Activity a, Context cxt, HuntManager hm){//use null for gMap if not using this feature
         this.a = a;
         context = cxt;
         //this.gMap = gMap;
         mHuntManager = hm;
-        checkLocationPermission();
+        preferences = PreferenceManager.getDefaultSharedPreferences(cxt);
+        if(preferences.getBoolean("fine", false) && preferences.getBoolean("coarse", false)){
+
+            System.out.println("permission, location approved");
+            checkLocationPermission();
+        }
+        //checkLocationPermission();
     }
 
     public boolean isValidDistance(Location to){
@@ -79,21 +87,24 @@ public class LocationTracker implements ActivityCompat.OnRequestPermissionsResul
     by distance, and then notify activity that location has changed so list views can update.
      */
     public boolean checkLocationPermission() {
-        if(hasPermission){return true;}
         if(PermissionChecker.checkCallingOrSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
                 PermissionChecker.checkCallingOrSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-            hasPermission = true;
+            System.out.println("distance permission granted");
             mLocationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
+
             mLocationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    currLoc = location;
-                    coords = new LatLng(location.getLatitude(), location.getLongitude());
-                    updateDistances();
-                    if(gMap != null)
-                    {
-                        gMap.animateCamera(CameraUpdateFactory.zoomTo(20));
-                        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 20));
+                    System.out.println("permission location changed, checking for permission");
+                    if(hasLocPermission()) {
+                        System.out.println("distance setting location changed listener");
+                        currLoc = location;
+                        coords = new LatLng(location.getLatitude(), location.getLongitude());
+                        updateDistances();
+                        if (gMap != null) {
+                            gMap.animateCamera(CameraUpdateFactory.zoomTo(20));
+                            gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 20));
+                        }
                     }
                 }
 
@@ -124,13 +135,17 @@ public class LocationTracker implements ActivityCompat.OnRequestPermissionsResul
         }
         else{
             ActivityCompat.requestPermissions(a, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
-            return hasPermission;
+            //return hasPermission;
         }
+        return hasLocPermission();
     }
 
 
     public boolean hasLocPermission(){
-        return hasPermission;
+        preferences = PreferenceManager.getDefaultSharedPreferences(a.getApplicationContext());
+
+        System.out.println("permission map: "+preferences.getBoolean("fine", false)+" "+ preferences.getBoolean("coarse", false));
+        return (preferences.getBoolean("fine", false) && preferences.getBoolean("coarse", false));
     }
 
     public Location getCurrLoc(){
@@ -142,20 +157,18 @@ public class LocationTracker implements ActivityCompat.OnRequestPermissionsResul
     }*/
 
     public void updateDistances(){
-        Location l = new Location("");
+        if(hasLocPermission()) {
+            Location l = new Location("");
 
 
-        LinkedList<Badge> badges = mHuntManager.getAllBadges();
-        for(Badge b: badges){
-            b.setLocation(l);
-            Log.e(TAG, "updating distance to: "+distanceToPoint(l));
-            b.setDistance(distanceToPoint(l));
+            LinkedList<Badge> badges = mHuntManager.getAllBadges();
+            for (Badge b : badges) {
+                b.setLocation(l);
+                Log.e(TAG, "updating distance to: " + distanceToPoint(l));
+                b.setDistance(distanceToPoint(l));
+            }
+            ((ActivityBase) a).notifyLocationChanged();
         }
-        ((ActivityBase)a).notifyLocationChanged();
-    }
-    public void shutDown(){
-        hasPermission = false;//this forces another permissions check on activity restart and also re-initializes everything
-        //gpsTracker.stopUsingGPS();
     }
 
     public double round(double value, int places) {
@@ -171,13 +184,25 @@ public class LocationTracker implements ActivityCompat.OnRequestPermissionsResul
         switch (requestCode){
             case 1:
                 if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED){
-                    hasPermission = true;
+                    preferences.edit().putBoolean("fine", true).apply();
+                    preferences.edit().putBoolean("coarse", true).apply();
                 }
                 else{
+                    System.out.println("distance permission denied from tracker");
                     Toast.makeText(context, "Location Permissions are required to use this functionality", Toast.LENGTH_SHORT).show();
-                    hasPermission = false;
+                    preferences.edit().putBoolean("fine", false).apply();
+                    preferences.edit().putBoolean("coarse", false).apply();
                 }
                 return;
+        }
+    }
+    public void updatePermissionLocation(boolean onElseOff){
+        if(onElseOff){
+            checkLocationPermission();
+        }
+        else{
+            if(mLocationManager != null)
+                mLocationManager.removeUpdates(mLocationListener);
         }
     }
 }

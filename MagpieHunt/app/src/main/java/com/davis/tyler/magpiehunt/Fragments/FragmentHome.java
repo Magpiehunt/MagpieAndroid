@@ -16,7 +16,9 @@ import com.davis.tyler.magpiehunt.R;
 public class FragmentHome extends Fragment implements FragmentHuntsList.OnCollectionSelectedListener {
     private static final String TAG = "Home Fragment";
     public static final int FRAGMENT_HUNTS_LIST = 0;
+    public static final int FRAGMENT_SETTINGS = 1;
     private FragmentHuntsList collectionFragment;
+    private FragmentSettings fragmentSettings;
     private HuntManager mHuntManager;
     private int curFrag;
 
@@ -24,6 +26,7 @@ public class FragmentHome extends Fragment implements FragmentHuntsList.OnCollec
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
+        mHuntManager = ((ActivityBase)getActivity()).getData();
         curFrag = 0;
         setFragment(FRAGMENT_HUNTS_LIST);
         return view;
@@ -32,23 +35,27 @@ public class FragmentHome extends Fragment implements FragmentHuntsList.OnCollec
     public static FragmentHome newInstance(HuntManager huntManager) {
         FragmentHome f = new FragmentHome();
         Bundle args = new Bundle();
-        args.putSerializable("huntmanager", huntManager);
+        //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
         return f;
     }
     @Override
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
-        mHuntManager = (HuntManager)args.getSerializable("huntmanager");
+        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
     }
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if(isVisibleToUser){
-            Log.e(TAG,"visible");
+
+    public void updateActionBar(){
+        if(curFrag == FRAGMENT_SETTINGS){
+            ((ActivityBase) getActivity()).setBackButtonOnOff(true);
+            ((ActivityBase) getActivity()).getSupportActionBar().setTitle("Settings");
+            ((ActivityBase) getActivity()).menuSettingsVisibility(false);
         }
-        else{
-            Log.e(TAG,"not visible");
+        else if(curFrag == FRAGMENT_HUNTS_LIST){
+
+
+            ((ActivityBase) getActivity()).getSupportActionBar().setTitle("My Collections");
+            ((ActivityBase) getActivity()).menuSettingsVisibility(true);
         }
     }
 
@@ -60,7 +67,14 @@ public class FragmentHome extends Fragment implements FragmentHuntsList.OnCollec
                 collectionFragment = FragmentHuntsList.newInstance(mHuntManager);
             }
             ft.replace(R.id.currentfragment, collectionFragment);
+        }else if( i == FRAGMENT_SETTINGS){
+            ((ActivityBase)getActivity()).setBackButtonOnOff(true);
+            if(fragmentSettings == null) {
+                fragmentSettings = FragmentSettings.newInstance();
+            }
+            ft.replace(R.id.currentfragment, fragmentSettings);
         }
+        updateActionBar();
         ft.addToBackStack(null);
         ft.commit();
     }
@@ -71,6 +85,16 @@ public class FragmentHome extends Fragment implements FragmentHuntsList.OnCollec
         ((ActivityBase)getActivity()).changePage(ActivityBase.FRAGMENT_LIST);
         ((ActivityBase)getActivity()).updateList();
 
+    }
+
+    public void onBackPressed(){
+        Log.e(TAG, "curfrag: "+curFrag);
+        if(curFrag == FRAGMENT_SETTINGS){
+            ((ActivityBase)getActivity()).setBackButtonOnOff(false);
+            setFragment(FRAGMENT_HUNTS_LIST);
+            curFrag = FRAGMENT_HUNTS_LIST;
+            updateActionBar();
+        }
     }
     public void updateHuntsList(){
         if(collectionFragment != null)
