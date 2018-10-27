@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/custom_info_container"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="2dp"
+    android:layout_marginRight="2dp"
+    android:background="@android:color/transparent"
+    >
+
+
+    <LinearLayout
+        android:id="@+id/custom_info_outline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/white_info_bubble"
+        android:padding="10dp">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="5dp">
+
+            <RelativeLayout
+                android:id="@+id/name_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/txt_acronym"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginRight="10dp"
+                    android:text="SSW"
+                    android:textSize="20sp"/>
+                <TextView
+                    android:id="@+id/txt_huntname"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:fontFamily="@font/montserrat_regular"
+                    android:gravity="left|center"
+                    android:layout_toRightOf="@+id/txt_acronym"
+                    android:maxLines="2"
+                    android:text="(Landmark Name)"
+                    android:textColor="@color/colorMagpieDarkGray"
+                    android:textSize="12sp"
+                    android:typeface="sans" />
+            </RelativeLayout>
+
+
+
+            <RelativeLayout
+                android:id="@+id/minutesconatiner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/name_container">
+
+                <ImageView
+                    android:id="@+id/img_badgesicon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_alignParentLeft="true"
+                    app:srcCompat="@drawable/collection_expanded_badges" />
+
+                <TextView
+                    android:id="@+id/txt_hunt_badges"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginRight="3dp"
+                    android:layout_toRightOf="@+id/img_badgesicon"
+                    android:layout_centerVertical="true"
+                    android:fontFamily="@font/montserrat_medium"
+                    android:gravity="right|top"
+                    android:text="14"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:layout_toRightOf="@+id/txt_hunt_badges"
+                    android:fontFamily="@font/montserrat_medium"
+                    android:gravity="left|top"
+                    android:text="BADGES"
+                    android:textColor="@color/colorMagpieLightGray"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/name_container"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@+id/minutesconatiner">
+
+                <ImageView
+                    android:id="@+id/img_clock"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_alignParentLeft="true"
+                    app:srcCompat="@drawable/clock" />
+
+                <TextView
+                    android:id="@+id/txt_hunt_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginRight="3dp"
+                    android:layout_toRightOf="@+id/img_clock"
+                    android:fontFamily="@font/montserrat_medium"
+                    android:gravity="right|top"
+                    android:text="2.5"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/literal_miles"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:layout_toRightOf="@+id/txt_hunt_time"
+                    android:fontFamily="@font/montserrat_medium"
+                    android:gravity="left|top"
+                    android:text="HR"
+                    android:textColor="@color/colorMagpieLightGray"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+            </RelativeLayout>
+        </RelativeLayout>
+
+
+    </LinearLayout>
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginTop="-3dp"
+        android:layout_below="@+id/custom_info_outline"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/bottom_triangle"
+        android:rotation="90" />
+
+
+
+</RelativeLayout>

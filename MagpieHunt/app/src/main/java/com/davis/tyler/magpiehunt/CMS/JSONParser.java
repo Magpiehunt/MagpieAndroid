@@ -131,7 +131,7 @@ public class JSONParser
                 huntAward.setmName((award.getString("awardName")));
                 huntAward.setmDescription(award.getString("awardDescription"));
                 huntAward.setmWorth(Integer.parseInt(award.getString("worth")));
-                huntAward.setmLocationDescription(award.getString("address"));
+                huntAward.setmAddress(award.getString("address"));
                 huntAward.setmTerms(award.getString("terms"));
                 huntAward.setmValue(Integer.parseInt(award.getString("hasValue")));
                 System.out.println("Award set, name: "+huntAward.getName());

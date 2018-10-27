@@ -60,7 +60,7 @@
             </RelativeLayout>
         </RelativeLayout>
 
-        <RelativeLayout
+        <!--<RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/badge_completed"
@@ -99,7 +99,7 @@
                 android:layout_centerVertical="true"
                 app:srcCompat="@drawable/ic_arrow_drop_down_green_24dp"
                 />
-        </RelativeLayout>
+        </RelativeLayout>-->
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/landmarksRecyclerView"
@@ -107,7 +107,7 @@
             android:layout_height="match_parent"
             android:layout_marginTop="0dp"
             android:minHeight="300dp"
-            android:layout_below="@+id/spinnercontainer"
+            android:layout_below="@+id/badge_completed"
             android:layout_alignParentLeft="true"
             android:background="@color/colorMagpieWhite"/>
     </RelativeLayout>

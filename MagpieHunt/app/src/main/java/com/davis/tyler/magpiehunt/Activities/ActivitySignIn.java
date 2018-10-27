@@ -14,43 +14,84 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.davis.tyler.magpiehunt.Fragments.FragmentPrivacyPolicy;
 import com.davis.tyler.magpiehunt.Fragments.FragmentSigninInitial;
+import com.davis.tyler.magpiehunt.Fragments.FragmentTermsAndConditions;
 import com.davis.tyler.magpiehunt.Fragments.FragmentWalkthroughContainer;
 import com.davis.tyler.magpiehunt.R;
 
 public class ActivitySignIn extends AppCompatActivity implements FragmentSigninInitial.FragmentSigninInitialListener{
-    private FragmentSigninInitial mFragmentSigninInitial;
+    private FragmentSigninInitial fragmentSigninInitial;
     private static final String TAG = "Actvity_signin";
 
     private static final String FINE_LOCATION = android.Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
+    public static final int FRAGMENT_PRIVACY = 0;
+    public static final int FRAGMENT_TERMS = 1;
+    public static final int FRAGMENT_SIGNIN = 2;
+
+    private FragmentPrivacyPolicy fragmentPrivacyPolicy;
+    private FragmentTermsAndConditions fragmentTermsAndConditions;
+    private int curFrag;
     private String[] permissionResults;
+    private SharedPreferences preferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signin);
-        //getLocationPermission();
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
         permissionResults = new String[]{"camera", "internet", "network", "storage", "fine", "coarse"};
-        if(preferences.getBoolean("firstrun", true)){
+        if (preferences.getBoolean("firstrun", true)) {
             System.out.println("permission this is first time run");
             preferences.edit().putBoolean("firstrun", false).apply();
             checkQRPermission();
-        }else {
+        } else {
             System.out.println("permission this is not first time run");
         }
-
+        if (!preferences.getBoolean("privacyAccepted", false)) {
+            setFragment(FRAGMENT_PRIVACY);
+        } else if (!preferences.getBoolean("termsAccepted", false)) {
+            setFragment(FRAGMENT_TERMS);
+        } else {
+            setFragment(FRAGMENT_SIGNIN);
+        }
         getSupportActionBar().setBackgroundDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.action_bar_gradient, null));
-        mFragmentSigninInitial = new FragmentSigninInitial();
-        goToLogin();
+
     }
 
-    public void goToLogin(){
+    public void setPrivacyAccept(){
+        preferences.edit().putBoolean("privacyAccepted", true).apply();
+    }
+    public void setTermsAccept(){
+        preferences.edit().putBoolean("termsAccepted", true).apply();
+    }
+
+    public void setFragment(int i){
+        curFrag = i;
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.currentfragment, mFragmentSigninInitial);
+        if(i == FRAGMENT_PRIVACY) {
+            if(fragmentPrivacyPolicy == null) {
+                fragmentPrivacyPolicy = FragmentPrivacyPolicy.newInstance();
+            }
+            ft.replace(R.id.currentfragment, fragmentPrivacyPolicy);
+        }else if( i == FRAGMENT_SIGNIN){
+            if(fragmentSigninInitial == null)
+                fragmentSigninInitial = new FragmentSigninInitial();
+            ft.replace(R.id.currentfragment, fragmentSigninInitial);
+        }
+        else if(i == FRAGMENT_TERMS)
+        {
+            if(fragmentTermsAndConditions == null){
+                fragmentTermsAndConditions = FragmentTermsAndConditions.newInstance();
+            }
+            ft.replace(R.id.currentfragment, fragmentTermsAndConditions);
+        }
 
         ft.commit();
+
+
     }
 
     @Override
@@ -60,89 +101,6 @@ public class ActivitySignIn extends AppCompatActivity implements FragmentSigninI
         ft.replace(R.id.currentfragment, new FragmentWalkthroughContainer());
         ft.addToBackStack(null);
         ft.commit();
-    }
-
-    public boolean checkCameraPermission(){
-        SharedPreferences preferences =
-                getSharedPreferences("settings",
-                        android.content.Context.MODE_PRIVATE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            preferences.edit().putBoolean("camera", true).apply();
-            return true;
-        }
-        else
-        {
-            ActivityCompat.requestPermissions(this, new String[]{
-                    Manifest.permission.CAMERA
-            }, PackageManager.PERMISSION_GRANTED);
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
-                preferences.edit().putBoolean("camera", true).apply();
-                return true;
-            }
-            else{
-                preferences.edit().putBoolean("camera", false).apply();
-                return false;
-            }
-        }
-    }
-
-    public boolean checkExternalStoragePermission(){
-        SharedPreferences preferences =
-                getSharedPreferences("settings",
-                        android.content.Context.MODE_PRIVATE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            preferences.edit().putBoolean("storage", true).apply();
-            return true;
-        }
-        else
-        {
-            ActivityCompat.requestPermissions(this, new String[]{
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-            }, PackageManager.PERMISSION_GRANTED);
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
-                preferences.edit().putBoolean("storage", true).apply();
-                return true;
-            }
-            else{
-                preferences.edit().putBoolean("storage", false).apply();
-                return false;
-            }
-        }
-    }
-
-    public boolean checkLocationPermission(){
-        SharedPreferences preferences =
-                getSharedPreferences("settings",
-                        android.content.Context.MODE_PRIVATE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED) {
-            preferences.edit().putBoolean("internet", true).apply();
-            preferences.edit().putBoolean("network", true).apply();
-            preferences.edit().putBoolean("fine", true).apply();
-            preferences.edit().putBoolean("coarse", true).apply();
-            return true;
-        }
-        else
-        {
-            ActivityCompat.requestPermissions(this, new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.INTERNET
-            }, PackageManager.PERMISSION_GRANTED);
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED
-                    && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                    && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED
-                    && ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED){
-
-                return true;
-            }
-            else{
-                return false;
-            }
-        }
     }
 
 

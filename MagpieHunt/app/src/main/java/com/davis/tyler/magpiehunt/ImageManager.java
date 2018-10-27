@@ -29,6 +29,7 @@ import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.google.android.gms.maps.model.Marker;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.io.File;
 import java.io.InputStream;
@@ -36,6 +37,9 @@ import java.io.InputStream;
 public class ImageManager {
 
     public void fillSuperBadgeImage(Context context, Hunt hunt, ImageView imageView){
+        if(context == null)
+        return;
+
         Award award = hunt.getAward();
         boolean isGrayScale = !hunt.getIsCompleted();
         if(loadImageFromFile(context, award.getSuperBadgeImageFileName(), imageView, isGrayScale)){
@@ -62,6 +66,8 @@ public class ImageManager {
     }
 
     public void fillAwardFinished(Context context, Award award, ImageView imageView){
+        if(context == null)
+            return;
         if(loadImageFromFile(context, award.getSuperBadgeImageFileName(), imageView, false)){
             return;
         }
@@ -73,39 +79,11 @@ public class ImageManager {
                 .into(imageView);
     }
 
-    public void fillCustomInfoWindowLandmark(Context context, Badge badge, ImageView imageView,
-                                             int iconWidth, int iconHeight, Marker marker){
-        if(loadImageFromFileInfoWindow(context, badge.getBadgeImageFileName(), imageView,
-                iconWidth, iconHeight, marker)){
-            return;
-        }
-        String url = badge.getIcon();
-        Picasso.get()
-                .load("http://206.189.204.95/landmark/image/"+url)
-                .resize(iconWidth, iconHeight)
-                .centerCrop()
-                .into(imageView, new MarkerCallback(marker));
-
-    }
-    public boolean loadImageFromFileInfoWindow(Context context, String fileName, ImageView imageView,
-                                               int iconWidth, int iconHeight, Marker marker){
-        File f=new File(context.getFilesDir()+"/images",fileName);
-        if(f == null || !f.exists()){
-            //System.out.println("file doesnt exist: "+context.getFilesDir()+"/images/"+fileName);
-            return false;
-        }
-            Picasso.get()
-                    .load(f)
-                    .resize(iconWidth, iconHeight)
-                    .centerCrop()
-                    .into(imageView, new MarkerCallback(marker));
-
-        //System.out.println("image: "+fileName+" loaded successfully");
-        return true;
-    }
 
 
     public void fillLandmarkImage(Context context, Badge badge, ImageView imageView){
+        if(context == null)
+            return;
         boolean isGrayScale = false;
 
         if(loadImageFromFileLandmarkInfo(context, badge.getLandmarkImageFileName(), imageView)){
@@ -123,6 +101,8 @@ public class ImageManager {
 
     //TODO try saving images to file and try downloading hunt and using this method to load imgs from filesystem.
     public void fillBadgeImage(Context context, Badge badge, ImageView imageView){
+        if(context == null)
+            return;
         boolean isGrayScale = !badge.getIsCompleted();
         if(loadImageFromFile(context, badge.getBadgeImageFileName(), imageView, isGrayScale)){
             return;
@@ -152,6 +132,8 @@ public class ImageManager {
     }
 
     public void fillBadgeImage(Context context, Badge badge, ImageView imageView, Marker marker){
+        if(context == null)
+            return;
         boolean isGrayScale = !badge.getIsCompleted();
         if(loadImageFromFile(context, badge.getBadgeImageFileName(), imageView, isGrayScale, marker)){
             return;
@@ -180,7 +162,36 @@ public class ImageManager {
         }
     }
 
+    public void fillLandmarkImage(Context context, Badge badge, ImageView imageView, Marker marker){
+        if(context == null)
+            return;
+        if(loadImageFromFile(context, badge.getLandmarkImageFileName(), imageView, marker)){
+            return;
+        }
+        String url = "http://206.189.204.95/landmark/image/"+badge.getLandmarkImage();
+        String[] arr = badge.getLandmarkImage().split("\\.");
+        if(arr.length >0 && arr[1].equalsIgnoreCase("svg")){
+            getSVGImage(context, url, imageView);
+            if(!badge.getIsCompleted()){
+                //setColorFilterGrayScale(imageView);
+                //imageView.setColorFilter(Color.WHITE);
+                //convertToGrayscale(imageView);
+                //imageView.setColorFilter(context.getResources().getColor(android.R.color.black), PorterDuff.Mode.SRC_IN);
+                //System.out.println("setting to gray: "+imageView.getDrawable());
+            }
+            else{
+                imageView.clearColorFilter();
+            }
+
+        }
+        else{
+            Picasso.get().load(url).fit().centerCrop().into(imageView, new MarkerCallback(marker));
+        }
+    }
+
     public void getSVGImage(Context context, String url, ImageView imageView){
+        if(context == null)
+            return;
         GenericRequestBuilder<Uri,InputStream,SVG,PictureDrawable>
                 requestBuilder = Glide.with(context)
                 .using(Glide.buildStreamModelLoader(Uri.class, context), InputStream.class)
@@ -204,6 +215,8 @@ public class ImageManager {
     }
 
     public boolean loadImageFromFileLandmarkInfo(Context context, String fileName, ImageView imageView){
+        if(context == null)
+            return false;
         File f=new File(context.getFilesDir()+"/images",fileName);
         if(f == null || !f.exists()){
             //System.out.println("file doesnt exist: "+context.getFilesDir()+"/images/"+fileName);
@@ -215,9 +228,35 @@ public class ImageManager {
         return true;
     }
 
+    public void fillSuperBadgeImageIntoMarker(Context context, Hunt hunt, Target target){
+        if(context == null)
+            return;
+        Award award = hunt.getAward();
+        if(loadImageFromFileIntoMarker(context, award.getSuperBadgeImageFileName(), target)){
+            return;
+        }
+        String url = award.getSuperBadgeIcon();
+        String[] arr = url.split("\\.");
+                Picasso.get().load("http://206.189.204.95/superbadge/image/"+award.getSuperBadgeIcon())
+                        .into(target);
+    }
+    public boolean loadImageFromFileIntoMarker(Context context, String fileName, Target target){
+        if(context == null)
+            return false;
+        File f=new File(context.getFilesDir()+"/images",fileName);
+        if(f == null || !f.exists()){
+            //System.out.println("file doesnt exist: "+context.getFilesDir()+"/images/"+fileName);
+            return false;
+        }
+        Picasso.get().load(f).into(target);
+
+        //System.out.println("image: "+fileName+" loaded successfully");
+        return true;
+    }
     //return true if success, false if file doesn't exist;
     public boolean loadImageFromFile(Context context, String fileName, ImageView imageView, boolean isGrayScale){
-
+        if(context == null)
+            return false;
         File f=new File(context.getFilesDir()+"/images",fileName);
         if(f == null || !f.exists()){
             //System.out.println("file doesnt exist: "+context.getFilesDir()+"/images/"+fileName);
@@ -235,7 +274,8 @@ public class ImageManager {
 
     public boolean loadImageFromFile(Context context, String fileName, ImageView imageView,
                                      boolean isGrayScale, Marker marker){
-
+        if(context == null)
+            return false;
         File f=new File(context.getFilesDir()+"/images",fileName);
         if(f == null || !f.exists()){
             //System.out.println("file doesnt exist: "+context.getFilesDir()+"/images/"+fileName);
@@ -243,6 +283,20 @@ public class ImageManager {
         }
         if(isGrayScale){
             Picasso.get().load(f).transform(new GrayScaleTransformation()).into(imageView, new MarkerCallback(marker));;
+        }
+        else {
+            Picasso.get().load(f).into(imageView, new MarkerCallback(marker));;
+        }
+        //System.out.println("image: "+fileName+" loaded successfully");
+        return true;
+    }
+    public boolean loadImageFromFile(Context context, String fileName, ImageView imageView, Marker marker){
+        if(context == null)
+            return false;
+        File f=new File(context.getFilesDir()+"/images",fileName);
+        if(f == null || !f.exists()){
+            //System.out.println("file doesnt exist: "+context.getFilesDir()+"/images/"+fileName);
+            return false;
         }
         else {
             Picasso.get().load(f).into(imageView, new MarkerCallback(marker));;

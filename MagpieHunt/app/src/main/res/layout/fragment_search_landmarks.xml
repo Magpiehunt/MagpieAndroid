@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/search_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_set_bottom">
+
+
+        <EditText
+            android:id="@+id/searchText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:backgroundTint="@color/colorMagpieLightGray"
+            android:ems="10"
+            android:hint="Enter Keyword"
+            android:inputType="textPersonName"
+            android:singleLine="true"
+            android:textColor="@color/colorMagpieBlack"
+            android:textCursorDrawable="@color/colorMagpieGreen"
+            android:textSize="14dp" />
+
+        <TextView
+            android:id="@+id/magnify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/searchText"
+            android:layout_alignTop="@+id/searchText"
+            android:layout_marginRight="20dp"
+            android:text="⌕"
+            android:textColor="@color/colorMagpieGreen"
+            android:textSize="25sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/searchView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/search_container">
+
+    </android.support.v7.widget.RecyclerView>
+
+</RelativeLayout>

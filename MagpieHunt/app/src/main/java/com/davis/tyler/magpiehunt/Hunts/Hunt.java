@@ -98,8 +98,14 @@ public class Hunt implements Serializable {
         //System.out.println("setting award: "+this+" to true");
         mAward.setIsNew(true);
     }
-    public void setmIsDeleted(boolean b){mIsDeleted = b;}
-    public void setmIsDownloaded(boolean b){mIsDownloaded = b;}
+    public void setmIsDeleted(boolean b){
+        System.out.println("Saving: setting isdeleted"+getName()+" to: "+b);
+        mIsDeleted = b;
+    }
+    public void setmIsDownloaded(boolean b){
+        System.out.println("Saving: setting isdownloaded"+getName()+" to: "+b);
+        mIsDownloaded = b;
+    }
     public void setmAudience(String s){
         if(s.equalsIgnoreCase("all")){
             mAudience = 4;
@@ -202,6 +208,19 @@ public class Hunt implements Serializable {
         loc2.setLongitude(b2.getLongitude());
 
         return loc1.distanceTo(loc2) * 0.000621371192;
+    }
+
+    public Badge getNextBadge(Badge b){
+        //could be get all uncompleted badges
+        LinkedList<Badge> badges = getAllBadges();
+        boolean bool = false;
+        for(Badge badge: badges){
+            if(bool)
+                return badge;
+            if(badge == b)
+                bool = true;
+        }
+        return badges.getFirst();
     }
 
     public void shortestPath()

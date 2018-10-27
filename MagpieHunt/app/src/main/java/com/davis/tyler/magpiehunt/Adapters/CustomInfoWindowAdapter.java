@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.davis.tyler.magpiehunt.Hunts.Badge;
@@ -25,6 +26,7 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter, Goo
     private Context mContext;
     private ImageView mProfilePicture;
     private HuntManager mHuntManager;
+    private RelativeLayout container;
     private int iconWidth=-1;
     private int iconHeight=-1;
 
@@ -43,10 +45,11 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter, Goo
 
     private void renderWindowText(Marker marker, View view){
 
-        //marker title will be the badgeID
+        //markertext title will be the badgeID
         int title = Integer.parseInt(marker.getTitle());
         TextView landmarkTitle = (TextView) view.findViewById(R.id.landmarkName);
         mProfilePicture = ((ImageView)view.findViewById(R.id.markerprofilepicture));
+        container = view.findViewById(R.id.custom_info_container);
         Badge badge = mHuntManager.getBadgeByID(title);
 
             landmarkTitle.setText(badge.getName());
@@ -56,8 +59,7 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter, Goo
         System.out.println("landmark img is: "+badge.getLandmarkImage());
         ImageManager im = new ImageManager();
         im.fillBadgeImage(mContext,badge,mProfilePicture, marker);
-
-        //String snippet = marker.getSnippet();
+        //String snippet = markertext.getSnippet();
         TextView landmarkMiles = (TextView) view.findViewById(R.id.landmarkMiles);
 
 
@@ -80,7 +82,12 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter, Goo
         renderWindowText(marker, mWindow);
         return mWindow;
     }
-
+    public int getViewHeight(){
+        if(container == null){
+            return 100;
+        }
+        return container.getHeight();
+    }
 
     @Override
     public void onInfoWindowClick(Marker marker) {

@@ -5,11 +5,13 @@
             android:id="@+id/menu_map"
             android:title="@string/menu_map"
             android:icon="@drawable/map" />
-        
-        <item
+
+
+        <!--<item
             android:id="@+id/menu_search"
             android:icon="@drawable/menu_search"
             android:title="@string/menu_search" />
+            -->
 
         <item
             android:id="@+id/menu_home"

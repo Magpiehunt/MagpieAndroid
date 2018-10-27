@@ -38,6 +38,8 @@ public class HuntManager implements Serializable{
     private Award mFocusAward;
     private Set<Hunt> mSelectedHunts;
     private LinkedList<Hunt> mSearchHunts;
+    private LinkedList<Badge> mSearchBadges;
+    private LinkedList<Hunt> mSearchNearbyHunts;
     private boolean huntsFilterUpdated;
 
 
@@ -45,8 +47,9 @@ public class HuntManager implements Serializable{
         Log.e(TAG, "Constructing new hunt manager object");
         mHunts = new HashMap<>();
         huntsFilterUpdated = false;
-        parseDownloadedHunts();
         mSelectedHunts = new HashSet<>();
+        mSearchHunts = new LinkedList<>();
+        mSearchNearbyHunts = new LinkedList<>();
         //addTestHunt(context);//this is a temporary method to make up local hunts
         for(Hunt h: getAllHunts()){
             if(h.isFocused()) {
@@ -71,15 +74,11 @@ public class HuntManager implements Serializable{
         HuntSorter.sortHuntsByBadgeClosest(hunts, lt);
     }
     public void addHunt(Hunt hunt){
-        mHunts.put(hunt.getID(), hunt);
+        if(mHunts.get(hunt.getID()) == null)
+            mHunts.put(hunt.getID(), hunt);
     }
 
-    public void parseDownloadedHunts(){
 
-    }
-    public void saveAllHuntInformation(){
-
-    }
     public Hunt getHuntByID(int id){
         return mHunts.get(id);
         /*LinkedList<Hunt> ll = new LinkedList<>();
@@ -120,6 +119,31 @@ public class HuntManager implements Serializable{
         }
         return ll;
     }
+
+    public LinkedList<Hunt> getAllDownloadedHunts(){
+        System.out.println("saving: hunt size: "+mHunts.size());
+        LinkedList<Hunt> ll = new LinkedList<>();
+        Iterator it = mHunts.entrySet().iterator();
+        while(it.hasNext()){
+            HashMap.Entry pair = (HashMap.Entry)it.next();
+            Hunt h = ((Hunt)pair.getValue());
+            System.out.println("saving: looking at hunt: "+h.getName());
+            if(h.getIsDownloaded())
+                ll.add((Hunt)pair.getValue());
+        }
+        return ll;
+    }
+    public LinkedList<Hunt> getAllDownloadedUndeletedHunts(){
+        LinkedList<Hunt> ll = new LinkedList<>();
+        Iterator it = mHunts.entrySet().iterator();
+        while(it.hasNext()){
+            HashMap.Entry pair = (HashMap.Entry)it.next();
+            Hunt h = ((Hunt)pair.getValue());
+            if(h.getIsDownloaded() && !h.getIsDeleted())
+                ll.add((Hunt)pair.getValue());
+        }
+        return ll;
+    }
     public Badge getBadgeByID(int id){
         Iterator it = mHunts.entrySet().iterator();
         while (it.hasNext()) {
@@ -132,6 +156,9 @@ public class HuntManager implements Serializable{
         return null;
     }
 
+    public void setmSearchBadges(LinkedList<Badge> ll){
+        mSearchBadges = ll;
+    }
     public void setFocusAward(int huntID){
         mFocusAward = mHunts.get(huntID).getAward();
     }
@@ -141,6 +168,14 @@ public class HuntManager implements Serializable{
     /*public void setmFocusHunt(int huntID){
         mFocusHunt = mHunts.get(huntID);
     }*/
+    public void setmSearchNearbyHunts(LinkedList<Hunt> ll){
+        mSearchNearbyHunts = ll;
+    }
+
+    public LinkedList<Hunt> getmSearchNearbyHunts() {
+        return mSearchNearbyHunts;
+    }
+
     public Award getFocusAward(){return mFocusAward;}
     public Badge getFocusBadge(){return mFocusBadge;}
     public Hunt getFocusHunt(){return mFocusHunt;}
@@ -157,6 +192,20 @@ public class HuntManager implements Serializable{
     }
 
     public Set<Hunt> getSelectedHunts(){
+        return mSelectedHunts;
+    }
+    public void removeUndownloadedSelectedHunts(){
+        LinkedList<Hunt> toDelete = new LinkedList<>();
+        for(Hunt h: mSelectedHunts){
+            if(!h.getIsDownloaded()){
+                h.setIsFocused(false);
+                toDelete.add(h);
+            }
+        }
+        mSelectedHunts.removeAll(toDelete);
+    }
+    public Set<Hunt> getSelectedDownloadedHunts(){
+        removeUndownloadedSelectedHunts();
         return mSelectedHunts;
     }
     public int getSelectedHuntsSize(){return mSelectedHunts.size();}
@@ -201,6 +250,10 @@ public class HuntManager implements Serializable{
         }
         sort(ll);
         return ll;
+    }
+
+    public LinkedList<Badge> getmSearchBadges() {
+        return mSearchBadges;
     }
 
     public Hunt getSingleSelectedHunt(){
@@ -256,7 +309,41 @@ public class HuntManager implements Serializable{
 
     public void addAllHunts(LinkedList<Hunt> ll){
         for(Hunt h: ll){
-            mHunts.put(h.getID(), h);
+            if(mHunts.get(h.getID()) == null)
+                mHunts.put(h.getID(), h);
         }
+    }
+
+    public LinkedList<Badge> getAllBadgesByKeyword(String key, boolean completedHunt, boolean both)
+    {
+        LinkedList<Badge> ret = new LinkedList<>();
+        LinkedList<Hunt> ll = null;
+        if(both)
+            ll = this.getAllHunts();
+        else if(completedHunt)
+            ll = this.getAllCompletedHunts();
+        else
+            ll = this.getAllUnCompletedHunts();
+
+        for(Hunt h : ll)
+        {
+            LinkedList<Badge> bList = h.getAllBadges();
+            for(int x = 0; x < bList.size(); x++)
+            {
+                Badge b = bList.get(x);
+
+                if(b.getName().toLowerCase().contains(key.toLowerCase()))
+                    ret.add(b);
+                else if(b.getLandmarkName() != null)
+                {
+                    if(b.getLandmarkName().toLowerCase().contains(key.toLowerCase()))
+                        ret.add(b);
+                }
+            }
+        }
+
+
+
+        return ret;
     }
 }

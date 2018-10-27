@@ -4,6 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/custom_info_container"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginLeft="2dp"
@@ -26,6 +27,7 @@
                 android:layout_width="250dp"
                 android:layout_height="250dp"
                 android:scaleType="fitCenter"
+
                 android:layout_margin="15dp"
                 android:adjustViewBounds="true"
                 android:layout_gravity="center_horizontal"
@@ -151,6 +153,7 @@
 
 
         <Button
+            android:id="@+id/btn_wingit"
             android:layout_width="230dp"
             android:layout_height="35dp"
             android:layout_gravity="center_horizontal"
@@ -159,15 +162,6 @@
             android:background="@drawable/standard_button" />
 
     </LinearLayout>
-    <ImageView
-        android:layout_width="25dp"
-        android:layout_height="30dp"
-        android:layout_marginTop="-3dp"
-        android:layout_below="@+id/custom_info_outline"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/bottom_triangle"
-        android:rotation="90" />
-
 
 
 </RelativeLayout>

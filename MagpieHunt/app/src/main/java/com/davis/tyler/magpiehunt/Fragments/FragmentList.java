@@ -1,53 +1,85 @@
 package com.davis.tyler.magpiehunt.Fragments;
 
+import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.davis.tyler.magpiehunt.Activities.ActivityBase;
+import com.davis.tyler.magpiehunt.Hunts.Badge;
+import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
+import com.davis.tyler.magpiehunt.Location.CameraManager;
 import com.davis.tyler.magpiehunt.R;
 
-public class FragmentList extends Fragment {
-    private static final String TAG = "Home Fragment";
-    public static final int FRAGMENT_LANDMARK_LIST = 0;
-    public static final int FRAGMENT_LANDMARK_INFO = 1;
-    public static final int FRAGMENT_QR_READER= 2;
-    public static final int FRAGMENT_QUIZ = 3;
-    public static final int FRAGMENT_TIMER = 4;
-    public static final int FRAGMENT_BADGE_OBTAINED = 5;
-    private FragmentLandmarkList mLandmarkListFragment;
+public class FragmentList extends Fragment implements FragmentLandmarkInfo.onClickListener{
+    private static final String TAG = "LIST Fragment";
+    public static final int FRAGMENT_GOOGLE_MAPS = 0;
+    public static final int FRAGMENT_LANDMARK_LIST = 1;
+    public static final int FRAGMENT_LANDMARK_INFO = 2;
+    public static final int FRAGMENT_QR_READER= 3;
+    public static final int FRAGMENT_QUIZ = 4;
+    public static final int FRAGMENT_TIMER = 5;
+    public static final int FRAGMENT_BADGE_OBTAINED = 6;
+    public static final int FRAGMENT_BIRDS_EYE = 7;
+
     private FragmentLandmarkInfo mFragmentLandmarkInfo;
     private FragmentQuiz fragmentQuiz;
     private FragmentTimer fragmentTimer;
     private FragmentBadgeObtained fragmentBadgeObtained;
+    private FragmentBirdsEyeViewContainer fragmentBirdsEyeViewContainer;
     private HuntManager mHuntManager;
+    private CameraManager mCameraManager;
     private int curFrag;
+    private int curTab;
+    private boolean isVisible;
+
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_list, container, false);
+
+        curTab = 0;
         mHuntManager = ((ActivityBase)getActivity()).getData();
+
         Log.e(TAG, "onCreateView");
-        curFrag = 0;
-        setFragment(FRAGMENT_LANDMARK_LIST);
+        setFragment(FRAGMENT_BIRDS_EYE);
 
         return view;
     }
 
-    public void notifyLocationChanged(){
-        mLandmarkListFragment.updateList();
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if(isVisibleToUser){
+            Log.e(TAG,"visible");
+            isVisible = true;
+        }
+        else{
+            Log.e(TAG,"not visible");
+            isVisible = false;
+        }
     }
 
-    public static FragmentList newInstance(HuntManager huntManager) {
+
+    public void notifyLocationChanged(){
+        if(curFrag == FRAGMENT_BIRDS_EYE)
+            fragmentBirdsEyeViewContainer.notifyLocationChanged();
+    }
+
+    public static FragmentList newInstance(HuntManager huntManager, CameraManager cameraManager) {
         FragmentList f = new FragmentList();
         Bundle args = new Bundle();
+        args.putSerializable("cameramanager", cameraManager);
         //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
         return f;
@@ -56,6 +88,7 @@ public class FragmentList extends Fragment {
     @Override
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
+        mCameraManager = (CameraManager)args.getSerializable("cameramanager");
         //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
     }
 
@@ -63,37 +96,55 @@ public class FragmentList extends Fragment {
         //todo implement backpress in map fragment
         if(curFrag == FRAGMENT_LANDMARK_INFO){
             ((ActivityBase)getActivity()).setBackButtonOnOff(false);
-            setFragment(FRAGMENT_LANDMARK_LIST);
+            setFragment(FRAGMENT_BIRDS_EYE);
+            //fragmentBirdsEyeViewContainer.reloadMap();
         }
         else if(curFrag == FRAGMENT_QR_READER){
+            setFragment(FRAGMENT_LANDMARK_INFO);
+        }
+        else if(curFrag == FRAGMENT_QUIZ){
             setFragment(FRAGMENT_LANDMARK_INFO);
         }
     }
 
     public void updateActionBar(){
-        ActivityBase activityBase = ((ActivityBase) getActivity());
-        if(mHuntManager.getSelectedHuntsSize()== 1){
-            activityBase.getSupportActionBar().setTitle(mHuntManager.getSingleSelectedHunt().getName());
-        }
-        else {
-            activityBase.getSupportActionBar().setTitle("Badges Near Me");
-        }
-        activityBase.menuSettingsVisibility(false);
-        activityBase.setBackButtonOnOff(false);
-        if(curFrag == FRAGMENT_BADGE_OBTAINED){
+        if(isVisible) {
+            ActivityBase activityBase = ((ActivityBase) getActivity());
+            if (mHuntManager.getSelectedHuntsSize() == 1) {
+                activityBase.getSupportActionBar().setTitle(mHuntManager.getSingleSelectedHunt().getName());
+            } else {
+                if(curTab == FragmentBirdsEyeViewContainer.FRAGMENT_GOOGLE_MAPS)
+                    activityBase.getSupportActionBar().setTitle("Birds Eye View");
+                else if(curTab == FragmentBirdsEyeViewContainer.FRAGMENT_LANDMARK_LIST)
+                    activityBase.getSupportActionBar().setTitle("Birds Eye View");
+            }
+            activityBase.menuSettingsVisibility(false);
             activityBase.setBackButtonOnOff(false);
+            if (curFrag == FRAGMENT_LANDMARK_INFO)
+                activityBase.setBackButtonOnOff(true);
+            else if (curFrag == FRAGMENT_QR_READER) {
+                activityBase.setBackButtonOnOff(true);
+            } else if (curFrag == FRAGMENT_QUIZ) {
+                activityBase.setBackButtonOnOff(true);
+            }
+            if(curFrag == FRAGMENT_BIRDS_EYE && curTab == FragmentBirdsEyeViewContainer.FRAGMENT_LANDMARK_SEARCH){
+                activityBase.getSupportActionBar().setTitle("Search Badges");
+            }
         }
     }
 
     public void setFragment(int i) {
+        System.out.println("CHANGING FRAGMENT");
         curFrag = i;
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-        if(i == FRAGMENT_LANDMARK_LIST) {
-            if(mLandmarkListFragment == null) {
-                mLandmarkListFragment = FragmentLandmarkList.newInstance(mHuntManager);
+        if(i == FRAGMENT_BIRDS_EYE) {
+            ((ActivityBase)getActivity()).setBackButtonOnOff(false);
+            Log.e(TAG, "landmark list being switched to");
+            if(fragmentBirdsEyeViewContainer == null) {
+                fragmentBirdsEyeViewContainer = FragmentBirdsEyeViewContainer.newInstance(mHuntManager, mCameraManager);
             }
-            mLandmarkListFragment.onUpdateTextView();
-            ft.replace(R.id.currentfragment, mLandmarkListFragment);
+
+            ft.replace(R.id.currentfragment, fragmentBirdsEyeViewContainer);
         }
         else if(i == FRAGMENT_LANDMARK_INFO){
             if(mFragmentLandmarkInfo == null){
@@ -125,12 +176,16 @@ public class FragmentList extends Fragment {
             ft.replace(R.id.currentfragment, fragmentBadgeObtained);
 
         }
+        System.out.println("COMMITING");
         ft.commit();
+        System.out.println("COMMITING");
         try {
-            getChildFragmentManager().executePendingTransactions();
+            if(i != FRAGMENT_LANDMARK_INFO)
+                getChildFragmentManager().executePendingTransactions();
         }catch(Exception e){
             e.printStackTrace();
         }
+        System.out.println("FINISH COMMITING");
         if(i == FRAGMENT_TIMER) {
             fragmentTimer.startTimer();
         }
@@ -139,17 +194,64 @@ public class FragmentList extends Fragment {
         }
         else if(i == FRAGMENT_QUIZ){
             fragmentQuiz.updateFragment();
+        }
+        else if(i == FRAGMENT_BIRDS_EYE){
+            fragmentBirdsEyeViewContainer.updatetab();
 
+            //fragmentBirdsEyeViewContainer.reloadMap();
         }
     }
 
     public void updateFocusHunts(){
-        if(mLandmarkListFragment != null)
-            mLandmarkListFragment.updateFocusHunts();
+        if(fragmentBirdsEyeViewContainer != null){
+            fragmentBirdsEyeViewContainer.updateFocusHunts();
+        }
     }
     public void updateSpinner(){
-        if(mLandmarkListFragment != null){
-            mLandmarkListFragment.updateSpinner();
+        if(fragmentBirdsEyeViewContainer != null){
+            fragmentBirdsEyeViewContainer.updateSpinner();
         }
+    }
+
+    public void updatePermissionLocation(boolean b){
+        if(fragmentBirdsEyeViewContainer!= null)
+            fragmentBirdsEyeViewContainer.updatePermissionLocation(b);
+    }
+
+    @Override
+    public void onMapClicked(Badge badge) {
+        setFragment(FRAGMENT_BIRDS_EYE);
+        fragmentBirdsEyeViewContainer.setCameraOnLandmark(badge);
+    }
+
+    @Override
+    public void onCollectMoveCloser(Badge badge) {
+        //if user isnt close enough, switch to map fragment, and set camera to target landmark
+        mCameraManager.setMoveCloser(true);
+        //mViewPager.setCurrentItem(FRAGMENT_MAP);
+        setFragment(FRAGMENT_BIRDS_EYE);
+
+        fragmentBirdsEyeViewContainer.setTab(FragmentBirdsEyeViewContainer.FRAGMENT_GOOGLE_MAPS);
+        fragmentBirdsEyeViewContainer.setCameraOnLandmark(badge);
+        //mNavigationView.setSelectedItemId(FRAGMENT_MAP);
+
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+    public void setCurTab(int i){
+        System.out.println("setting tab "+i);
+        curTab = i;
+        updateActionBar();
+    }
+    public int getCurTab(){
+        System.out.println("getting tab "+curTab);
+        return curTab;
+    }
+
+    public void changeTab(int i){
+        fragmentBirdsEyeViewContainer.setTab(i);
     }
 }

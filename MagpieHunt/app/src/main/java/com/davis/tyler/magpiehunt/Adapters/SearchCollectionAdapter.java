@@ -12,9 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.CMS.DownloadImage;
 import com.davis.tyler.magpiehunt.FileSystemManager;
 import com.davis.tyler.magpiehunt.Fragments.FragmentSearch;
@@ -33,20 +35,6 @@ import com.squareup.picasso.Target;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
-
-
-/**
- * Created by Blake Impecoven on 1/22/18.
- * TODO:
- * - setup listeners for deletion and expansion of the cards.
- * - tap or swipe to delete?
- * - setup expansion functionality of the cards.
- * - make any corresponding changes to collection_cardn_card.xml.
- * - make any corresponding changes to CollectionModel.java.
- * - setup data set for testing of the cards.
- * - setup dummy data set for testing sooner (waiting on room data).
- * - tweak collection_card.xmlrd.xml font/expansion arrow.
- */
 
 public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollectionAdapter.CollectionHolder> {
 
@@ -145,12 +133,13 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
         private TextView rewardWorth;
         private TextView distance;
         private TextView time;
+        private LinearLayout container;
 
         private Button addCollectionBtn;
 
         public CollectionHolder(View itemView) {
             super(itemView);
-
+            this.container = itemView.findViewById(R.id.card_search);
             this.collectionTitle = itemView.findViewById(R.id.tvTitle_search);
             this.collectionAbbreviation = itemView.findViewById(R.id.tvAbbreviation_search);
             this.imgThumb = itemView.findViewById(R.id.img_thumb_search);
@@ -166,6 +155,7 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
             this.rewardName = itemView.findViewById(R.id.collectionRewardName);
             this.rewardWorth = itemView.findViewById(R.id.collectionRewardWorth);
             this.time = itemView.findViewById(R.id.collectionTime_search);
+            container.setOnClickListener(this);
         }//end DVC
 
         void setCondensedData(int position) {
@@ -179,9 +169,6 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
             currentObject.shortestPath();
             distance.setText(currentObject.getmDistance()+"");
             time.setText(currentObject.getTime()+"");
-            // use the following line once images are in the DB. for now, we will use a dummy.
-//            this.imgThumb.setImageResource(currentObject.getImage());
-//            setListeners(); // uncomment when click functionality implemented.
         }//end setCondensedData
 
         void setExpandedData(int position) {
@@ -194,22 +181,18 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
             Hunt h = huntManager.getHuntByID(currentObject.getID());
             if(h == null){
                 addCollectionBtn.setText("ADD COLLECTION");
-            }
-            else
+            }else if(h.getIsDownloaded() && !h.getIsDeleted()){
                 addCollectionBtn.setText("DOWNLOADED");
+            }else
+                addCollectionBtn.setText("ADD COLLECTION");
 
-//            this.rating.setText(currentObject.getRating());
+
         }//end setExpandedData
 
 
         public void setListeners() {
             expandArrow.setOnClickListener(CollectionHolder.this);
             addCollectionBtn.setOnClickListener(CollectionHolder.this);
-            /*if(this.expandableLinearLayout.isExpanded())
-                this.expandableLinearLayout.toggle();*/
-            //TODO: change this listener to respond to a click of the whole card?
-            // imgThumb.setOnClickListener(CollectionHolder.this);
-            //addBtn.setOnClickListener(CollectionHolder.this);
         }//end setListeners
 
         @Override
@@ -219,29 +202,66 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
                     this.expandableLinearLayout.toggle();
                     break;
 
-                case R.id.img_thumb_search:
-                    //TODO: implement opening the collection (view landmarks)
-                    break;
+                case R.id.card_search:
+                    Hunt hunt = huntManager.getHuntByID(currentObject.getID());
+                    if(hunt.getIsDownloaded() && !hunt.getIsDeleted()){
+                        huntManager.setFocusHunt(hunt.getID());
+                        ((ActivityBase)listener.getActivity()).collectionClicked();
 
-                //TODO: implement deletion below.
-//                case delete item:
-//                    removeItem(position);
-//                    break;
-                case R.id.button_addCollection_search:
-                    Hunt h = huntManager.getHuntByID(currentObject.getID());
-                    if(h == null){
-                        currentObject.setIsFocused(true);
-                        currentObject.setmIsDownloaded(true);
-                        huntManager.addHunt(currentObject);
-                        huntManager.getSelectedHunts().add(currentObject);
-                        listener.onAddHuntListener();
-                        addHuntsToFileSystem();
-                        saveImagesToFileSystem(currentObject);
-                        notifyDataSetChanged();
                     }
                     else{
-                        Toast.makeText(context, "Hunt already downloaded", Toast.LENGTH_LONG).show();
+                        huntManager.setFocusHunt(hunt.getID());
+                        ((ActivityBase)listener.getActivity()).updateMapForUndownloadedHunt();
+
                     }
+                    break;
+
+                case R.id.button_addCollection_search:
+                    Hunt h = huntManager.getHuntByID(currentObject.getID());
+                    System.out.println("download: Hunt is not downloaded"+h.getName());
+                    if(h == null){
+                        h = currentObject;
+                        h.setmIsDeleted(false);
+                        h.setmIsDownloaded(true);
+                        listener.onAddHuntListener(currentObject);
+                        addCollectionBtn.setText("DOWNLOADED");
+                        notifyDataSetChanged();
+                    }else if(h.getIsDownloaded() && !h.getIsDeleted()){
+                        Toast.makeText(context, "Hunt already downloaded", Toast.LENGTH_LONG).show();
+                    }else {
+                        h.setmIsDeleted(false);
+                        h.setmIsDownloaded(true);
+                        listener.onAddHuntListener(currentObject);
+                        addCollectionBtn.setText("DOWNLOADED");
+                        notifyDataSetChanged();
+                    }
+                    /*if(h == null ){
+                        System.out.println("download: Hunt is not downloaded");
+                        currentObject.setmIsDownloaded(true);
+                        listener.onAddHuntListener(currentObject);
+                        addCollectionBtn.setText("DOWNLOADED");
+                        notifyDataSetChanged();
+
+                    }
+                    else if(h.getIsDeleted()){
+                        System.out.println("download: Hunt is deleted");
+                        h.setmIsDeleted(false);
+                        h.setmIsDownloaded(true);
+                        listener.onAddHuntListener(currentObject);
+                        addCollectionBtn.setText("DOWNLOADED");
+                        notifyDataSetChanged();
+                    }
+                    else if(!h.getIsDeleted() && h.getIsDownloaded()){
+                        System.out.println("download: Hunt is not deleted and is downloaded");
+                        h.setmIsDeleted(false);
+
+                    }
+                    else{
+                        currentObject.setmIsDownloaded(true);
+                        listener.onAddHuntListener(currentObject);
+                        addCollectionBtn.setText("DOWNLOADED");
+                        notifyDataSetChanged();
+                    }*/
                     //     break;
                 default:
                     break;
@@ -251,12 +271,12 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
         private void addHuntsToFileSystem(){
             FileSystemManager fm = new FileSystemManager();
                         try {
-                            fm.addHuntList(listener.getContext(), huntManager.getAllHunts());
+                            fm.addHuntList(listener.getContext(), huntManager.getAllDownloadedHunts());
                         }catch(Exception e){
                             e.printStackTrace();
                             Toast.makeText(listener.getContext(), "Download failed.", Toast.LENGTH_LONG).show();
                         }
-                        listener.onAddHuntListener();
+                        //listener.onAddHuntListener();
         }
 
         private void saveImagesToFileSystem(Hunt h){
@@ -290,20 +310,6 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
             }
         }
 
-
-        // will be used at some point.
-        //TODO: decide on gesture or button removal.
-        public void removeItem(int position) {
-            collectionList.remove(position);
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, collectionList.size());
-        }//end removeItem
-
-        public void addItem(int position, Hunt currentObject) {
-            collectionList.add(position, currentObject);
-            notifyItemInserted(position);
-            notifyItemRangeChanged(position, collectionList.size());
-        }//end addItem
 
 
     }//end inner class: CollectionHolder

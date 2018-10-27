@@ -116,13 +116,15 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
     }
 
     public void removeItem(int position) {
+
+        collectionList.get(position).setmIsDeleted(true);
         collectionList.remove(position);
         // notify the item removed by position
         // to perform recycler view delete animations
         // NOTE: don't call notifyDataSetChanged()
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, collectionList.size());
-
+        listener.onCollectionDeleted();
     }
 
     public void restoreItem(Hunt item, int position) {
@@ -210,8 +212,6 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
             switch (v.getId()) {
 
                 case R.id.view_foreground:
-                    Log.d(TAG, "CollectionClick: " + currentObject.getName());
-                    Log.e(TAG, "clicked on: "+currentObject.getAbbreviation());
                     listener.onCollectionSelected(currentObject.getID(), currentObject.getName());
                     break;
 

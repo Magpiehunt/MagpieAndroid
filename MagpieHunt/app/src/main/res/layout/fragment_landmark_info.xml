@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/scrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -78,22 +79,64 @@
                 android:layout_marginStart="16dp" />
 
 
-            <Button
-                android:id="@+id/shareButton"
-                style="@style/Widget.AppCompat.Button.Borderless"
+            <RelativeLayout
+                android:id="@+id/lyt_share"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
-                android:drawableTop="@drawable/ic_share"
-                android:text="@string/share"
-                android:textColor="@color/colorMagpieWhite"
+                app:layout_constraintBottom_toBottomOf="@+id/backgroundCollect"
+                app:layout_constraintEnd_toEndOf="@id/lyt_nextbadge"
+                app:layout_constraintRight_toRightOf="@id/lyt_nextbadge"
+                app:layout_constraintTop_toBottomOf="@+id/backgroundLandmarkName"
+                app:layout_constraintVertical_bias="0.0">
+                <ImageView
+                    android:id="@+id/img_share"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_centerHorizontal="true"
+                    android:src="@drawable/ic_share"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:id="@+id/txt_share"
+                    android:text="SHARE"
+                    android:layout_below="@+id/img_share"
+                    android:textColor="@color/colorMagpieWhite"/>
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/lyt_nextbadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
                 app:layout_constraintBottom_toBottomOf="@+id/backgroundCollect"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/backgroundLandmarkName"
-                app:layout_constraintVertical_bias="0.0" />
+                app:layout_constraintVertical_bias="0.0" >
+                <ImageView
+                    android:id="@+id/img_nextbadge"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_centerHorizontal="true"
+                    android:src="@drawable/cur_hunt"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/txt_nextbadge"
+                    android:text="NEXT BADGE"
+                    android:layout_below="@+id/img_nextbadge"
+                    android:textColor="@color/colorMagpieWhite"/>
+
+            </RelativeLayout>
+
 
             <TextView
                 android:id="@+id/landmarkSubTitle"
@@ -164,6 +207,24 @@
                 app:layout_constraintStart_toStartOf="@+id/foregroundCollect"
                 app:layout_constraintTop_toTopOf="@+id/foregroundCollect" />
 
+            <Button
+                android:id="@+id/btn_nextbadge"
+                android:layout_width="220dp"
+                android:layout_height="30dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/standard_button_filled"
+                android:text="NEXT BADGE"
+                android:textColor="@color/colorMagpieWhite"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/landmarkDescription"
+                app:layout_constraintVertical_bias="1.0" />
 
         </android.support.constraint.ConstraintLayout>
 

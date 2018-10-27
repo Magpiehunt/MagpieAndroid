@@ -49,11 +49,11 @@ public class FragmentLandmarkList extends Fragment {
     protected RecyclerView.LayoutManager mLayoutManager;
     private OnLandmarkSelectedListener mListener;
     private HuntManager mHuntManager;
-    private List<Hunt> spinner_items;
-    private Set<Hunt> selected_items;
+    //private List<Hunt> spinner_items;
+    //private Set<Hunt> selected_items;
     private List<Badge> landmarks;
     private TextView txt_select_hunts;
-    private CheckableSpinnerAdapter checkableSpinnerAdapter;
+    //private CheckableSpinnerAdapter checkableSpinnerAdapter;
     private RelativeLayout badgeCompleted;
     private ImageView superBadge;
 
@@ -72,7 +72,7 @@ public class FragmentLandmarkList extends Fragment {
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
         Log.e(TAG, "setArguments, args: "+args);
-        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
+        //mHuntManager = ((ActivityBase)getActivity()).getData();
         Log.e(TAG, "setArguments, huntman: "+mHuntManager);
 
 
@@ -109,39 +109,15 @@ public class FragmentLandmarkList extends Fragment {
                 ((ActivityBase)getActivity()).swipedToPrize();
             }
         });
-        //replace param with cid of collection from bundle
-        selected_items = mHuntManager.getSelectedHunts();
-        spinner_items = mHuntManager.getAllHunts();
 
-
-        String headerText = "Filter";
-        SpinnerHuntFilter spinner = (SpinnerHuntFilter) rootView.findViewById(R.id.spinner);
-        //Set the max height of the dropdown spinner:
-        try {
-            Field popup = Spinner.class.getDeclaredField("mPopup");
-            popup.setAccessible(true);
-
-            // Get private mPopup member variable and try cast to ListPopupWindow
-            android.widget.ListPopupWindow popupWindow = (android.widget.ListPopupWindow) popup.get(spinner);
-
-            // Set popupWindow height to 500px
-            popupWindow.setHeight(600);
-        }
-        catch (NoClassDefFoundError | ClassCastException | NoSuchFieldException | IllegalAccessException e) {
-            // silently fail...
-        }
-        checkableSpinnerAdapter = new CheckableSpinnerAdapter(getContext(), headerText, mHuntManager, selected_items);
-        spinner.setAdapter(checkableSpinnerAdapter);
-        spinner.setSpinnerEventsListener((ActivityBase)getActivity());
 
         landmarks = mHuntManager.getFocusedSortedBadges();
 
         mRecyclerView = rootView.findViewById(R.id.landmarksRecyclerView);
-        txt_select_hunts = (TextView) rootView.findViewById(R.id.txt_no_hunt_selected);
         mLayoutManager = new LinearLayoutManager(getActivity());
         setRecyclerViewLayoutManager();
 
-        mModelAdapter = new LandmarkAdapter(landmarks, FragmentLandmarkList.TAG, this.getActivity(), FragmentLandmarkList.this, mListener);
+        mModelAdapter = new LandmarkAdapter(landmarks,this.getActivity(), mListener);
 
         // Set the adapter for RecyclerView.
         mRecyclerView.setAdapter(mModelAdapter);
@@ -186,33 +162,19 @@ public class FragmentLandmarkList extends Fragment {
 
 
     public void updateList(){
-
         mModelAdapter.notifyDataSetChanged();
     }
 
-    public void onUpdateTextView(){
-        if(txt_select_hunts != null) {
-            if (selected_items.isEmpty()) {
-                txt_select_hunts.setVisibility(View.VISIBLE);
-            } else {
-                txt_select_hunts.setVisibility(View.INVISIBLE);
-            }
-        }
-    }
     public void updateFocusHunts(){
-        landmarks.clear();
-        landmarks.addAll(mHuntManager.getFocusedSortedBadges());
-        /*for(Hunt h: mHuntManager.getSelectedHunts()){
-            landmarks.addAll(h.getAllBadges());
-        }*/
-        if(mHuntManager.getSelectedHuntsSize() ==0){
-            txt_select_hunts.setVisibility(View.VISIBLE);
+        if (landmarks != null) {
+
+            landmarks.clear();
+            landmarks.addAll(mHuntManager.getFocusedSortedBadges());
         }
-        else{
-            txt_select_hunts.setVisibility(View.INVISIBLE);
+        if(mHuntManager != null) {
+            updateBadgeDisplay();
+            updateList();
         }
-        updateBadgeDisplay();
-        updateList();
     }
 
     public void updateBadgeDisplay(){
@@ -246,14 +208,8 @@ public class FragmentLandmarkList extends Fragment {
         if(activityBase != null)
             activityBase.setPagerSwipe(b);
     }
-    public void updateSpinner(){
-        //TODO eventually make this get all downloaded hunts, as undownloaded hunts may be sitting in huntmanager
-        checkableSpinnerAdapter.updateSpinnerItems();
-        checkableSpinnerAdapter.notifyDataSetChanged();
-    }
-    //TODO implement this before release, just for testing
+
     public interface OnLandmarkSelectedListener {
-        // TODO: Update argument type and name
         void onLandmarkSelected(Badge b);
     }
 

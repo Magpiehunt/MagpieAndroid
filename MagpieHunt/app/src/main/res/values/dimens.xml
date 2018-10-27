@@ -6,4 +6,10 @@
     <dimen name="speech_bubble_tail">25dp</dimen>
     <dimen name="custom_info_picture_width">60dp</dimen>
     <dimen name="custom_info_picture_height">60dp</dimen>
+    <dimen name="custom_info_bottom_offset">40dp</dimen>
+    <dimen name="custom_marker_width">19dp</dimen>
+    <dimen name="custom_marker_height">27dp</dimen>
+    <dimen name="maps_zoom_offset">60dp</dimen>
+
+
 </resources>

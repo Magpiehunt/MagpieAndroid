@@ -81,15 +81,18 @@ public class FileSystemManager
     public void addHuntList(Context c, LinkedList<Hunt> huntList) throws IOException
     {
         System.out.println("saving hunts, size: "+huntList.size());
+
         //System.out.println("check: entered method, context: "+c);
         OutputStreamWriter out = new OutputStreamWriter(c.openFileOutput("hunts.txt", Context.MODE_PRIVATE));
         //FileOutputStream out = new FileOutputStream(new File(c.getFilesDir()+"hunts.txt"));
 
         for (int i = 0; i < huntList.size(); i++) //loads badge info
         {
+
             //System.out.println("check: entered for loop");
-            out.write("********************\r\n");//beginning of hunt marker
+            out.write("********************\r\n");//beginning of hunt markertext
             Hunt h = huntList.get(i);
+            System.out.println("Now saving:"+h.getName()+ " isdeleted?: "+h.getIsDeleted()+" isdownloaded?: "+h.getIsDownloaded());
             out.write((h.getIsCompleted()+"\r\n"));
             out.write((h.getID()+"\r\n"));
             out.write((h.getAbbreviation()+"\r\n"));
@@ -112,7 +115,7 @@ public class FileSystemManager
             System.out.println("check -> deleted: "+h.getIsDeleted());
             out.write(h.getIsDownloaded()+"\r\n"); //TODO: alter other methods for this
             System.out.println("check -> downloaded: "+h.getIsDownloaded());
-            out.write("^^^^^^^^^^^^^^^^^^^^\r\n"); //beginning of award marker
+            out.write("^^^^^^^^^^^^^^^^^^^^\r\n"); //beginning of award markertext
             Award award = huntList.get(i).getAward();
             out.write((award.getID()+"\r\n"));
             out.write((award.getAddress()+"\r\n"));
@@ -135,7 +138,7 @@ public class FileSystemManager
             {
                 Badge toAdd = ll.get(j);
                 //System.out.println("does badge have quiz: "+toAdd.getQuiz());
-                out.write("--------------------\r\n"); //beginning of badge marker
+                out.write("--------------------\r\n"); //beginning of badge markertext
                 out.write((toAdd.getID()+"\r\n"));
                 out.write((toAdd.getDescription()+"\r\n"));
                 out.write("////////\r\n");
@@ -444,7 +447,7 @@ public class FileSystemManager
                 h.setmDistance(huntDistance);
                 h.setmAudience(Integer.parseInt(audience));
                 h.setmIsDeleted(isDeleted);
-                h.setmIsDownloaded(isDownloaded);
+                h.setmIsDownloaded(true);
                 huntList.add(h);
                 System.out.println("Finished reading in hunt, id: "+h.getID());
                 if(newString == null) {

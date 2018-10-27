@@ -1,8 +1,5 @@
 package com.davis.tyler.magpiehunt.Activities;
 
-import android.app.FragmentManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -16,14 +13,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.davis.tyler.magpiehunt.CMS.DownloadImage;
 import com.davis.tyler.magpiehunt.FileSystemManager;
+import com.davis.tyler.magpiehunt.Fragments.FragmentBirdsEyeViewContainer;
 import com.davis.tyler.magpiehunt.Fragments.FragmentDataHunts;
+import com.davis.tyler.magpiehunt.Fragments.FragmentOverallHunt;
+import com.davis.tyler.magpiehunt.Fragments.FragmentOverallHuntTabs;
+import com.davis.tyler.magpiehunt.Hunts.Award;
+import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Location.CameraManager;
 import com.davis.tyler.magpiehunt.Fragments.FragmentLandmarkList;
 import com.davis.tyler.magpiehunt.Fragments.FragmentHome;
 import com.davis.tyler.magpiehunt.Fragments.FragmentList;
 import com.davis.tyler.magpiehunt.Fragments.FragmentLandmarkInfo;
-import com.davis.tyler.magpiehunt.Fragments.FragmentMap;
 import com.davis.tyler.magpiehunt.Fragments.FragmentPrizes;
 import com.davis.tyler.magpiehunt.Fragments.FragmentSearch;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
@@ -36,21 +38,26 @@ import com.davis.tyler.magpiehunt.Spinners.SpinnerSearchFilter;
 import com.davis.tyler.magpiehunt.Views.ViewPagerToggleSwipe;
 
 import java.io.IOException;
+import java.net.URL;
 import java.text.ParseException;
+import java.util.LinkedList;
 
 public class ActivityBase extends AppCompatActivity implements
         FragmentLandmarkList.OnLandmarkSelectedListener, FragmentLandmarkInfo.onClickListener,
         SpinnerHuntFilter.OnSpinnerEventsListener, SpinnerSearchFilter.OnSpinnerSearchEventsListener{
     public static final String TAG = "Activity_Base";
+
+    //these must be in order they appear on navigation bar
     public static final int FRAGMENT_MAP = 0;
-    public static final int FRAGMENT_SEARCH = 1;
-    public static final int FRAGMENT_HOME = 2;
-    public static final int FRAGMENT_LIST = 3;
-    public static final int FRAGMENT_PRIZES = 4;
+    public static final int FRAGMENT_OVERALL_HUNTS = 0;
+    public static final int FRAGMENT_HOME = 1;
+    public static final int FRAGMENT_LIST = 2;
+    public static final int FRAGMENT_PRIZES = 3;
     private BottomNavigationView mNavigationView;
     private ViewPagerToggleSwipe mViewPager;
-    private FragmentMap fragmentMap;
-    private FragmentSearch fragmentSearch;
+    //private FragmentMap fragmentMap;
+    //private FragmentSearch fragmentSearch;
+    private FragmentOverallHunt fragmentOverallHunt;
     private FragmentHome fragmentHome;
     private FragmentList fragmentList;
     private FragmentPrizes fragmentPrizes;
@@ -115,7 +122,7 @@ public class ActivityBase extends AppCompatActivity implements
 
         setupViewPager(mViewPager);
         //TODO this makes everything heckin fast!!! comment this out if it proves to be an issue later
-        mViewPager.setOffscreenPageLimit(5);
+        mViewPager.setOffscreenPageLimit(4);
         getSupportActionBar().setTitle("My Collections");
 
         setBackButtonOnOff(false);
@@ -166,13 +173,16 @@ public class ActivityBase extends AppCompatActivity implements
                         setBackButtonOnOff(false);
                         switch (item.getItemId()) {
 
-                            case R.id.menu_map:
+                            /*case R.id.menu_map:
                                 mViewPager.setCurrentItem(FRAGMENT_MAP);
                                 fragmentMap.setFragment(FragmentMap.FRAGMENT_GOOGLE_MAPS);
                                 break;
+                                */
                             case R.id.menu_list:
+
+                                //fragmentList.setFragment(FragmentList.FRAGMENT_LANDMARK_LIST);
+
                                 mViewPager.setCurrentItem(FRAGMENT_LIST);
-                                fragmentList.setFragment(FragmentList.FRAGMENT_LANDMARK_LIST);
                                 updateListFragment();
                                 break;
                             case R.id.menu_home:
@@ -180,8 +190,8 @@ public class ActivityBase extends AppCompatActivity implements
 
 
                                 break;
-                            case R.id.menu_search:
-                                mViewPager.setCurrentItem(FRAGMENT_SEARCH);
+                            case R.id.menu_map:
+                                mViewPager.setCurrentItem(FRAGMENT_OVERALL_HUNTS);
                                 updateHuntsList();
                                 break;
                             case R.id.menu_prizes:
@@ -203,14 +213,14 @@ public class ActivityBase extends AppCompatActivity implements
     public void onBackPressed() {
         Log.e(TAG, "onback press");
         // If the fragment exists and has the current focus
-        if ( fragmentMap != null && mViewPager.getCurrentItem() == FRAGMENT_MAP){
+        /*if ( fragmentMap != null && mViewPager.getCurrentItem() == FRAGMENT_MAP){
             // Get the fragment fragment manager - and pop the backstack
             fragmentMap.onBackPressed();
         }
-        else if(fragmentList != null && mViewPager.getCurrentItem() == FRAGMENT_LIST){
+        else */if(fragmentList != null && mViewPager.getCurrentItem() == FRAGMENT_LIST){
             fragmentList.onBackPressed();
         }
-        /*else if(fragmentSearch != null && mViewPager.getCurrentItem() == FRAGMENT_SEARCH){
+        /*else if(fragmentSearch != null && mViewPager.getCurrentItem() == FRAGMENT_OVERALL_HUNTS){
             fragmentSearch.onBackPressed();
         }*/
         else if(fragmentPrizes != null && mViewPager.getCurrentItem() == FRAGMENT_PRIZES){
@@ -227,10 +237,10 @@ public class ActivityBase extends AppCompatActivity implements
 
     public void changePage(int page){
         setBackButtonOnOff(false);
-        fragmentSearch.hideSoftKeyboard();
+        fragmentOverallHunt.hideSoftKeyboard();
         //if a page is changed due to left/right swipes, update navigation menu, and actionbar title
         switch(page){
-            case FRAGMENT_MAP:
+            /*case FRAGMENT_MAP:
 
                 mNavigationView.setSelectedItemId(R.id.menu_map);
 
@@ -241,14 +251,14 @@ public class ActivityBase extends AppCompatActivity implements
                 }
 
 
-                break;
+                break;*/
             case FRAGMENT_LIST:
                 mNavigationView.setSelectedItemId(R.id.menu_list);
 
                 if(fragmentList != null){
                     updateListFragment();
                     fragmentList.updateActionBar();
-                    fragmentList.setFragment(FragmentList.FRAGMENT_LANDMARK_LIST);
+                    //fragmentList.setFragment(FragmentList.FRAGMENT_LANDMARK_LIST);
                     fragmentList.updateFocusHunts();
                 }
 
@@ -258,9 +268,9 @@ public class ActivityBase extends AppCompatActivity implements
                 mNavigationView.setSelectedItemId(R.id.menu_home);
                 fragmentHome.updateActionBar();
                 break;
-            case FRAGMENT_SEARCH:
-                mNavigationView.setSelectedItemId(R.id.menu_search);
-                fragmentSearch.updateActionBar();
+            case FRAGMENT_OVERALL_HUNTS:
+                mNavigationView.setSelectedItemId(R.id.menu_map);
+                fragmentOverallHunt.updateActionBar();
                 updateHuntsList();
                 break;
             case FRAGMENT_PRIZES:
@@ -285,14 +295,16 @@ public class ActivityBase extends AppCompatActivity implements
     public void setupViewPager(ViewPager viewPager){
         SectionsStatePagerAdapter adapter = new SectionsStatePagerAdapter(getSupportFragmentManager());
         //YOU NEED TO HAVE THIS IN THE SAME ORDER AS NAV MENU
-        fragmentMap = FragmentMap.newInstance(mHuntManager, mCameraManager);
-        fragmentSearch = FragmentSearch.newInstance(mHuntManager);
-        fragmentList = FragmentList.newInstance(mHuntManager);
+        //fragmentMap = FragmentMap.newInstance(mHuntManager, mCameraManager);
+        //fragmentSearch = FragmentSearch.newInstance(mHuntManager);
+        fragmentOverallHunt = FragmentOverallHunt.newInstance(mHuntManager);
+        fragmentList = FragmentList.newInstance(mHuntManager, mCameraManager);
         fragmentPrizes = FragmentPrizes.newInstance(mHuntManager);
         fragmentHome = FragmentHome.newInstance(mHuntManager);
 
-        adapter.addFragment(fragmentMap, "MapFragment");
-        adapter.addFragment(fragmentSearch, "SearchFragment");
+        //adapter.addFragment(fragmentMap, "MapFragment");
+        //adapter.addFragment(fragmentSearch, "SearchFragment");
+        adapter.addFragment(fragmentOverallHunt, "OverallHuntFragment");
         adapter.addFragment(fragmentHome, "HomeFragment");
         adapter.addFragment(fragmentList, "ListFragment");
 
@@ -308,32 +320,34 @@ public class ActivityBase extends AppCompatActivity implements
 
             @Override
             public void onPageSelected(int position) {
-                fragmentSearch.hideSoftKeyboard();
+                fragmentOverallHunt.hideSoftKeyboard();
                 //note: for children fragments, change support action bar title where fragmentTransaction is called;
                 switch(position){
-                    case FRAGMENT_MAP:
+                    /*case FRAGMENT_MAP:
 
                         mNavigationView.setSelectedItemId(R.id.menu_map);
                         if(fragmentMap != null){
                             updateMap();
                             fragmentMap.updateActionBar();
                         }
-                        break;
+                        break;*/
                     case FRAGMENT_LIST:
+
+                        mNavigationView.setSelectedItemId(R.id.menu_list);
                         if(fragmentList != null){
                             updateListFragment();
+                            updateMapBirdsEye();
                             fragmentList.updateActionBar();
                         }
-                        mNavigationView.setSelectedItemId(R.id.menu_list);
                         break;
                     case FRAGMENT_HOME:
 
                         mNavigationView.setSelectedItemId(R.id.menu_home);
                         fragmentHome.updateActionBar();
                         break;
-                    case FRAGMENT_SEARCH:
-                        mNavigationView.setSelectedItemId(R.id.menu_search);
-                        fragmentSearch.updateActionBar();
+                    case FRAGMENT_OVERALL_HUNTS:
+                        mNavigationView.setSelectedItemId(R.id.menu_map);
+                        fragmentOverallHunt.updateActionBar();
                         updateHuntsList();
                         break;
                     case FRAGMENT_PRIZES:
@@ -359,7 +373,7 @@ public class ActivityBase extends AppCompatActivity implements
             getSupportActionBar().setTitle(mHuntManager.getSingleSelectedHunt().getName());
         }
         else {
-            getSupportActionBar().setTitle("Badges Near Me");
+            getSupportActionBar().setTitle("Birds Eye View");
         }
     }
     @Override
@@ -378,9 +392,9 @@ public class ActivityBase extends AppCompatActivity implements
 
     @Override
     public void onMapClicked(Badge badge) {
-        mViewPager.setCurrentItem(FRAGMENT_MAP);
+        /*mViewPager.setCurrentItem(FRAGMENT_MAP);
         mNavigationView.setSelectedItemId(FRAGMENT_MAP);
-        fragmentMap.setCameraOnLandmark(badge);
+        fragmentMap.setCameraOnLandmark(badge);*/
     }
 
     @Override
@@ -391,12 +405,19 @@ public class ActivityBase extends AppCompatActivity implements
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        Log.e(TAG, "onstop");
+        addHuntsToFileSystem();
+    }
+
+    @Override
     public void onCollectMoveCloser(Badge badge) {
         //if user isnt close enough, switch to map fragment, and set camera to target landmark
         mCameraManager.setMoveCloser(true);
         mViewPager.setCurrentItem(FRAGMENT_MAP);
         mNavigationView.setSelectedItemId(FRAGMENT_MAP);
-        fragmentMap.setCameraOnLandmark(badge);
+        //fragmentMap.setCameraOnLandmark(badge);
     }
 
     public boolean isCloseEnough(Badge badge){
@@ -422,19 +443,19 @@ public class ActivityBase extends AppCompatActivity implements
     @Override
     public void onSpinnerClosed() {
         //when spinner closes, update focus hunts, markers shown, and landmarks listed
-        if(fragmentMap != null)
-            fragmentMap.updateFocusHunts();
+        /*if(fragmentMap != null)
+            fragmentMap.updateFocusHunts();*/
         if(fragmentList != null)
             fragmentList.updateFocusHunts();
         setHuntTitle();
     }
 
     public void updateList(){
-        fragmentMap.updateFocusHunts();
+        //fragmentMap.updateFocusHunts();
         fragmentList.updateFocusHunts();
     }
     public void updateSpinner(){
-        fragmentMap.updateSpinner();
+        //fragmentMap.updateSpinner();
         fragmentList.updateSpinner();
     }
 
@@ -450,8 +471,12 @@ public class ActivityBase extends AppCompatActivity implements
         }
     }
     public void updateMap(){
-        fragmentMap.updateFocusHunts();
-        fragmentMap.updateSpinner();
+        /*fragmentMap.updateFocusHunts();
+        fragmentMap.updateSpinner();*/
+    }
+    public void updateMapBirdsEye(){
+        fragmentList.updateFocusHunts();
+        //fragmentList.updateSpinner();
     }
     @Override
     public void onSpinnerSearchOpened() {
@@ -463,7 +488,22 @@ public class ActivityBase extends AppCompatActivity implements
 
     }
 
-    public void onAddHuntEvent(){
+    public void onAddHuntEvent(Hunt h){
+        Hunt hunt = mHuntManager.getHuntByID(h.getID());
+        if(hunt != null){
+            h = hunt;
+        }else{
+            mHuntManager.addHunt(h);
+        }
+        h.setmIsDeleted(false);
+        h.setIsFocused(true);
+        h.setmIsDownloaded(true);
+
+
+        mHuntManager.getSelectedHunts().add(h);
+        mHuntManager.removeUndownloadedSelectedHunts();
+        addHuntsToFileSystem();
+        saveImagesToFileSystem(h);
         if(mLocationTracker.hasLocPermission()) {
             mLocationTracker.updateDistances();
 
@@ -473,6 +513,41 @@ public class ActivityBase extends AppCompatActivity implements
         fragmentHome.updateHuntsList();
         Toast.makeText(this, "Successfully added hunt", Toast.LENGTH_SHORT).show();
     }
+
+
+
+    private void saveImagesToFileSystem(Hunt h){
+        LinkedList<Badge> badges = h.getAllBadges();
+
+        //FileSystemManager fm = new FileSystemManager();
+        for(Badge b: badges){
+            String src = "http://206.189.204.95/badge/icon/"+b.getIcon();
+            try {
+                URL url = new URL(src);
+                new DownloadImage(this, b.getBadgeImageFileName()).execute(url );
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            src = "http://206.189.204.95/landmark/image/"+b.getLandmarkImage();
+            try {
+                URL url = new URL(src);
+                new DownloadImage(this, b.getLandmarkImageFileName()).execute(url );
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
+        Award award = h.getAward();
+        String src = "http://206.189.204.95/superbadge/image/"+award.getSuperBadgeIcon();
+        try {
+            URL url = new URL(src);
+            new DownloadImage(this, award.getSuperBadgeImageFileName()).execute(url );
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
 
     public void swipedToPrize(){
         changePage(FRAGMENT_PRIZES);
@@ -488,7 +563,7 @@ public class ActivityBase extends AppCompatActivity implements
     private void addHuntsToFileSystem(){
         FileSystemManager fm = new FileSystemManager();
         try {
-            fm.addHuntList(this, mHuntManager.getAllHunts());
+            fm.addHuntList(this, mHuntManager.getAllDownloadedHunts());
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -507,7 +582,42 @@ public class ActivityBase extends AppCompatActivity implements
     public void setPagerSwipe(boolean b){mViewPager.setPagingEnabled(b);}
     public void updatePermissionLocation(boolean b){
         mLocationTracker.updatePermissionLocation(b);
-        fragmentMap.updatePermissionLocation(b);
+        fragmentList.updatePermissionLocation(b);
+        fragmentOverallHunt.updatePermissionLocation(b);
+    }
+    public void updateMapForUndownloadedHunt(){
+        mLocationTracker.updateDistances();
+        fragmentList.updateFocusHunts();
+        changePage(FRAGMENT_LIST);
+        fragmentList.setFragment(FragmentList.FRAGMENT_GOOGLE_MAPS);
+        fragmentList.updateSpinner();
+        /*fragmentMap.updateFocusHunts();
+        changePage(FRAGMENT_MAP);
+        fragmentMap.updateSpinner();*/
     }
 
+    public void collectionClicked(){
+
+        changePage(ActivityBase.FRAGMENT_LIST);
+        getmLocationTracker().updateDistances();
+        fragmentList.changeTab(FragmentBirdsEyeViewContainer.FRAGMENT_LANDMARK_LIST);
+        fragmentList.setFragment(FragmentList.FRAGMENT_BIRDS_EYE);
+        updateList();
+        updateMap();
+    }
+    public void onCollectionDeleted(){
+        updateSpinner();
+        updateList();
+        fragmentHome.updateHuntsList();
+        fragmentOverallHunt.updateHuntsList();
+    }
+    public void onCollectionRestored(){
+        updateSpinner();
+        updateList();
+        fragmentHome.updateHuntsList();
+    }
+    public void onAddCollectionClicked(){
+        changePage(FRAGMENT_OVERALL_HUNTS);
+        fragmentOverallHunt.changeTab(FragmentOverallHuntTabs.FRAGMENT_HUNT_SEARCH);
+    }
 }

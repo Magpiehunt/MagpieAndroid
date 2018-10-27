@@ -31,12 +31,13 @@ public class CheckableSpinnerAdapter extends BaseAdapter {
         this.huntManager = huntManager;
         this.context = context;
         this.header = header;
-        this.all_items = huntManager.getAllHunts();
+        this.all_items = huntManager.getAllDownloadedUndeletedHunts();
         this.selected_items = selected_items;
         this.listener = listener;
     }
     public void updateSpinnerItems(){
-        all_items = huntManager.getAllHunts();
+
+        all_items = huntManager.getAllDownloadedUndeletedHunts();
     }
     @Override
     public int getCount() {
@@ -92,7 +93,8 @@ public class CheckableSpinnerAdapter extends BaseAdapter {
 
                         hunt.setIsFocused(true);
                         selected_items.add(hunt);
-
+                        //filter out displayed hunts on map by only having downloaded hunts in the selected list
+                        selected_items = huntManager.getSelectedDownloadedHunts();
                         Log.e("CheckableSpinner","checked: "+hunt.getName());
 
                     }

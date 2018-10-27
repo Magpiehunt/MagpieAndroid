@@ -5,6 +5,8 @@ import android.location.Location;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class Badge implements Serializable, Comparable<Badge>{
     /*TODO to save memory, this wont store bitmaps of images, but instead, only the string "path"
@@ -62,6 +64,11 @@ public class Badge implements Serializable, Comparable<Badge>{
     public double getLatitude(){return mLatitude;}
     public double getDistance(){return mDistance;}
     public int getMinutes(){return (int)(mDistance * 20);}
+    public double getHours(){
+        BigDecimal bd = new BigDecimal(getMinutes()/60.0);
+        bd = bd.setScale(2, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
     public void setLocation(Location l){
         l.setLatitude(mLatitude);
         l.setLongitude(mLongitude);

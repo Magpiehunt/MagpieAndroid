@@ -45,28 +45,19 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
-//import static com.loopj.android.http.AsyncHttpClient.log;
-
-/**
- * Created by Blake Impecoven on 1/26/18.
- */
 
 public class LandmarkAdapter extends RecyclerView.Adapter<LandmarkAdapter.LandmarkHolder> {
 
     private static final String TAG = "LandmarkAdapter";
-    private final String fragmentTag;
     private final Context context;
-    private final FragmentLandmarkList fragment;
     private FragmentLandmarkList.OnLandmarkSelectedListener listener;
 
 
     public List<Badge> landmarkList;
 
-    public LandmarkAdapter(List<Badge> landmarkList, String tag, Context context, FragmentLandmarkList fragment, FragmentLandmarkList.OnLandmarkSelectedListener listener) {
+    public LandmarkAdapter(List<Badge> landmarkList,Context context, FragmentLandmarkList.OnLandmarkSelectedListener listener) {
         this.landmarkList = landmarkList;
-        this.fragmentTag = tag;
         this.context = context;
-        this.fragment = fragment;
         this.listener = listener;
         //TODO MAKE TEST LANDMARK LSIT
 
@@ -99,31 +90,22 @@ public class LandmarkAdapter extends RecyclerView.Adapter<LandmarkAdapter.Landma
 
         private static final String TAG = "LandmarkHolder";
 
-        private int position;
-
         // fields for CardView (While Condensed)
-        private TextView landmarkSponsor, landmarkName, minutestext, milestext;
+        private TextView landmarkSponsor, landmarkName;
         private TextView landmarkMiles, landmarkTime;
         private ImageView landmarkImage;
 
         private Badge currentObject;
 
-        // fields for CardView (While Expanded)
-        private TextView description;
         private LinearLayout card;
-        private Typeface font;
 
         public LandmarkHolder(View itemView) {
             super(itemView);
-            // attach to card_landmark.xml items
-            font = ResourcesCompat.getFont(context, R.font.font_awesome);
             this.landmarkSponsor = itemView.findViewById(R.id.landmarkSponsor);
             this.landmarkName = itemView.findViewById(R.id.landmarkName);
             this.landmarkMiles = itemView.findViewById(R.id.landmarkMiles);
             this.landmarkTime = itemView.findViewById(R.id.landmarkTime);
             this.landmarkImage = itemView.findViewById(R.id.landmarkImage);
-            minutestext = itemView.findViewById(R.id.minutestext);
-            milestext = itemView.findViewById(R.id.milestext);
 
 
 
@@ -144,23 +126,10 @@ public class LandmarkAdapter extends RecyclerView.Adapter<LandmarkAdapter.Landma
             Log.e(TAG, "setting distance in list");
             landmarkMiles.setText(""+currentObject.getDistance()); // need to get distance calculated
             landmarkTime.setText(""+currentObject.getMinutes()); // need to get time using lat and long from google services and their estimated time
-            //landmarkImage.setImageResource(R.drawable.magpie_test_cardview_collectionimage); // replace once we find out how to deal w/ images
-            //landmarkImage.loadUrl("http://206.189.204.95/badge/icon/"+currentObject.getIcon());
-           /*if(currentObject.getIsCompleted())
-                Picasso.get().load("http://206.189.204.95/badge/icon/"+currentObject.getIcon()).resize(200,200).into(landmarkImage);
-            else
-                Picasso.get().load("http://206.189.204.95/badge/icon/"+currentObject.getIcon()).transform(new GrayScaleTransformation(Picasso.get())).resize(200,200).into(landmarkImage);
-*/
 
-            //this.landmarkName.setTypeface(font);
-            //this.minutestext.setTypeface(font);
-            //this.milestext.setTypeface(font);
-            //this.landmarkSponsor.setTypeface(font);
             this.currentObject = currentObject;
             ImageManager im = new ImageManager();
             im.fillBadgeImage(context, currentObject, landmarkImage);
-            //populateBadgeImage();
-            this.position = position;
         }//end setData
 
         public void setListeners() {
@@ -217,57 +186,7 @@ public class LandmarkAdapter extends RecyclerView.Adapter<LandmarkAdapter.Landma
                 Picasso.get().load("http://206.189.204.95/badge/icon/"+currentObject.getIcon()).transform(new GrayScaleTransformation()).resize(200,200).into(target);
 
         }
-        /*private class HttpImageRequestTask extends AsyncTask<Void, Void, Drawable> {
-            @Override
-            protected Drawable doInBackground(Void... params) {
-                try {
 
 
-                    final URL url = new URL("http://upload.wikimedia.org/wikipedia/commons/e/e8/Svg_example3.svg");
-                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                    InputStream inputStream = urlConnection.getInputStream();
-                    SVG svg = SVG.getFromInputStream(inputStream);
-                    Drawable drawable = svg.createPictureDrawable();
-                    return drawable;
-                } catch (Exception e) {
-                    Log.e("MainActivity", e.getMessage(), e);
-                }
-
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Drawable drawable) {
-                // Update the view
-                updateImageView(drawable);
-            }
-        }
-        private void updateImageView(Drawable drawable){
-            if(drawable != null){
-
-                // Try using your library and adding this layer type before switching your SVG parsing
-                mImageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-                Picasso.with(this)
-                        .placeholder(drawable) //this is optional the image to display while the url image is downloading
-                        .error(Your Drawable Resource)         //this is also optional if some error has occurred in downloading the image this image would be displayed
-                        .into(imageView);
-
-            }
-        }
-*/
-
-        // will be used at some point.
-        //TODO: decide on gesture or button removal.
-        public void removeItem(int position) {
-            landmarkList.remove(position);
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, landmarkList.size());
-        }// end removeItem
-
-        public void addItem(int position, Badge currentObject) {
-            landmarkList.add(position, currentObject);
-            notifyItemInserted(position);
-            notifyItemRangeChanged(position, landmarkList.size());
-        }// end addItem
     }//end inner class: LandmarkHolder
 }//end LandmarkAdapter

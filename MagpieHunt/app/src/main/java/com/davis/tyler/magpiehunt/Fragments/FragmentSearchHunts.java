@@ -1,10 +1,12 @@
 package com.davis.tyler.magpiehunt.Fragments;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -66,6 +68,7 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
     private EditText mSearchText;
     private LinkedList<Hunt> hunts;
     private Target target;
+    private SharedPreferences preferences;
 
     /**
      * @return A new instance of fragment FragmentSearchHunts.
@@ -75,6 +78,7 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
         Bundle args = new Bundle();
         //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
+
         return f;
     }
 
@@ -96,6 +100,7 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
         this.context = this.getActivity();
         //test = rootView.findViewById(R.id.imageView2);
         //init landmark_list_green
+        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
         mRecyclerView = rootView.findViewById(R.id.searchView);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mSearchText = rootView.findViewById(R.id.searchText);
@@ -163,8 +168,13 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
         mModelAdapter.notifyDataSetChanged();
     }
     public void sortClosest(){
-        mHuntManager.getSortedHuntsByClosestBadge(hunts, ((ActivityBase)getActivity()).getmLocationTracker());
-        mModelAdapter.notifyDataSetChanged();
+        if(hasLocPermission()) {
+            mHuntManager.getSortedHuntsByClosestBadge(hunts, ((ActivityBase) getActivity()).getmLocationTracker());
+            mModelAdapter.notifyDataSetChanged();
+        }else{
+            sortWalkingDistance();
+            Toast.makeText(getContext(), "Turn on location permission to sort by closest", Toast.LENGTH_SHORT).show();
+        }
     }
     public void sortNumberBadges(){
         mHuntManager.getSortedHuntsByNumberOfBadges(hunts);
@@ -190,6 +200,12 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
                         Log.e(TAG, "Response gained");
                         JSONParser jsonparser = new JSONParser(jsonArray);
                         hunts = jsonparser.getAllHunts();
+                        for(Hunt h: hunts){
+                            if(mHuntManager.getHuntByID(h.getID()) == null){
+                                mHuntManager.addHunt(h);
+                            }
+
+                        }
                         mHuntManager.setmSearchHunts(hunts);
                         if(hunts == null){
                             Toast.makeText(getContext(), "No hunts found, please try again...", Toast.LENGTH_SHORT).show();
@@ -220,6 +236,13 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
                         Log.e(TAG, "Response gained");
                         JSONParser jsonparser = new JSONParser(jsonArray);
                         hunts = jsonparser.getAllHunts();
+                        for(Hunt h: hunts){
+                            if(mHuntManager.getHuntByID(h.getID()) == null){
+                                mHuntManager.addHunt(h);
+                            }
+
+                        }
+
                         mHuntManager.setmSearchHunts(hunts);
                         if(hunts == null){
                             Toast.makeText(getContext(), "No hunts found, please try again...", Toast.LENGTH_SHORT).show();
@@ -251,6 +274,12 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
                         Log.e(TAG, "Response gained");
                         JSONParser jsonparser = new JSONParser(jsonArray);
                         hunts = jsonparser.getAllHunts();
+                        for(Hunt h: hunts){
+                            if(mHuntManager.getHuntByID(h.getID()) == null){
+                                mHuntManager.addHunt(h);
+                            }
+
+                        }
                         mHuntManager.setmSearchHunts(hunts);
                         if(hunts == null){
                             Toast.makeText(getContext(), "No hunts found, please try again...", Toast.LENGTH_SHORT).show();
@@ -260,7 +289,6 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
                             updateList();
 
                         }
-                        //TODO sort list by filter, then update list
 
                     }
                 },
@@ -337,7 +365,12 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
             mListener.onFragmentInteraction(uri);
         }*/
     }
-
+    public boolean hasLocPermission(){
+        if(preferences != null) {
+            return preferences.getBoolean("fine", false) && preferences.getBoolean("coarse", false);
+        }
+        return false;
+    }
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -377,8 +410,8 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
-    public void onAddHuntListener(){
-        ((ActivityBase)getActivity()).onAddHuntEvent();
+    public void onAddHuntListener(Hunt h){
+        ((ActivityBase)getActivity()).onAddHuntEvent(h);
     }
 
 }

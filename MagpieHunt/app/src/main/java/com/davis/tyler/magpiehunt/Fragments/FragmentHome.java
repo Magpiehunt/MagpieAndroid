@@ -17,8 +17,13 @@ public class FragmentHome extends Fragment implements FragmentHuntsList.OnCollec
     private static final String TAG = "Home Fragment";
     public static final int FRAGMENT_HUNTS_LIST = 0;
     public static final int FRAGMENT_SETTINGS = 1;
+    public static final int FRAGMENT_PRIVACY = 2;
+    public static final int FRAGMENT_TERMS = 3;
+
     private FragmentHuntsList collectionFragment;
     private FragmentSettings fragmentSettings;
+    private FragmentTermsAndConditions fragmentTerms;
+    private FragmentPrivacyPolicy fragmentPrivacy;
     private HuntManager mHuntManager;
     private int curFrag;
 
@@ -45,6 +50,7 @@ public class FragmentHome extends Fragment implements FragmentHuntsList.OnCollec
         //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
     }
 
+
     public void updateActionBar(){
         if(curFrag == FRAGMENT_SETTINGS){
             ((ActivityBase) getActivity()).setBackButtonOnOff(true);
@@ -57,7 +63,20 @@ public class FragmentHome extends Fragment implements FragmentHuntsList.OnCollec
             ((ActivityBase) getActivity()).getSupportActionBar().setTitle("My Collections");
             ((ActivityBase) getActivity()).menuSettingsVisibility(true);
         }
+        else if(curFrag == FRAGMENT_TERMS)
+        {
+            ((ActivityBase) getActivity()).setBackButtonOnOff(true);
+            ((ActivityBase) getActivity()).getSupportActionBar().setTitle("Terms of Use");
+            ((ActivityBase) getActivity()).menuSettingsVisibility(false);
+        }
+        else if(curFrag == FRAGMENT_PRIVACY)
+        {
+            ((ActivityBase) getActivity()).setBackButtonOnOff(true);
+            ((ActivityBase) getActivity()).getSupportActionBar().setTitle("Privacy Policy");
+            ((ActivityBase) getActivity()).menuSettingsVisibility(false);
+        }
     }
+
 
     public void setFragment(int i) {
         curFrag = i;
@@ -74,6 +93,22 @@ public class FragmentHome extends Fragment implements FragmentHuntsList.OnCollec
             }
             ft.replace(R.id.currentfragment, fragmentSettings);
         }
+        else if(i == FRAGMENT_PRIVACY)
+        {
+            ((ActivityBase)getActivity()).setBackButtonOnOff(true);
+            if(fragmentPrivacy == null){
+                fragmentPrivacy = FragmentPrivacyPolicy.newInstance();
+            }
+            ft.replace(R.id.currentfragment, fragmentPrivacy);
+        }
+        else if(i == FRAGMENT_TERMS)
+        {
+            ((ActivityBase)getActivity()).setBackButtonOnOff(true);
+            if(fragmentTerms == null){
+                fragmentTerms = FragmentTermsAndConditions.newInstance();
+            }
+            ft.replace(R.id.currentfragment, fragmentTerms);
+        }
         updateActionBar();
         ft.addToBackStack(null);
         ft.commit();
@@ -82,9 +117,17 @@ public class FragmentHome extends Fragment implements FragmentHuntsList.OnCollec
     public void onCollectionSelected(int id, String name) {
 
         mHuntManager.setFocusHunt(id);
-        ((ActivityBase)getActivity()).changePage(ActivityBase.FRAGMENT_LIST);
-        ((ActivityBase)getActivity()).updateList();
+        ((ActivityBase)getActivity()).collectionClicked();
+    }
 
+    @Override
+    public void onCollectionDeleted() {
+        ((ActivityBase)getActivity()).onCollectionDeleted();
+    }
+
+    @Override
+    public void onCollectionRestored() {
+        ((ActivityBase)getActivity()).onCollectionRestored();
     }
 
     public void onBackPressed(){
@@ -95,7 +138,15 @@ public class FragmentHome extends Fragment implements FragmentHuntsList.OnCollec
             curFrag = FRAGMENT_HUNTS_LIST;
             updateActionBar();
         }
+        else if(curFrag == FRAGMENT_TERMS || curFrag == FRAGMENT_PRIVACY)
+        {
+            ((ActivityBase)getActivity()).setBackButtonOnOff(true);
+            setFragment(FRAGMENT_SETTINGS);
+            curFrag = FRAGMENT_SETTINGS;
+            updateActionBar();
+        }
     }
+
     public void updateHuntsList(){
         if(collectionFragment != null)
             collectionFragment.updateList();

@@ -58,7 +58,7 @@ public void onBindViewHolder(PrizeHolder holder, int position) {
 
         // Get element from your dataset at this position and replace the contents of the view
         // with that element
-        holder.setData(huntList.get(position), position);
+        holder.setData(huntList.get(position));
         }//end onBindViewHolder
 
 @Override
@@ -72,9 +72,6 @@ public class PrizeHolder extends RecyclerView.ViewHolder implements View.OnClick
 
     private static final String TAG = "PrizeHolder";
 
-    private int position;
-
-    // fields for CardView (While Condensed)
     private TextView txt_huntAbbr, txt_huntName;
     private ImageView img_superBadge;
     private TextView txt_new;
@@ -95,7 +92,7 @@ public class PrizeHolder extends RecyclerView.ViewHolder implements View.OnClick
         setListeners();
     }//end EVC
 
-    public void setData(Hunt currentObject, int position) {
+    public void setData(Hunt currentObject) {
         // attach class fields to their respective items on card_landmark.xml
 
         txt_huntName.setText(currentObject.getName());
@@ -107,10 +104,8 @@ public class PrizeHolder extends RecyclerView.ViewHolder implements View.OnClick
             txt_new.setVisibility(View.GONE);
         }
         this.currentObject = currentObject;
-        //Picasso.get().load("http://206.189.204.95/superbadge/image/"+currentObject.getAward().getSuperBadgeIcon()).fit().centerCrop().into(img_superBadge);
         ImageManager imageManager = new ImageManager();
         imageManager.fillSuperBadgeImage(context, currentObject, img_superBadge);
-        this.position = position;
     }//end setData
 
     public void setListeners() {
@@ -133,23 +128,5 @@ public class PrizeHolder extends RecyclerView.ViewHolder implements View.OnClick
         }//end switch
     }// end onClick
 
-    private void startLandmark() {
-
-
-    }
-
-    // will be used at some point.
-    //TODO: decide on gesture or button removal.
-    public void removeItem(int position) {
-        huntList.remove(position);
-        notifyItemRemoved(position);
-        notifyItemRangeChanged(position, huntList.size());
-    }// end removeItem
-
-    public void addItem(int position, Hunt currentObject) {
-        huntList.add(position, currentObject);
-        notifyItemInserted(position);
-        notifyItemRangeChanged(position, huntList.size());
-    }// end addItem
 }//end inner class: LandmarkHolder
 }//end LandmarkAdapter

@@ -55,7 +55,7 @@ public class FragmentWalkthroughContainer extends Fragment implements View.OnCli
     @Override
     public void onClick(View view) {
         if(view.getId() == R.id.btn_signin){
-            ((ActivitySignIn)getActivity()).goToLogin();
+            ((ActivitySignIn)getActivity()).setFragment(ActivitySignIn.FRAGMENT_SIGNIN);
         }
     }
 }

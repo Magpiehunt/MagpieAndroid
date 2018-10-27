@@ -31,13 +31,6 @@ public class SectionsStatePagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
-        // save the appropriate reference depending on position
-        /*switch (position) {
-            case MainActivity.FRAGMENT_LANDMARK_INFO:
-                System.out.println("MAKING LANDMARK INFO");
-                mLandmarkInfoFragment = (LandmarkInfoFragment) createdFragment;
-                break;
-        }*/
         return createdFragment;
     }
 

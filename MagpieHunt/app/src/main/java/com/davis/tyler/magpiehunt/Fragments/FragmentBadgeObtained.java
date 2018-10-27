@@ -63,7 +63,7 @@ public class FragmentBadgeObtained extends Fragment implements View.OnClickListe
     private void addHuntsToFileSystem(){
         FileSystemManager fm = new FileSystemManager();
         try {
-            fm.addHuntList(getContext(), mHuntManager.getAllHunts());
+            fm.addHuntList(getContext(), mHuntManager.getAllDownloadedHunts());
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -107,7 +107,7 @@ public class FragmentBadgeObtained extends Fragment implements View.OnClickListe
     public void onClick(View view) {
         if(view.getId() == R.id.relativelayout){
             if(getParentFragment() instanceof FragmentList){
-                ((ActivityBase)getActivity()).changePage(ActivityBase.FRAGMENT_LIST);
+                ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_BIRDS_EYE);
                 ((FragmentList) getParentFragment()).updateFocusHunts();
             }
             else if(getParentFragment() instanceof FragmentMap){

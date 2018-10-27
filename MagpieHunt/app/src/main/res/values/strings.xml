@@ -2,11 +2,11 @@
     <string name="app_name">MagpieHunt</string>
     <string name="google_maps_API_key">AIzaSyB1kjES3EG5dnTuo_1u9VBM1zykt-SX6Ys</string>
     <string name="signin_agreement">By logging into Magpie with your Google account, you are agreeing to our Privacy Policy and our Terms of Use. Magpie 2017.</string>
-    <string name="menu_map">Map</string>
+    <string name="menu_map">Hunts</string>
     <string name="magpie_logo">Magpie</string>
-    <string name="menu_list">List</string>
+    <string name="menu_list">Bird\'s View</string>
     <string name="menu_home">Home</string>
-    <string name="menu_search">Search</string>
+    <string name="menu_search">Serach</string>
     <string name="menu_prizes">Prizes</string>
     <string name="map_view">Map View</string>
     <string name="share">Share</string>
@@ -21,4 +21,36 @@
     <string name="walkthrough1">With Magpie, you can find tours, events, walks, scavenger hunts and more around you, known on Magpie as "collections."</string>
     <string name="walkthrough2">Each collection will take you to a series of locations where you will learn fun facts, explore, and earn special badges. Find all the badges to complete your collections!</string>
     <string name="walkthrough3">Win awesome prizes for completing collections. We partner up with some of the best businesses we can find to provide real prizes and exclusive discoutns where you live!</string>
+
+    <string name="termsFragIntro">INTRODUCTION</string>
+
+    <string name="termsSecI.I">SECTION I.I </string>
+
+    <string name="termsSecI.II">SECTION I.II </string>
+
+    <string name="termsSecI.III">SECTION I.III </string>
+
+    <string name="termsSecI.IV">SECTION I.IV </string>
+
+    <string name="introBody">Lorem ipsum dolor sit amet, dictum primis nisl, viverra rutrum consequat at vehicula mauris, magna wisi nisl, ullamcorper laoreet a. Accumsan vivamus molestie bibendum suspendisse pretium. Egestas mus id senectus orci odio nulla. Vulputate amet sem pede purus, ad nulla donec, lorem amet nulla mauris ac totam. Felis enim sed aliquet, pretium eu quis mattis proin convallis urna, donec at ut nec. Turpis pulvinar sociosqu ligula nam ut, tempus lorem ipsum dolore integer, elementum bibendum quis sociis mauris nulla duis, a nunc quis quis, eum mauris ut dui mattis. Quam feugiat. Non eget eget, ac feugiat nisl tempor nec vel praesent, nibh ridiculus ut sodales urna viverra maecenas, quis dolores id lectus ac.</string>
+
+    <string name="SecI.IBody">Diam nullam porttitor est in quis, elementum wisi elit interdum pellentesque pulvinar, facilisis metus officia sem erat semper nec. Ultrices lacus libero magna viverra aliquet, in bibendum tristique nulla lectus, ultrices dui egestas, vitae habitasse egestas mauris accumsan luctus nam. Lacus tempus, tortor tincidunt arcu mattis integer, luctus donec consectetuer nascetur fermentum mauris, luctus ut gravida est dignissim.</string>
+
+    <string name="SecI.IIBody">Orci ipsum quis a nec, rutrum ut et non, nunc augue fermentum non in. Id ut donec dis. Venenatis luctus mollis vel ultrices elementum suspendisse, vivamus at rutrum in fringilla diam amet, dignissim nunc. Magna velit est justo lacus. Pretium quam aliquam in molestie, a quam pellentesque, pellentesque non sed penatibus, vehicula in sed feugiat nec purus sit. Taciti amet vivamus nunc massa proin, sit placerat vehicula aenean lorem, in eget accumsan lacinia.</string>
+
+    <string name="SecI.IIIBody">Vero velit porta, urna quis tempor eu maecenas magna risus, in sodales donec dui, wisi curabitur magnam pretium commodo proin, mauris ante luctus tellus. Enim vel justo scelerisque cras eget, et cursus, ante odio id non facilisis sagittis, sem consectetuer dolor curabitur nunc aliquip turpis. Placerat velit condimentum quam aliquam in.</string>
+
+    <string name="SecI.IVBody">Ante velit vitae metus nibh, aliquam ac, vitae metus maecenas tempor nonummy amet lectus, vivamus quisque. Mauris dignissim donec vel phasellus porta mauris, leo potenti massa, montes dolor volutpat non pellentesque aliquam, donec risus in laoreet et vitae non, integer placerat velit. Ac felis sociosqu facilisi aliquet in, amet pellentesque purus mauris id tellus erat. Mollis vel a sit nec ut, arcu posuere, donec velit a habitasse. </string>
+
+    <string name="privacyIntro">INTRODUCTION</string>
+
+    <string name="privacySecI">WHAT WE KEEP AND WHY </string>
+
+    <string name="privacySecII">WHAT WE SHARE AND WHY </string>
+
+    <string name="privacyIntroBody">Lorem ipsum dolor sit amet, dictum primis nisl, viverra rutrum consequat at vehicula mauris, magna wisi nisl, ullamcorper laoreet a. Accumsan vivamus molestie bibendum suspendisse pretium. Egestas mus id senectus orci odio nulla. Vulputate amet sem pede purus, ad nulla donec, lorem amet nulla mauris ac totam. Felis enim sed aliquet, pretium eu quis mattis proin convallis urna, donec at ut nec. Turpis pulvinar sociosqu ligula nam ut, tempus lorem ipsum dolore integer, elementum bibendum quis sociis mauris nulla duis, a nunc quis quis, eum mauris ut dui mattis. Quam feugiat. Non eget eget, ac feugiat nisl tempor nec vel praesent, nibh ridiculus ut sodales urna viverra maecenas, quis dolores id lectus ac.</string>
+
+    <string name="privacySecIBody">Diam nullam porttitor est in quis, elementum wisi elit interdum pellentesque pulvinar, facilisis metus officia sem erat semper nec. Ultrices lacus libero magna viverra aliquet, in bibendum tristique nulla lectus, ultrices dui egestas, vitae habitasse egestas mauris accumsan luctus nam. Lacus tempus, tortor tincidunt arcu mattis integer, luctus donec consectetuer nascetur fermentum mauris, luctus ut gravida est dignissim.</string>
+
+    <string name="privacySecIIBody">Orci ipsum quis a nec, rutrum ut et non, nunc augue fermentum non in. Id ut donec dis. Venenatis luctus mollis vel ultrices elementum suspendisse, vivamus at rutrum in fringilla diam amet, dignissim nunc. Magna velit est justo lacus. Pretium quam aliquam in molestie, a quam pellentesque, pellentesque non sed penatibus, vehicula in sed feugiat nec purus sit. Taciti amet vivamus nunc massa proin, sit placerat vehicula aenean lorem, in eget accumsan lacinia.</string>
 </resources>

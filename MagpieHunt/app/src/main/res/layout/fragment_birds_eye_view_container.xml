@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:id="@+id/spinnercontainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/badge_completed"
+        android:background="@drawable/border_set_bottom">
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_gravity="start|top">
+
+            <android.support.design.widget.TabItem
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_gravity="left"
+                android:icon="@drawable/ic_place_green_24dp" />
+
+            <android.support.design.widget.TabItem
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="left"
+                android:icon="@drawable/ic_list_green_24dp" />
+
+            <android.support.design.widget.TabItem
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="left"
+                android:icon="@drawable/ic_search_green_24dp" />
+        </android.support.design.widget.TabLayout>
+
+
+        <com.davis.tyler.magpiehunt.Spinners.SpinnerHuntFilter
+            android:id="@+id/spinner"
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/standard_button_gray"
+            android:dropDownWidth="400dp" />
+
+        <ImageView
+            android:id="@+id/greenarrow"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignRight="@+id/spinner"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            app:srcCompat="@drawable/ic_arrow_drop_down_green_24dp" />
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/currentfragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/spinnercontainer">
+
+    </FrameLayout>
+
+    <!--<android.support.v4.view.ViewPager
+        android:id="@+id/view_container"
+        android:layout_below="@+id/spinnercontainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </android.support.v4.view.ViewPager>
+    -->
+</RelativeLayout>

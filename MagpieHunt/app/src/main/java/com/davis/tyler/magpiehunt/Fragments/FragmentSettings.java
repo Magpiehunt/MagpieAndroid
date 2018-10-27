@@ -121,6 +121,7 @@ public class FragmentSettings extends Fragment implements View.OnClickListener{
 
     @Override
     public void onClick(View v) {
+        FragmentHome fh = null;
         switch (v.getId()) {
             case R.id.btn_signout:
                 startActivity(new Intent(getActivity().getApplicationContext(), ActivitySignIn.class));
@@ -128,11 +129,14 @@ public class FragmentSettings extends Fragment implements View.OnClickListener{
                 //TODO do signout function here
                 break;
             case R.id.terms_and_conditions:
-
+                fh = (FragmentHome)getParentFragment();
+                fh.setFragment(3);
                 break;
             case R.id.privacy_policy:
-
+                fh = (FragmentHome)getParentFragment();
+                fh.setFragment(2);
                 break;
+
 
             default:
                 break;
@@ -173,8 +177,8 @@ public class FragmentSettings extends Fragment implements View.OnClickListener{
 
             if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
 
-                    preferences.edit().putBoolean("fine", true).apply();
-                    preferences.edit().putBoolean("coarse", true).apply();
+                preferences.edit().putBoolean("fine", true).apply();
+                preferences.edit().putBoolean("coarse", true).apply();
 
             }else {
                 requestPermissions(new String[]{

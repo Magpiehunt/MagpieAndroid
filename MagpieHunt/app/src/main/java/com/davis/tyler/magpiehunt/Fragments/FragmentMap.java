@@ -186,6 +186,8 @@ public class FragmentMap extends Fragment implements IFragmentSwitcherListener{
     }
     public void updateFocusHunts(){
         if(fragmentGoogleMaps != null){
+            fragmentGoogleMaps.setCustomInfoWindow();
+
             fragmentGoogleMaps.updateFocusHunts();
         }
     }
@@ -197,4 +199,6 @@ public class FragmentMap extends Fragment implements IFragmentSwitcherListener{
     public void updatePermissionLocation(boolean b){
         fragmentGoogleMaps.updatePermissionLocation(b);
     }
+
+
 }

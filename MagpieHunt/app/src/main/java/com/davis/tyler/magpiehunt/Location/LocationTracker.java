@@ -49,7 +49,7 @@ public class LocationTracker implements ActivityCompat.OnRequestPermissionsResul
     private Context context;
     private GoogleMap gMap;
     //private GPSTracker gpsTracker;
-    private static double validDistanceInMiles = 1;//change this later to whatever the valid distance you decide on then
+    private static double validDistanceInMiles = .000001;//change this later to whatever the valid distance you decide on then
     private LocationManager mLocationManager;
     private LocationListener mLocationListener;
     private HuntManager mHuntManager;
