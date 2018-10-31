@@ -51,7 +51,6 @@ import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.MapWrapperLayout;
-import com.davis.tyler.magpiehunt.MarkerInfo;
 import com.davis.tyler.magpiehunt.OnInfoWindowElementTouchListener;
 import com.davis.tyler.magpiehunt.R;
 import com.davis.tyler.magpiehunt.Spinners.SpinnerHuntFilter;
@@ -259,7 +258,7 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
         wingitContainer = infoWindow.findViewById(R.id.custom_info_container);
         wingitMiles = infoWindow.findViewById(R.id.landmarkMiles);
         wingitHrs = infoWindow.findViewById(R.id.landmarkTime);
-        wingitTitle = infoWindow.findViewById(R.id.landmarkName);
+        wingitTitle = infoWindow.findViewById(R.id.badgeName);
         btn_LetsWingit = infoWindow.findViewById(R.id.btn_wingit);
 
         this.infoButtonListener = new OnInfoWindowElementTouchListener(btn_LetsWingit)
@@ -588,7 +587,7 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
                 System.out.println("ACCESS PARENT FRAGMENT FROM googlemaps");
                 mHuntManager.setFocusHunt(Integer.parseInt(marker.getTitle()));
                 //((FragmentBirdsEyeViewContainer) getParentFragment()).setParentFragment(FragmentList.FRAGMENT_LANDMARK_INFO);
-                ((ActivityBase)getActivity()).collectionClicked();
+                ((ActivityBase)getActivity()).collectionClickedMapView();
             }
         });
 
@@ -895,7 +894,22 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
 
             tempMarker.icon(bd);
             markers.put(h.getID(), mMap.addMarker(tempMarker));
+            mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+                @Override
+                public void onMarkerDragStart(Marker marker) {
+                    System.out.println("marker drag");
+                }
 
+                @Override
+                public void onMarkerDrag(Marker marker) {
+
+                }
+
+                @Override
+                public void onMarkerDragEnd(Marker marker) {
+
+                }
+            });
         }
 
     }

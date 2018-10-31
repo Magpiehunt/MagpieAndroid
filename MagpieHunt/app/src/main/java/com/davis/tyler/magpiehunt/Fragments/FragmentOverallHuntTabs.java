@@ -51,7 +51,8 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
     private Set<Hunt> selected_items;
     private ImageView img_greenarrow;
 
-
+    private CheckableSpinnerOverallHuntsAdapter adapter;
+    private SpinnerOverallHuntsFilter spinner;
 
     @Nullable
     @Override
@@ -68,8 +69,8 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
         initTabLayout();
         //fragmentGoogleMaps = FragmentGoogleMapsHunts.newInstance(mHuntManager, mCameraManager);
         setFragment(FRAGMENT_GOOGLE_MAPS);
-        SpinnerOverallHuntsFilter spinner = (SpinnerOverallHuntsFilter) view.findViewById(R.id.spinner);
-        CheckableSpinnerOverallHuntsAdapter adapter = new CheckableSpinnerOverallHuntsAdapter(getContext(), (FragmentOverallHunt)getParentFragment());
+        spinner = (SpinnerOverallHuntsFilter) view.findViewById(R.id.spinner);
+        adapter = new CheckableSpinnerOverallHuntsAdapter(getContext(), (FragmentOverallHunt)getParentFragment());
         spinner.setAdapter(adapter);
         spinner.setSpinnerSearchEventsListener((SpinnerOverallHuntsFilter.OnSpinnerEventsListener)getParentFragment());
         return view;
@@ -191,7 +192,7 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
             if(fragmentGoogleMaps == null) {
                 fragmentGoogleMaps = FragmentGoogleMapsHunts.newInstance(mHuntManager, mCameraManager);
             }
-            //spinnerOnElseOff(true);
+            spinnerOnElseOff(true);
             ft.replace(R.id.currentfragment, fragmentGoogleMaps);
         }
         else if(i == FRAGMENT_HUNT_LIST){
@@ -200,7 +201,7 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
             if(fragmentHuntsList == null){
                 fragmentHuntsList = FragmentHuntListTab.newInstance(mHuntManager);
             }
-            //spinnerOnElseOff(true);
+            spinnerOnElseOff(false);
             ft.replace(R.id.currentfragment, fragmentHuntsList);
         }
         else if(i == FRAGMENT_HUNT_SEARCH){
@@ -209,7 +210,7 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
             if(fragmentSearchHunts == null){
                 fragmentSearchHunts = FragmentSearchHunts.newInstance(mHuntManager);
             }
-            //spinnerOnElseOff(false);
+            spinnerOnElseOff(false);
             ft.replace(R.id.currentfragment, fragmentSearchHunts);
 
         }
@@ -231,7 +232,9 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
             //fragmentBirdsEyeViewContainer.reloadMap();
         }
     }
-    /*private void spinnerOnElseOff(boolean b){
+    private void spinnerOnElseOff(boolean b){
+        if(spinner == null || img_greenarrow == null)
+            return;
         if(b){
             spinner.setVisibility(View.VISIBLE);
             img_greenarrow.setVisibility(View.VISIBLE);
@@ -239,7 +242,7 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
             spinner.setVisibility(View.INVISIBLE);
             img_greenarrow.setVisibility(View.INVISIBLE);
         }
-    }*/
+    }
 
     @Override
     public void onResume() {
@@ -291,8 +294,8 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
         }
     }*/
     public void updatePermissionLocation(boolean b){
-        //if(fragmentGoogleMaps!= null)
-            //fragmentGoogleMaps.updatePermissionLocation(b);
+        if(fragmentGoogleMaps!= null)
+            fragmentGoogleMaps.updatePermissionLocation(b);
     }
     public Set<Hunt> getSelected_items(){
         return selected_items;

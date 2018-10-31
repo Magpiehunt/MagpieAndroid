@@ -272,6 +272,16 @@ public class HuntManager implements Serializable{
         mHunts.remove(id);
     }
 
+    public void updateFocusHuntDeleted(){
+        LinkedList<Hunt> ll = new LinkedList<>();
+        for(Hunt h: mSelectedHunts){
+            if(h.getIsDeleted())
+                ll.add(h);
+        }
+        for(Hunt h: ll){
+            mSelectedHunts.remove(h);
+        }
+    }
     public void setmSearchHunts(LinkedList<Hunt> ll){
         mSearchHunts = ll;
     }
@@ -314,16 +324,16 @@ public class HuntManager implements Serializable{
         }
     }
 
-    public LinkedList<Badge> getAllBadgesByKeyword(String key, boolean completedHunt, boolean both)
+    public LinkedList<Badge> getAllBadgesByKeyword(String key)
     {
         LinkedList<Badge> ret = new LinkedList<>();
         LinkedList<Hunt> ll = null;
-        if(both)
-            ll = this.getAllHunts();
-        else if(completedHunt)
+        //if(both)
+            ll = this.getAllDownloadedUndeletedHunts();
+        /*else if(completedHunt)
             ll = this.getAllCompletedHunts();
         else
-            ll = this.getAllUnCompletedHunts();
+            ll = this.getAllUnCompletedHunts();*/
 
         for(Hunt h : ll)
         {

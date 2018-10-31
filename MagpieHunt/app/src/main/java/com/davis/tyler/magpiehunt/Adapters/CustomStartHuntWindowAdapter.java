@@ -45,7 +45,7 @@ public class CustomStartHuntWindowAdapter implements GoogleMap.InfoWindowAdapter
         isExpanded = false;
         //markertext title will be the badgeID
         int title = Integer.parseInt(marker.getTitle());
-        TextView landmarkTitle = (TextView) view.findViewById(R.id.landmarkName);
+        TextView landmarkTitle = (TextView) view.findViewById(R.id.badgeName);
         landmarkImage = ((ImageView)view.findViewById(R.id.landmarkImage));
         btn_wingit = view.findViewById(R.id.btn_wingit);
         container = view.findViewById(R.id.custom_info_container);

@@ -7,6 +7,9 @@
     android:layout_gravity="end"
     android:layout_alignParentBottom="true"
     android:background="@color/colorMagpieWhite"
+    app:itemIconTint="@drawable/menu_item_color"
+    app:itemTextColor="@drawable/menu_item_color"
+    app:labelVisibilityMode="unlabeled"
     app:menu="@menu/navigation"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto" />

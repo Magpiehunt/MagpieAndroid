@@ -110,7 +110,8 @@ public class JSONParser
                 String lon = badges.getJSONObject(i).getString("lon");
                 badge.setmLatitude(Double.parseDouble(lat));
                 badge.setmLongitude(Double.parseDouble(lon));
-                System.out.println("questions1");
+                badge.setmLandmarkName(badges.getJSONObject(i).getString("landmarkName"));
+                //System.out.println("questions1");
                 String str = badges.getJSONObject(i).getString("quiz");
                 if(str != null && str.length() > 3) {
                     badge.setQuiz(parseQuizText(badges.getJSONObject(i).getString("quiz")));

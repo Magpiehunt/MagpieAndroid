@@ -1,8 +1,6 @@
 package com.davis.tyler.magpiehunt.Adapters;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,11 +11,12 @@ import android.widget.TextView;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.ImageManager;
-import com.davis.tyler.magpiehunt.MarkerCallback;
 import com.davis.tyler.magpiehunt.R;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
-import com.squareup.picasso.Picasso;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter, GoogleMap.OnInfoWindowClickListener{
 
@@ -47,7 +46,7 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter, Goo
 
         //markertext title will be the badgeID
         int title = Integer.parseInt(marker.getTitle());
-        TextView landmarkTitle = (TextView) view.findViewById(R.id.landmarkName);
+        TextView landmarkTitle = (TextView) view.findViewById(R.id.badgeName);
         mProfilePicture = ((ImageView)view.findViewById(R.id.markerprofilepicture));
         container = view.findViewById(R.id.custom_info_container);
         Badge badge = mHuntManager.getBadgeByID(title);
@@ -63,14 +62,20 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter, Goo
         TextView landmarkMiles = (TextView) view.findViewById(R.id.landmarkMiles);
 
 
-        landmarkMiles.setText(""+badge.getDistance());
+        landmarkMiles.setText(""+round(badge.getDistance(), 2));
         TextView landmarkMinutes = (TextView)view.findViewById(R.id.landmarkTime);
         landmarkMinutes.setText(""+badge.getMinutes());
 
 
 
     }
+    public double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
 
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
     @Override
     public View getInfoWindow(Marker marker) {
         renderWindowText(marker, mWindow);

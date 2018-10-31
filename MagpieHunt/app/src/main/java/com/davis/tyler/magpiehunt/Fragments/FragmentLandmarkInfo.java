@@ -1,8 +1,6 @@
 package com.davis.tyler.magpiehunt.Fragments;
 
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -18,13 +16,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.davis.tyler.magpiehunt.Activities.ActivityBase;
-import com.davis.tyler.magpiehunt.GrayScaleTransformation;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.ImageManager;
 import com.davis.tyler.magpiehunt.R;
-import com.squareup.picasso.Picasso;
 
 public class FragmentLandmarkInfo extends Fragment implements View.OnClickListener {
     private static final String TAG = "LandmarkInfo Fragment";
@@ -131,23 +127,19 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
             return;
         }
 
-        if(mBadge.getQRurl() != null && !mBadge.getQRurl().equalsIgnoreCase("null")) {
+        //FOR QR CODE FUNCTIONALITY
+        /*if(mBadge.getQRurl() != null && !mBadge.getQRurl().equalsIgnoreCase("null")) {
             if(!preferences.getBoolean("camera", false)) {
                 Toast.makeText(getContext(), "Cannot open QR Scanner without camera permission", Toast.LENGTH_SHORT).show();
                 return;
             }
-            /*if (getParentFragment() instanceof FragmentMap) {
 
-                ((FragmentMap) getParentFragment()).setFragment(FragmentMap.FRAGMENT_QR_READER);
-            } else if (getParentFragment() instanceof FragmentList) {
-                ((FragmentList) getParentFragment()).setFragment(FragmentList.FRAGMENT_QR_READER);
-            }*/
             ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_QR_READER);
         }
-        else if(((ActivityBase)getActivity()).getmLocationTracker().hasLocPermission()) {
+        else */if(((ActivityBase)getActivity()).getmLocationTracker().hasLocPermission()) {
             if(((ActivityBase)getActivity()).isCloseEnough(mBadge)) {
                 if (mBadge.getQuiz() == null) {
-                    Toast.makeText(getContext(), "No quiz or qr code found...", Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getContext(), "No quiz or qr code found...", Toast.LENGTH_LONG).show();
                     mBadge.setmIsCompleted(true);
                     /*if (getParentFragment() instanceof FragmentMap) {
 
@@ -157,8 +149,38 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
                     }*/
                     ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_BADGE_OBTAINED);
                 }
+            }else{
+                mListener.onCollectMoveCloser(mBadge);
             }
 
+        }
+        else{
+            Toast.makeText(getContext(), "Turn On location permission to collect this badge", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void qrOrQuiz2(){
+        if(mBadge.getQRurl() != null && !mBadge.getQRurl().equalsIgnoreCase("null")) {
+            if(!preferences.getBoolean("camera", false)) {
+                Toast.makeText(getContext(), "Cannot open QR Scanner without camera permission", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_QR_READER);
+        }
+        else if(((ActivityBase)getActivity()).getmLocationTracker().hasLocPermission()) {
+            if(((ActivityBase)getActivity()).isCloseEnough(mBadge)) {
+                System.out.println("qr code: " + mBadge.getQRurl());
+                if (mBadge.getQuiz() == null) {
+                    Toast.makeText(getContext(), "No quiz or qr code found...", Toast.LENGTH_SHORT).show();
+                    mBadge.setmIsCompleted(true);
+                    ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_BADGE_OBTAINED);
+                } else if (mBadge.getQuiz() != null) {
+                    Log.e(TAG, "Switching to Quiz fragment...");
+                    ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_QUIZ);
+                }
+            }
+            else
+                mListener.onCollectMoveCloser(mBadge);
         }
         else{
             Toast.makeText(getContext(), "Turn On location permission to collect this badge", Toast.LENGTH_SHORT).show();
@@ -207,7 +229,7 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
         txt_Collect = (TextView)view.findViewById(R.id.collectText);
         txt_Collect.setOnClickListener(this);
         txt_Description = (TextView)view.findViewById(R.id.landmarkDescription);
-        txt_badgeName = (TextView)view.findViewById(R.id.landmarkName);
+        txt_badgeName = (TextView)view.findViewById(R.id.badgeName);
         btn_map = (Button)view.findViewById(R.id.mapButton);
         btn_nextbadge = view.findViewById(R.id.lyt_nextbadge);
         btn_share = view.findViewById(R.id.lyt_share);

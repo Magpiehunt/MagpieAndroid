@@ -142,7 +142,7 @@ public class FragmentSearchLandmarks extends Fragment implements View.OnFocusCha
     private void searchForBadges(String query){
 
 
-        LinkedList<Badge> res = mHuntManager.getAllBadgesByKeyword(query, false, false);
+        LinkedList<Badge> res = mHuntManager.getAllBadgesByKeyword(query);
         if(res.size() == 0)
             Toast.makeText(context, "No results found", Toast.LENGTH_LONG).show();
         mModelAdapter.updateList(res);

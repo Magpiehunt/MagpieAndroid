@@ -49,7 +49,8 @@ public class LocationTracker implements ActivityCompat.OnRequestPermissionsResul
     private Context context;
     private GoogleMap gMap;
     //private GPSTracker gpsTracker;
-    private static double validDistanceInMiles = .000001;//change this later to whatever the valid distance you decide on then
+    private static double validDistanceInMiles = 0.008;//change this later to whatever the valid distance you decide on then
+    //private static double validDistanceInMiles = 20;
     private LocationManager mLocationManager;
     private LocationListener mLocationListener;
     private HuntManager mHuntManager;
@@ -79,7 +80,7 @@ public class LocationTracker implements ActivityCompat.OnRequestPermissionsResul
     }
 
     public double distanceToPoint(Location loc){
-        return round(currLoc.distanceTo(loc)/(1609.344), 2);
+        return currLoc.distanceTo(loc)/(1609.344);
     }
 
     /*
@@ -95,9 +96,9 @@ public class LocationTracker implements ActivityCompat.OnRequestPermissionsResul
             mLocationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    System.out.println("permission location changed, checking for permission");
+                    System.out.println("updating: onlocation changed");
                     if(hasLocPermission()) {
-                        System.out.println("distance setting location changed listener");
+                        System.out.println("updating: has location permissions");
                         currLoc = location;
                         coords = new LatLng(location.getLatitude(), location.getLongitude());
                         updateDistances();
@@ -127,7 +128,9 @@ public class LocationTracker implements ActivityCompat.OnRequestPermissionsResul
 
                 }
             };
-            mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2000, 10, mLocationListener);
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 2, mLocationListener);
+            mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 2, mLocationListener);
+            //mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 2, mLocationListener);
             currLoc = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             coords = new LatLng(currLoc.getLatitude(), currLoc.getLongitude());
             updateDistances();
@@ -157,6 +160,7 @@ public class LocationTracker implements ActivityCompat.OnRequestPermissionsResul
     }*/
 
     public void updateDistances(){
+        System.out.println("updating: updating distances");
         if(hasLocPermission()) {
             Location l = new Location("");
 
@@ -164,20 +168,14 @@ public class LocationTracker implements ActivityCompat.OnRequestPermissionsResul
             LinkedList<Badge> badges = mHuntManager.getAllBadges();
             for (Badge b : badges) {
                 b.setLocation(l);
-                Log.e(TAG, "updating distance to: " + distanceToPoint(l));
+                Log.e(TAG, "updating: distance to: " + distanceToPoint(l));
                 b.setDistance(distanceToPoint(l));
             }
             ((ActivityBase) a).notifyLocationChanged();
         }
     }
 
-    public double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
 
-        BigDecimal bd = new BigDecimal(value);
-        bd = bd.setScale(places, RoundingMode.HALF_UP);
-        return bd.doubleValue();
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

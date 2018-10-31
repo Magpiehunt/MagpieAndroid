@@ -1,51 +1,22 @@
 package com.davis.tyler.magpiehunt.Adapters;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.PictureDrawable;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
-import com.ahmadrosid.svgloader.SvgDecoder;
-import com.ahmadrosid.svgloader.SvgDrawableTranscoder;
-import com.ahmadrosid.svgloader.SvgSoftwareLayerSetter;
-import com.bumptech.glide.GenericRequestBuilder;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.model.StreamEncoder;
-import com.bumptech.glide.load.resource.file.FileToStreamDecoder;
-import com.caverock.androidsvg.SVG;
-import com.caverock.androidsvg.SVGParser;
 import com.davis.tyler.magpiehunt.Fragments.FragmentBirdsEyeViewContainer;
-import com.davis.tyler.magpiehunt.Fragments.FragmentLandmarkList;
-import com.davis.tyler.magpiehunt.Fragments.FragmentList;
-import com.davis.tyler.magpiehunt.GrayScaleTransformation;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
-import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.ImageManager;
 import com.davis.tyler.magpiehunt.R;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -104,8 +75,8 @@ public class LandmarkSearchAdapter extends RecyclerView.Adapter<LandmarkSearchAd
         public LandmarkHolder(View itemView) {
             super(itemView);
             // attach to card_landmark.xml items
-            this.landmarkSponsor = itemView.findViewById(R.id.landmarkSponsor);
-            this.landmarkName = itemView.findViewById(R.id.landmarkName);
+            this.landmarkSponsor = itemView.findViewById(R.id.landmarkName);
+            this.landmarkName = itemView.findViewById(R.id.badgeName);
             this.landmarkMiles = itemView.findViewById(R.id.landmarkMiles);
             this.landmarkTime = itemView.findViewById(R.id.landmarkTime);
             this.landmarkImage = itemView.findViewById(R.id.landmarkImage);

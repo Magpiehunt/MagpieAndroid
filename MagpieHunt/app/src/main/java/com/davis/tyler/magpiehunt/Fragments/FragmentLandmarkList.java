@@ -21,6 +21,8 @@ import android.widget.TextView;
 import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Adapters.CheckableSpinnerAdapter;
 import com.davis.tyler.magpiehunt.Adapters.LandmarkAdapter;
+import com.davis.tyler.magpiehunt.Dialogs.DialogAddHunt;
+import com.davis.tyler.magpiehunt.Hunts.Award;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
@@ -56,6 +58,7 @@ public class FragmentLandmarkList extends Fragment {
     //private CheckableSpinnerAdapter checkableSpinnerAdapter;
     private RelativeLayout badgeCompleted;
     private ImageView superBadge;
+    private DialogAddHunt dialogAddHunt;
 
 
 
@@ -121,8 +124,11 @@ public class FragmentLandmarkList extends Fragment {
 
         // Set the adapter for RecyclerView.
         mRecyclerView.setAdapter(mModelAdapter);
-
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+
+        dialogAddHunt = new DialogAddHunt(getActivity());
+        dialogAddHunt.setCancelable(false);
 
         return rootView;
     }
@@ -162,7 +168,11 @@ public class FragmentLandmarkList extends Fragment {
 
 
     public void updateList(){
-        mModelAdapter.notifyDataSetChanged();
+        if(landmarks != null) {
+            landmarks.clear();
+            landmarks.addAll(mHuntManager.getFocusedSortedBadges());
+            mModelAdapter.notifyDataSetChanged();
+        }
     }
 
     public void updateFocusHunts(){
@@ -170,28 +180,27 @@ public class FragmentLandmarkList extends Fragment {
 
             landmarks.clear();
             landmarks.addAll(mHuntManager.getFocusedSortedBadges());
+            updateList();
         }
         if(mHuntManager != null) {
             updateBadgeDisplay();
             updateList();
         }
+
     }
 
     public void updateBadgeDisplay(){
         //whenever a badge is completed this method is called
         //if there is a single focused hunt, alert the user their super badge is complete
-        if(mHuntManager.getSelectedHunts().size() == 1){
-            Hunt h = mHuntManager.getSingleSelectedHunt();
-            //h.updateIsCompleted();
-            if(h.getIsCompleted() && h.getAward().getIsNew()) {
-                System.out.println("award: "+h.getAward()+" award is new: "+h.getAward().getIsNew());
-                Picasso.get().load("http://206.189.204.95/superbadge/image/"+h.getAward().getSuperBadgeIcon())
+        if(mHuntManager.getFocusAward() != null){
+            Award a = mHuntManager.getFocusAward();
+            if(a.getIsNew()) {
+                Picasso.get().load("http://206.189.204.95/superbadge/image/"+a.getSuperBadgeIcon())
                         .fit()
                         .centerCrop()
                         .into(superBadge);
                 badgeCompleted.setVisibility(View.VISIBLE);
                 setPagerSwipe(false);
-                mHuntManager.setFocusAward(h.getID());
             }
             else {
                 badgeCompleted.setVisibility(View.GONE);
@@ -203,6 +212,24 @@ public class FragmentLandmarkList extends Fragment {
             setPagerSwipe(true);
         }
     }
+    public void setHuntCompleteNotificationList(Hunt h)
+    {
+        if(h.getIsCompleted() && h.getAward().getIsNew()) {
+            System.out.println("award: "+h.getAward()+" award is new: "+h.getAward().getIsNew());
+            Picasso.get().load("http://206.189.204.95/superbadge/image/"+h.getAward().getSuperBadgeIcon())
+                    .fit()
+                    .centerCrop()
+                    .into(superBadge);
+            badgeCompleted.setVisibility(View.VISIBLE);
+            setPagerSwipe(false);
+            mHuntManager.setFocusAward(h.getID());
+        }
+        else {
+            badgeCompleted.setVisibility(View.GONE);
+            setPagerSwipe(true);
+        }
+    }
+
     public void setPagerSwipe(boolean b){
         ActivityBase activityBase = (ActivityBase)getActivity();
         if(activityBase != null)

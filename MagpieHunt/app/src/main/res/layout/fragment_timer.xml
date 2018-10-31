@@ -13,6 +13,15 @@
         android:text="INCORRECT!"
         android:textColor="@color/colorMagpieRed"
         android:textSize="35sp" />
+    <TextView
+        android:id="@+id/txt_hibernate"
+        android:layout_marginTop="30dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/colorMagpieDarkGray"
+        android:text="Catch your breath. Take flight again in:"
+        android:layout_below="@id/txt_incorrect"/>
 
     <ImageView
         android:id="@+id/img_timer"
@@ -21,7 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:src="@drawable/ic_timer"
-        android:layout_below="@+id/txt_incorrect"/>
+        android:layout_below="@+id/txt_hibernate"/>
 
     <TextView
         android:id="@+id/txt_timer"

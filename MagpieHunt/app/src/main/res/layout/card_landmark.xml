@@ -21,17 +21,17 @@
 
         <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:paddingTop="13dp"
+            >
 
             <TextView
-                android:id="@+id/landmarkSponsor"
+                android:id="@+id/landmarkName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
                 android:layout_marginRight="6dp"
-                android:layout_marginTop="4dp"
                 android:fontFamily="@font/montserrat_light"
+                android:layout_below="@+id/badgeName"
                 android:gravity="right|top"
                 android:text="Author Name"
                 android:textColor="@color/colorMagpieLightGray"
@@ -39,11 +39,10 @@
                 android:typeface="sans" />
 
             <TextView
-                android:id="@+id/landmarkName"
+                android:id="@+id/badgeName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
-                android:layout_below="@+id/landmarkSponsor"
                 android:fontFamily="@font/montserrat_regular"
                 android:gravity="left|center"
                 android:maxLines="2"
@@ -58,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="20dp"
                 android:id="@+id/minutesconatiner">
 
                 <ImageView
@@ -100,7 +99,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_toRightOf="@+id/minutesconatiner"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="20dp"
                 android:layout_marginLeft="30dp">
 
                 <ImageView

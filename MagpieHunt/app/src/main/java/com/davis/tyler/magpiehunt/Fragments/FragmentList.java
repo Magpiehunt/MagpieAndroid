@@ -14,13 +14,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.davis.tyler.magpiehunt.Activities.ActivityBase;
+import com.davis.tyler.magpiehunt.Dialogs.DialogAddHunt;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.Location.CameraManager;
 import com.davis.tyler.magpiehunt.R;
 
-public class FragmentList extends Fragment implements FragmentLandmarkInfo.onClickListener{
+public class FragmentList extends Fragment implements FragmentLandmarkInfo.onClickListener, FragmentLandmarkList.OnLandmarkSelectedListener{
     private static final String TAG = "LIST Fragment";
     public static final int FRAGMENT_GOOGLE_MAPS = 0;
     public static final int FRAGMENT_LANDMARK_LIST = 1;
@@ -41,6 +42,7 @@ public class FragmentList extends Fragment implements FragmentLandmarkInfo.onCli
     private int curFrag;
     private int curTab;
     private boolean isVisible;
+    private DialogAddHunt dialogAddHunt;
 
 
     @Nullable
@@ -53,6 +55,9 @@ public class FragmentList extends Fragment implements FragmentLandmarkInfo.onCli
 
         Log.e(TAG, "onCreateView");
         setFragment(FRAGMENT_BIRDS_EYE);
+
+        dialogAddHunt = new DialogAddHunt(getActivity());
+        dialogAddHunt.setCancelable(false);
 
         return view;
     }
@@ -202,6 +207,11 @@ public class FragmentList extends Fragment implements FragmentLandmarkInfo.onCli
         }
     }
 
+    public void moveCameraToHunt(){
+        if(fragmentBirdsEyeViewContainer != null){
+            fragmentBirdsEyeViewContainer.moveCameraToHunt();
+        }
+    }
     public void updateFocusHunts(){
         if(fragmentBirdsEyeViewContainer != null){
             fragmentBirdsEyeViewContainer.updateFocusHunts();
@@ -218,6 +228,13 @@ public class FragmentList extends Fragment implements FragmentLandmarkInfo.onCli
             fragmentBirdsEyeViewContainer.updatePermissionLocation(b);
     }
 
+    public void setHuntCompleteNotification(Hunt h){
+        if(curTab == FragmentBirdsEyeViewContainer.FRAGMENT_GOOGLE_MAPS){
+            fragmentBirdsEyeViewContainer.setHuntCompleteNotificationMaps(h);
+        }else if( curTab == FragmentBirdsEyeViewContainer.FRAGMENT_LANDMARK_LIST){
+            fragmentBirdsEyeViewContainer.setHuntCompleteNotificationList(h);
+        }
+    }
     @Override
     public void onMapClicked(Badge badge) {
         setFragment(FRAGMENT_BIRDS_EYE);
@@ -236,6 +253,9 @@ public class FragmentList extends Fragment implements FragmentLandmarkInfo.onCli
         //mNavigationView.setSelectedItemId(FRAGMENT_MAP);
 
     }
+    public void moveCameraToHuntSpinnerClose(){
+        fragmentBirdsEyeViewContainer.moveCameraToHuntSpinnerClose();
+    }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
@@ -253,5 +273,19 @@ public class FragmentList extends Fragment implements FragmentLandmarkInfo.onCli
 
     public void changeTab(int i){
         fragmentBirdsEyeViewContainer.setTab(i);
+    }
+
+    @Override
+    public void onLandmarkSelected(Badge b) {
+
+        Hunt h = mHuntManager.getHuntByID(b.getHuntID());
+        if(!h.getIsDownloaded() || h.getIsDeleted()){
+            dialogAddHunt.setHunt(h);
+            dialogAddHunt.show();
+        }
+        else {
+            mHuntManager.setFocusBadge(b.getID());
+            setFragment(FragmentList.FRAGMENT_LANDMARK_INFO);
+        }
     }
 }

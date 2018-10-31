@@ -386,8 +386,9 @@ public class ActivityBase extends AppCompatActivity implements
 
     @Override
     public void onLandmarkSelected(Badge b) {
-        mHuntManager.setFocusBadge(b.getID());
-        fragmentList.setFragment(FragmentList.FRAGMENT_LANDMARK_INFO);
+        /*mHuntManager.setFocusBadge(b.getID());
+        fragmentList.setFragment(FragmentList.FRAGMENT_LANDMARK_INFO);*/
+        fragmentList.onLandmarkSelected(b);
     }
 
     @Override
@@ -447,7 +448,9 @@ public class ActivityBase extends AppCompatActivity implements
             fragmentMap.updateFocusHunts();*/
         if(fragmentList != null)
             fragmentList.updateFocusHunts();
+        fragmentList.moveCameraToHuntSpinnerClose();
         setHuntTitle();
+
     }
 
     public void updateList(){
@@ -551,7 +554,7 @@ public class ActivityBase extends AppCompatActivity implements
 
     public void swipedToPrize(){
         changePage(FRAGMENT_PRIZES);
-        mHuntManager.setFocusAward(mHuntManager.getSingleSelectedHunt().getID());
+        //mHuntManager.setFocusAward(mHuntManager.getSingleSelectedHunt().getID());
         fragmentPrizes.setFragment(FragmentPrizes.FRAGMENT_PRIZES_INFO);
 
     }
@@ -591,6 +594,7 @@ public class ActivityBase extends AppCompatActivity implements
         changePage(FRAGMENT_LIST);
         fragmentList.setFragment(FragmentList.FRAGMENT_GOOGLE_MAPS);
         fragmentList.updateSpinner();
+        fragmentList.moveCameraToHunt();
         /*fragmentMap.updateFocusHunts();
         changePage(FRAGMENT_MAP);
         fragmentMap.updateSpinner();*/
@@ -600,12 +604,30 @@ public class ActivityBase extends AppCompatActivity implements
 
         changePage(ActivityBase.FRAGMENT_LIST);
         getmLocationTracker().updateDistances();
+
         fragmentList.changeTab(FragmentBirdsEyeViewContainer.FRAGMENT_LANDMARK_LIST);
         fragmentList.setFragment(FragmentList.FRAGMENT_BIRDS_EYE);
         updateList();
         updateMap();
+        fragmentList.moveCameraToHunt();
+
+
+    }
+    public void collectionClickedMapView(){
+
+        changePage(ActivityBase.FRAGMENT_LIST);
+        getmLocationTracker().updateDistances();
+
+        fragmentList.changeTab(FragmentBirdsEyeViewContainer.FRAGMENT_GOOGLE_MAPS);
+        fragmentList.setFragment(FragmentList.FRAGMENT_BIRDS_EYE);
+        updateList();
+        updateMap();
+        fragmentList.moveCameraToHunt();
+
+
     }
     public void onCollectionDeleted(){
+        mHuntManager.updateFocusHuntDeleted();
         updateSpinner();
         updateList();
         fragmentHome.updateHuntsList();

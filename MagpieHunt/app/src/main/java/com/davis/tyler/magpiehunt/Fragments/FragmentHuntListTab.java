@@ -68,6 +68,7 @@ public class FragmentHuntListTab extends Fragment implements View.OnClickListene
 
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         dialogDeleteHunt = new DialogDeleteHunt(getActivity());
+        dialogDeleteHunt.setCancelable(false);
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelper(0, ItemTouchHelper.LEFT, this);
         new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mRecyclerView);
         return rootView;

@@ -10,11 +10,7 @@ import com.google.android.gms.maps.model.Marker;
 
 public class MapWrapperLayout extends RelativeLayout {
     private GoogleMap map;
-
-
     private int bottomOffsetPixels;
-
-
     private Marker marker;
 
     /**
@@ -54,8 +50,6 @@ public class MapWrapperLayout extends RelativeLayout {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        System.out.println("ON TOUCH EVENT dispatchtouchevent()");
-
         boolean ret = false;
         // Make sure that the infoWindow is shown and we have all the needed references
         if (marker != null && marker.isInfoWindowShown() && map != null && infoWindow != null) {
@@ -68,11 +62,8 @@ public class MapWrapperLayout extends RelativeLayout {
             copyEv.offsetLocation(
                     -point.x + (infoWindow.getWidth() / 2),
                     -point.y + infoWindow.getHeight()+ bottomOffsetPixels);
-            System.out.println("ON TOUCH EVENT dispatchtouchevent() point: "+-point.x+" "+-point.y);
-            System.out.println("ON TOUCH EVENT dispatchtouchevent() offset: "+infoWindow.getWidth()/2+" "+infoWindow.getHeight());
             // Dispatch the adjusted MotionEvent to the infoWindow
             ret = infoWindow.dispatchTouchEvent(copyEv);
-            System.out.println("ON TOUCH EVENT ret: "+ret);
         }
         // If the infoWindow consumed the touch event, then just return true.
         // Otherwise pass this event to the super class and return it's result

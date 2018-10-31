@@ -125,9 +125,9 @@ public class ImageManager {
         }
         else{
             if(badge.getIsCompleted())
-                Picasso.get().load(url).resize(200,200).into(imageView);
+                Picasso.get().load(url).into(imageView);
             else
-                Picasso.get().load(url).transform(new GrayScaleTransformation()).resize(200,200).into(imageView);
+                Picasso.get().load(url).transform(new GrayScaleTransformation()).into(imageView);
         }
     }
 

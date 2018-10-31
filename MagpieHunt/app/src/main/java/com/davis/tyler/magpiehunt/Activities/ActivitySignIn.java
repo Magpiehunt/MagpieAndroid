@@ -75,10 +75,12 @@ public class ActivitySignIn extends AppCompatActivity implements FragmentSigninI
             if(fragmentPrivacyPolicy == null) {
                 fragmentPrivacyPolicy = FragmentPrivacyPolicy.newInstance();
             }
+            getSupportActionBar().setTitle("Privacy Policy");
             ft.replace(R.id.currentfragment, fragmentPrivacyPolicy);
         }else if( i == FRAGMENT_SIGNIN){
             if(fragmentSigninInitial == null)
                 fragmentSigninInitial = new FragmentSigninInitial();
+            getSupportActionBar().setTitle("Magpie");
             ft.replace(R.id.currentfragment, fragmentSigninInitial);
         }
         else if(i == FRAGMENT_TERMS)
@@ -86,6 +88,7 @@ public class ActivitySignIn extends AppCompatActivity implements FragmentSigninI
             if(fragmentTermsAndConditions == null){
                 fragmentTermsAndConditions = FragmentTermsAndConditions.newInstance();
             }
+            getSupportActionBar().setTitle("Terms And Conditions");
             ft.replace(R.id.currentfragment, fragmentTermsAndConditions);
         }
 

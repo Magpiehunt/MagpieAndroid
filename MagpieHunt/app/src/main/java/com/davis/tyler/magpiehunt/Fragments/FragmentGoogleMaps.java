@@ -35,7 +35,7 @@ import android.widget.Toast;
 import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Adapters.CheckableSpinnerAdapter;
 import com.davis.tyler.magpiehunt.Adapters.CustomInfoWindowAdapter;
-import com.davis.tyler.magpiehunt.Adapters.CustomStartHuntWindowAdapter;
+import com.davis.tyler.magpiehunt.Dialogs.DialogHuntCompleted;
 import com.davis.tyler.magpiehunt.ImageManager;
 import com.davis.tyler.magpiehunt.Location.CameraManager;
 import com.davis.tyler.magpiehunt.Dialogs.DialogMoveCloser;
@@ -68,18 +68,13 @@ import com.google.android.gms.tasks.Task;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
-
-import static android.content.Context.MODE_PRIVATE;
 
 public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
         GoogleApiClient.OnConnectionFailedListener {
@@ -87,7 +82,7 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
     private static final String FINE_LOCATION = android.Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
-    private static final float DEFAULT_ZOOM = 15;
+    private static final float DEFAULT_ZOOM = 19;
 
 
     private ViewGroup infoWindow;
@@ -115,8 +110,12 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
     private boolean mAnimateCamera;
     private HuntManager mHuntManager;
     private LatLng mLocationToFocus;
+
     private ViewGroup view_marker;
     private ImageView img_markerbadge;
+    private ImageView img_markerbackground;
+    private Drawable draw_markergrey;
+    private Drawable draw_markercolor;
 
 
 
@@ -127,6 +126,7 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
     private HashMap<Integer, Marker> markers; //key: badgeid
     private boolean slidableViewUp;
     private DialogMoveCloser customDialog;
+    private DialogHuntCompleted dialogHuntCompleted;
     private Set<Hunt> selected_items;
     private SpinnerHuntFilter spinner;
     private CheckableSpinnerAdapter checkableSpinnerAdapter;
@@ -138,6 +138,7 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
     private  LatLngBounds.Builder builder;
     private CustomInfoWindowAdapter customInfoWindowAdapter;
     private GoogleMap.InfoWindowAdapter currentInfoWindowAdapter, custominfo;
+    private boolean moveCameraOnHunt;
 
     @Nullable
     @Override
@@ -146,7 +147,7 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
         mapWrapperLayout = view.findViewById(R.id.mapwrapper);
         mHuntManager = ((ActivityBase)getActivity()).getData();
         customDialog =new DialogMoveCloser(getActivity());
-
+        dialogHuntCompleted = new DialogHuntCompleted(getActivity());
         initLetsWingIt();
         initMarkerView();
         initSuperBadgeImages();
@@ -211,6 +212,9 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
     public void initMarkerView(){
         view_marker = (ViewGroup)getLayoutInflater().inflate(R.layout.markerimg, null);
         img_markerbadge = view_marker.findViewById(R.id.img_badge);
+        img_markerbackground = view_marker.findViewById(R.id.img_markerbackground);
+        draw_markercolor = getResources().getDrawable(R.drawable.badgepin2);
+        draw_markergrey = getResources().getDrawable(R.drawable.defaultmarkergrey);
     }
 
     public void initLetsWingIt(){
@@ -250,7 +254,7 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
         wingitContainer = infoWindow.findViewById(R.id.custom_info_container);
         wingitMiles = infoWindow.findViewById(R.id.landmarkMiles);
         wingitHrs = infoWindow.findViewById(R.id.landmarkTime);
-        wingitTitle = infoWindow.findViewById(R.id.landmarkName);
+        wingitTitle = infoWindow.findViewById(R.id.badgeName);
         btn_LetsWingit = infoWindow.findViewById(R.id.btn_wingit);
 
         this.infoButtonListener = new OnInfoWindowElementTouchListener(btn_LetsWingit)
@@ -573,22 +577,41 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
 
     public void setCustomInfoWindow(){
         if(mHuntManager != null) {
-            if (mHuntManager.getSelectedHuntsSize() == 1 && !mHuntManager.getSingleSelectedHunt().getIsDownloaded()) {
-                currentInfoWindowAdapter = custominfo;
-                mMap.setInfoWindowAdapter(custominfo);
-            /*mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-                @Override
-                public void onInfoWindowClick(Marker markertext) {
-                    Projection projection = mMap.getProjection();
-                    LatLng markerPosition = markertext.getPosition();
-                    Point markerPoint = projection.toScreenLocation(markerPosition);
-                    Point targetPoint = new Point(markerPoint.x, markerPoint.y - customStartHuntWindowAdapter.getViewHeight() / 2);
-                    LatLng targetPosition = projection.fromScreenLocation(targetPoint);
-                    mMap.animateCamera(CameraUpdateFactory.newLatLng(targetPosition), 100, null);
-                    saveCameraPosition();
+
+            if(mHuntManager.getSelectedHuntsSize() == 1){
+                Hunt h = mHuntManager.getSingleSelectedHunt();
+                if (!h.getIsDownloaded() || h.getIsDeleted()) {
+                    currentInfoWindowAdapter = custominfo;
+                    mMap.setInfoWindowAdapter(custominfo);
+                /*mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                    @Override
+                    public void onInfoWindowClick(Marker markertext) {
+                        Projection projection = mMap.getProjection();
+                        LatLng markerPosition = markertext.getPosition();
+                        Point markerPoint = projection.toScreenLocation(markerPosition);
+                        Point targetPoint = new Point(markerPoint.x, markerPoint.y - customStartHuntWindowAdapter.getViewHeight() / 2);
+                        LatLng targetPosition = projection.fromScreenLocation(targetPoint);
+                        mMap.animateCamera(CameraUpdateFactory.newLatLng(targetPosition), 100, null);
+                        saveCameraPosition();
+                    }
+                });*/
+                    mMap.setOnInfoWindowClickListener(null);
                 }
-            });*/
-                mMap.setOnInfoWindowClickListener(null);
+                else{
+                    currentInfoWindowAdapter = customInfoWindowAdapter;
+                    mMap.setInfoWindowAdapter(customInfoWindowAdapter);
+                    mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                        @Override
+                        public void onInfoWindowClick(Marker marker) {
+
+                            saveCameraPosition();
+                            mHuntManager.setFocusBadge(Integer.parseInt(marker.getTitle()));
+                            System.out.println("ACCESS PARENT FRAGMENT FROM googlemaps");
+                            ((FragmentBirdsEyeViewContainer) getParentFragment()).setParentFragment(FragmentList.FRAGMENT_LANDMARK_INFO);
+
+                        }
+                    });
+                }
             } else {
                 currentInfoWindowAdapter = customInfoWindowAdapter;
                 mMap.setInfoWindowAdapter(customInfoWindowAdapter);
@@ -617,6 +640,7 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
          */
             mCameraManager.setLat(mMap.getCameraPosition().target.latitude);
             mCameraManager.setLon(mMap.getCameraPosition().target.longitude);
+            mCameraManager.setZoom(mMap.getCameraPosition().zoom);
 
     }
 
@@ -645,7 +669,7 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
             } else if (mCameraManager.getLat() != 0) {
                 Log.e(TAG, "Repositioning camera, lat: " + mCameraManager.getLat() + " lon: " + mCameraManager.getLon());
 
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCameraManager.getLat(), mCameraManager.getLon()), DEFAULT_ZOOM));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCameraManager.getLat(), mCameraManager.getLon()), mCameraManager.getZoom()));
             }
         }
         else{
@@ -656,7 +680,7 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
             } else if (mCameraManager.getLat() != 0) {
                 Log.e(TAG, "Repositioning camera, lat: " + mCameraManager.getLat() + " lon: " + mCameraManager.getLon());
 
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCameraManager.getLat(), mCameraManager.getLon()), DEFAULT_ZOOM));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCameraManager.getLat(), mCameraManager.getLon()), mCameraManager.getZoom()));
             }
         }
     }
@@ -676,6 +700,10 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
         mAnimateCamera = false;
 
 
+    }
+
+    public void setMoveCameraOnHunt(){
+        moveCameraOnHunt = true;
     }
 
     @Override
@@ -774,6 +802,7 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
 
                     setUpMarkerGenerationThreads(h);
                 }
+                //setCustomInfoWindow();
                 //setUpMarkerGenerationThreads(badges.size(), badges);
 
                 // for each hunt in the collection of selected hunts, place markertext at each badge's location
@@ -822,9 +851,13 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
                 //if (mHuntManager.getSelectedHuntsSize() == 1) all markers in the markers hashmap are what needs to be all on screen
             }
 
+
+
+    }
+    public void moveCameraOntoHunt(){
+        System.out.println("movetohunt: moving to hunt");
         if(mHuntManager.getSelectedHuntsSize() == 1)
         {
-            Log.d("CHECK", "Entered if statement");
             builder = new LatLngBounds.Builder();
             Log.d("MARKER", markers.size() + "");
 
@@ -877,7 +910,6 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
             }
 
         }
-
     }
     public void buildBounds(){
         try
@@ -1035,13 +1067,23 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
             im.fillSuperBadgeImageIntoMarker(getContext(), h, customTargetFailed);
         }else {
             img_markerbadge.setImageBitmap(bitmap);
-            BitmapDescriptor bd = BitmapDescriptorFactory.fromBitmap(loadBitmapFromView(view_marker));
+
+
             for (Badge b : badges) {
+                if(b.getIsCompleted())
+                    img_markerbackground.setImageDrawable(draw_markercolor);
+                else
+                    img_markerbackground.setImageDrawable(draw_markergrey);
+                BitmapDescriptor bd = BitmapDescriptorFactory.fromBitmap(loadBitmapFromView(view_marker));
                 MarkerOptions mo = new MarkerOptions().position(b
                         .getLatLng())
                         .title("" + b.getID())
                         .icon(bd);
                 markers.put(b.getID(), mMap.addMarker(mo));
+            }
+            if(moveCameraOnHunt) {
+                moveCameraOntoHunt();
+                moveCameraOnHunt = false;
             }
         }
 
@@ -1114,61 +1156,11 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
 
         }
     }
-        //this is what loads all the markerinfo objects with images
-        class WorkerThread implements Runnable{
-            private Badge b;
-            private Hunt hunt;
-            private MarkerInfo markerInfo;
-            private Target target = new Target(){
-            public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from)
-            {
-                markerInfo.setImg(bitmap);
-                System.out.println("markers: bitmap loaded");
-                try {
-                    table.put(b.getID(), markerInfo);
-                    cyclicBarrier.await();
 
-                } catch (Exception e){
-                    e.printStackTrace();
-                }
-
-            }
-
-            @Override
-            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-                System.out.println("exception: ");
-                e.printStackTrace();
-            }
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-                System.out.println("markers: onprepareload");
-            }
-        };
-            WorkerThread(Badge b, Hunt hunt){
-                this.b = b;
-                this.hunt = hunt;
-            }
-
-            @Override
-            public void run() {
-                System.out.println("markers: start of worker thread");
-                    markerInfo = new MarkerInfo();
-                    markerInfo.setBadge(b);
-                    ImageManager im = new ImageManager();
-                System.out.println("markers: starting a image manager call");
-                    im.fillSuperBadgeImageIntoMarker(getContext(),hunt, target);
-
-            }
-        }
-
-        //this is what happens after all markers are loaded
-        class AggregatorThread implements Runnable {
-
-            @Override
-            public void run() {
-                FragmentGoogleMaps.this.publishMarkers();
-            }
-        }
-
-
+    public void setHuntCompleteNotificationMaps(Hunt h){
+        //mHuntManager.setFocusAward(h.getID());
+        dialogHuntCompleted.setHunt(h);
+        dialogHuntCompleted.setCancelable(false);
+        dialogHuntCompleted.show();
+    }
 }

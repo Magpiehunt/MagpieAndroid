@@ -6,7 +6,7 @@
     android:background="@drawable/white_info_bubble"
     android:padding="10dp">
     <ImageView
-        android:id="@+id/img_grayx"
+        android:id="@+id/img_super_badge"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_centerHorizontal="true"
@@ -15,8 +15,8 @@
         android:id="@+id/txt_deletehunt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/img_grayx"
-        android:text="Delete Hunt?"
+        android:layout_below="@+id/img_super_badge"
+        android:text="Congratulations!"
         android:textColor="@color/colorMagpieBlack"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="10dp"/>
@@ -29,7 +29,7 @@
         android:layout_marginLeft="30dp"
         android:layout_marginRight="0dp"
         android:layout_centerHorizontal="true"
-        android:text="Are you sure you want to delete the Thomas Hammer Coffee Blitz hunt?"
+        android:text="You have completed the Pokemon Hunt"
         android:textColor="@color/colorMagpieDarkGray"
         android:layout_marginBottom="10dp"/>
     <LinearLayout
@@ -49,7 +49,7 @@
             android:layout_height="35dp"
             android:layout_weight="1"
             android:background="@drawable/standard_button"
-            android:text="CANCEL"
+            android:text="KEEP HUNTING"
             android:textColor="@color/colorMagpieDarkGray"
             android:textSize="12sp" />
         <LinearLayout
@@ -63,7 +63,7 @@
             android:layout_height="35dp"
             android:layout_weight="1"
             android:background="@drawable/standard_button_filled"
-            android:text="YES, DELETE IT!"
+            android:text="VIEW PRIZE"
             android:textColor="@color/colorMagpieWhite"
             android:textSize="12sp" />
     </LinearLayout>

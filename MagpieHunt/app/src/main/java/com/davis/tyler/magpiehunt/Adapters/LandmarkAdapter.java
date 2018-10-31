@@ -2,35 +2,18 @@ package com.davis.tyler.magpiehunt.Adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.PictureDrawable;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
-import com.ahmadrosid.svgloader.SvgDecoder;
-import com.ahmadrosid.svgloader.SvgDrawableTranscoder;
-import com.ahmadrosid.svgloader.SvgSoftwareLayerSetter;
-import com.bumptech.glide.GenericRequestBuilder;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.model.StreamEncoder;
-import com.bumptech.glide.load.resource.file.FileToStreamDecoder;
-import com.caverock.androidsvg.SVG;
-import com.caverock.androidsvg.SVGParser;
 import com.davis.tyler.magpiehunt.Fragments.FragmentLandmarkList;
 import com.davis.tyler.magpiehunt.GrayScaleTransformation;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
@@ -39,10 +22,8 @@ import com.davis.tyler.magpiehunt.R;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 
@@ -101,8 +82,8 @@ public class LandmarkAdapter extends RecyclerView.Adapter<LandmarkAdapter.Landma
 
         public LandmarkHolder(View itemView) {
             super(itemView);
-            this.landmarkSponsor = itemView.findViewById(R.id.landmarkSponsor);
-            this.landmarkName = itemView.findViewById(R.id.landmarkName);
+            this.landmarkSponsor = itemView.findViewById(R.id.landmarkName);
+            this.landmarkName = itemView.findViewById(R.id.badgeName);
             this.landmarkMiles = itemView.findViewById(R.id.landmarkMiles);
             this.landmarkTime = itemView.findViewById(R.id.landmarkTime);
             this.landmarkImage = itemView.findViewById(R.id.landmarkImage);
@@ -124,14 +105,20 @@ public class LandmarkAdapter extends RecyclerView.Adapter<LandmarkAdapter.Landma
                 landmarkName.setTextColor(ContextCompat.getColor(context, R.color.colorMagpieLightGray));
 
             Log.e(TAG, "setting distance in list");
-            landmarkMiles.setText(""+currentObject.getDistance()); // need to get distance calculated
+            landmarkMiles.setText(""+round(currentObject.getDistance(), 2)); // need to get distance calculated
             landmarkTime.setText(""+currentObject.getMinutes()); // need to get time using lat and long from google services and their estimated time
 
             this.currentObject = currentObject;
             ImageManager im = new ImageManager();
             im.fillBadgeImage(context, currentObject, landmarkImage);
         }//end setData
+        public double round(double value, int places) {
+            if (places < 0) throw new IllegalArgumentException();
 
+            BigDecimal bd = new BigDecimal(value);
+            bd = bd.setScale(places, RoundingMode.HALF_UP);
+            return bd.doubleValue();
+        }
         public void setListeners() {
             // set listeners for items to be implemented with onClick functionality
             this.card.setOnClickListener(LandmarkHolder.this);

@@ -82,13 +82,7 @@ public class FragmentQR extends Fragment implements ZXingScannerView.ResultHandl
         }
         else{
             Toast.makeText(getContext(), "Cannot collect badge without camera permission", Toast.LENGTH_SHORT).show();
-            Fragment parent = getParentFragment();
-            if(parent instanceof FragmentMap){
-                ((FragmentMap) parent).setFragment(FragmentMap.FRAGMENT_LANDMARK_INFO);
-            }
-            else if(parent instanceof FragmentList){
-                ((FragmentList) parent).setFragment(FragmentList.FRAGMENT_LANDMARK_INFO);
-            }
+            ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_LANDMARK_INFO);
         }
         return view;
 
@@ -160,33 +154,18 @@ public class FragmentQR extends Fragment implements ZXingScannerView.ResultHandl
                 //If there is a quiz in badge object, go to quiz screen next
                 if(mBadge.getQuiz() != null) {
                     Log.e(TAG, "Switching to Quiz fragment...");
-                    if (getParentFragment() instanceof FragmentMap) {
-
-                        ((FragmentMap) getParentFragment()).setFragment(FragmentMap.FRAGMENT_QUIZ);
-                    } else if (getParentFragment() instanceof FragmentList) {
-                        ((FragmentList) getParentFragment()).setFragment(FragmentList.FRAGMENT_QUIZ);
-                    }
+                    ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_QUIZ);
                 }
                 else {
                     //There is no quiz so user gets badge
                     mHuntManager.getFocusBadge().setmIsCompleted(true);
 
-                    if (f instanceof FragmentList) {
-                        ((FragmentList) f).setFragment(FragmentList.FRAGMENT_BADGE_OBTAINED);
-                    } else if (f instanceof FragmentMap) {
-                        ((FragmentMap) f).setFragment(FragmentMap.FRAGMENT_BADGE_OBTAINED);
-                    }
+                    ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_BADGE_OBTAINED);
                 }
             }
             else {
                 Toast.makeText(getContext(), "Wrong QR Code... found: " + result.getText(), Toast.LENGTH_SHORT).show();
-                Fragment parent = getParentFragment();
-                if(parent instanceof FragmentMap){
-                    ((FragmentMap) parent).setFragment(FragmentMap.FRAGMENT_LANDMARK_INFO);
-                }
-                else if(parent instanceof FragmentList){
-                    ((FragmentList) parent).setFragment(FragmentList.FRAGMENT_LANDMARK_INFO);
-                }
+                ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_LANDMARK_INFO);
             }
 
     }

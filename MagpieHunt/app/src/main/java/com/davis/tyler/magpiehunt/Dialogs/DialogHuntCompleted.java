@@ -2,7 +2,6 @@ package com.davis.tyler.magpiehunt.Dialogs;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -11,24 +10,26 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.davis.tyler.magpiehunt.Hunts.Badge;
+import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.IOnHuntDeleteResponse;
 import com.davis.tyler.magpiehunt.ImageManager;
 import com.davis.tyler.magpiehunt.R;
 
-public class DialogDeleteHunt extends Dialog {
+public class DialogHuntCompleted extends Dialog {
     private Button btn_yes;
     private Button btn_no;
     private Hunt hunt;
     private TextView txt_warning;
+    private ImageView img_superbadge;
     private IOnHuntDeleteResponse response;
     private RecyclerView.ViewHolder viewHolder;
+    private ActivityBase activity;
 
 
-
-    public DialogDeleteHunt(Activity a) {
+    public DialogHuntCompleted(Activity a) {
         super(a);
+        activity = (ActivityBase) a;
         // TODO Auto-generated constructor stub
     }
 
@@ -36,40 +37,38 @@ public class DialogDeleteHunt extends Dialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.alert_hunt_delete);
+        setContentView(R.layout.alert_hunt_completed);
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
         btn_no = findViewById(R.id.btn_no);
         btn_yes = findViewById(R.id.btn_yes);
+        img_superbadge = findViewById(R.id.img_super_badge);
         txt_warning = findViewById(R.id.txt_warning);
-        txt_warning.setText("Are you sure you want to delete the "+hunt.getName()+" hunt?");
+        txt_warning.setText("You have completed the "+hunt.getName()+" hunt!");
+        ImageManager im = new ImageManager();
+        im.fillSuperBadgeImage(activity, hunt, img_superbadge);
         btn_yes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                response.onDelete(hunt, viewHolder);
-                response = null;
-                viewHolder = null;
+                activity.swipedToPrize();
                 dismiss();
+                activity = null;
             }
         });
         btn_no.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
+
                 dismiss();
-                response.onRestore();
-                response = null;
-                viewHolder = null;
+                activity = null;
             }
         });
 
 
     }
 
-    public void setHunt(Hunt h, IOnHuntDeleteResponse r, RecyclerView.ViewHolder viewHolder){
+    public void setHunt(Hunt h) {
         hunt = h;
-        response = r;
-        this.viewHolder = viewHolder;
+
         //TODO set img_badge here when you get CMS communicator imgs working...
     }
-
 }

@@ -109,6 +109,15 @@ public class FragmentBadgeObtained extends Fragment implements View.OnClickListe
             if(getParentFragment() instanceof FragmentList){
                 ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_BIRDS_EYE);
                 ((FragmentList) getParentFragment()).updateFocusHunts();
+                Badge b = mHuntManager.getFocusBadge();
+                Hunt h = mHuntManager.getHuntByID(b.getHuntID());
+                h.updateIsCompleted();
+                if(h.getIsCompleted()){
+                    mHuntManager.setFocusAward(h.getID());
+                    ((FragmentList) getParentFragment()).setHuntCompleteNotification(h);
+
+                }
+
             }
             else if(getParentFragment() instanceof FragmentMap){
                 ((ActivityBase)getActivity()).changePage(ActivityBase.FRAGMENT_MAP);
