@@ -8,11 +8,14 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.PermissionChecker;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -49,8 +52,8 @@ public class LocationTracker implements ActivityCompat.OnRequestPermissionsResul
     private Context context;
     private GoogleMap gMap;
     //private GPSTracker gpsTracker;
-    private static double validDistanceInMiles = 0.008;//change this later to whatever the valid distance you decide on then
-    //private static double validDistanceInMiles = 20;
+    //private static double validDistanceInMiles = 0.008;//change this later to whatever the valid distance you decide on then
+    private static double validDistanceInMiles = 20;
     private LocationManager mLocationManager;
     private LocationListener mLocationListener;
     private HuntManager mHuntManager;
@@ -131,9 +134,11 @@ public class LocationTracker implements ActivityCompat.OnRequestPermissionsResul
             mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 2, mLocationListener);
             mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 2, mLocationListener);
             //mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 2, mLocationListener);
-            currLoc = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            coords = new LatLng(currLoc.getLatitude(), currLoc.getLongitude());
-            updateDistances();
+            if(hasLocPermission()) {
+                currLoc = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                coords = new LatLng(currLoc.getLatitude(), currLoc.getLongitude());
+                updateDistances();
+            }
             return true;
         }
         else{
@@ -148,7 +153,31 @@ public class LocationTracker implements ActivityCompat.OnRequestPermissionsResul
         preferences = PreferenceManager.getDefaultSharedPreferences(a.getApplicationContext());
 
         System.out.println("permission map: "+preferences.getBoolean("fine", false)+" "+ preferences.getBoolean("coarse", false));
-        return (preferences.getBoolean("fine", false) && preferences.getBoolean("coarse", false));
+        return (preferences.getBoolean("fine", false)
+                && preferences.getBoolean("coarse", false)
+                && isLocationEnabled(a.getApplicationContext()));
+    }
+    public static boolean isLocationEnabled(Context context) {
+        int locationMode = 0;
+        String locationProviders;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+            try {
+                locationMode = Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.LOCATION_MODE);
+
+            } catch (Settings.SettingNotFoundException e) {
+                e.printStackTrace();
+                return false;
+            }
+
+            return locationMode != Settings.Secure.LOCATION_MODE_OFF;
+
+        }else{
+            locationProviders = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+            return !TextUtils.isEmpty(locationProviders);
+        }
+
+
     }
 
     public Location getCurrLoc(){

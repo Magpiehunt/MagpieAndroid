@@ -109,7 +109,7 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
     public void qrOrQuiz(){
         if (mBadge.getQuiz() != null) {
             //preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-            if(!preferences.getBoolean("fine", false)){
+            if(!((ActivityBase)getActivity()).hasLocationPermissions()){
                 Toast.makeText(getContext(), "You must turn on location permissions to collect this.", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -128,7 +128,7 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
         }
 
         //FOR QR CODE FUNCTIONALITY
-        /*if(mBadge.getQRurl() != null && !mBadge.getQRurl().equalsIgnoreCase("null")) {
+        if(mBadge.getQRurl() != null && !mBadge.getQRurl().equalsIgnoreCase("null")) {
             if(!preferences.getBoolean("camera", false)) {
                 Toast.makeText(getContext(), "Cannot open QR Scanner without camera permission", Toast.LENGTH_SHORT).show();
                 return;
@@ -136,7 +136,7 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
 
             ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_QR_READER);
         }
-        else */if(((ActivityBase)getActivity()).getmLocationTracker().hasLocPermission()) {
+        else if(((ActivityBase)getActivity()).getmLocationTracker().hasLocPermission()) {
             if(((ActivityBase)getActivity()).isCloseEnough(mBadge)) {
                 if (mBadge.getQuiz() == null) {
                     //Toast.makeText(getContext(), "No quiz or qr code found...", Toast.LENGTH_LONG).show();

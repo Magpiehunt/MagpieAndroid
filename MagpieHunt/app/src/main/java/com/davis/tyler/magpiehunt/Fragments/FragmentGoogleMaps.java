@@ -1,6 +1,7 @@
 package com.davis.tyler.magpiehunt.Fragments;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -9,13 +10,16 @@ import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -69,6 +73,8 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -235,7 +241,7 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
                 im.fillLandmarkImage(getContext(),badge, wingitLandmarkImg, marker);
 
 
-                wingitMiles.setText(""+badge.getDistance());
+                wingitMiles.setText(""+round(badge.getDistance(), 2));
                 wingitHrs.setText(""+badge.getHours());
                 infoButtonListener.setMarker(marker);
 
@@ -264,15 +270,22 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
                 // Here we can perform some action triggered after clicking the button
                 //Toast.makeText(getActivity(), markertext.getTitle() + "'s button clicked!", Toast.LENGTH_SHORT).show();
 
+                //TODO put the round method in hunt manager, and make the parameter of getdistance include precision
                 Badge b = mHuntManager.getBadgeByID(Integer.parseInt(marker.getTitle()));
                 Hunt h = mHuntManager.getHuntByID(b.getHuntID());
                 ((ActivityBase)getActivity()).onAddHuntEvent(h);
             }
         };
         btn_LetsWingit.setOnTouchListener(infoButtonListener);
-
     }
 
+    public double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
     public void initSlideView(){
         btn_slideIn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -375,10 +388,37 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
         //bitmap.recycle();
     }
     public boolean hasLocPermission(){
-        if(preferences != null) {
-            return preferences.getBoolean("fine", false) && preferences.getBoolean("coarse", false);
+        //preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+
+        System.out.println("permission map: "+preferences.getBoolean("fine", false)+" "+ preferences.getBoolean("coarse", false));
+        return (preferences.getBoolean("fine", false)
+                && preferences.getBoolean("coarse", false)
+                && isLocationEnabled(getContext()));
+    }
+    public static boolean isLocationEnabled(Context context) {
+        int locationMode = 0;
+        String locationProviders;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+            try {
+                locationMode = Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.LOCATION_MODE);
+
+            } catch (Settings.SettingNotFoundException e) {
+                e.printStackTrace();
+                return false;
+            }
+            catch (Exception e){
+                return false;
+            }
+
+            return locationMode != Settings.Secure.LOCATION_MODE_OFF;
+
+        }else{
+            locationProviders = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+            return !TextUtils.isEmpty(locationProviders);
         }
-        return false;
+
+
     }
     public void setupFilter(){
 
@@ -621,7 +661,6 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
 
                         saveCameraPosition();
                         mHuntManager.setFocusBadge(Integer.parseInt(marker.getTitle()));
-                        System.out.println("ACCESS PARENT FRAGMENT FROM googlemaps");
                         ((FragmentBirdsEyeViewContainer) getParentFragment()).setParentFragment(FragmentList.FRAGMENT_LANDMARK_INFO);
 
                     }
@@ -784,7 +823,7 @@ public class FragmentGoogleMaps extends Fragment implements OnMapReadyCallback,
     }
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
+        Toast.makeText(getContext(), "Failed to load map", Toast.LENGTH_SHORT).show();
     }
 
     /*

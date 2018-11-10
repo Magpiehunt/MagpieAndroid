@@ -52,14 +52,12 @@ public class DialogHuntCompleted extends Dialog {
             public void onClick(View view) {
                 activity.swipedToPrize();
                 dismiss();
-                activity = null;
             }
         });
         btn_no.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
                 dismiss();
-                activity = null;
             }
         });
 

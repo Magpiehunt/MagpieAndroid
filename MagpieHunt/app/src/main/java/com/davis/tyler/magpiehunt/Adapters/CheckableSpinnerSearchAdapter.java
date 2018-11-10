@@ -122,8 +122,39 @@ public class CheckableSpinnerSearchAdapter extends BaseAdapter {
                         } else {
                         }
                     }
-                    else
-                        Toast.makeText(context, "Must enable location permission to filter", Toast.LENGTH_LONG).show();
+                    else {
+                        if (isChecked) {
+
+                            Log.e(TAG, "checked: " + filter + " holder is: " + titleHolder);
+                            if (selected_item.equalsIgnoreCase("walking distance")) {
+                                for (FilterHolder h : holders) {
+                                    if (!holder.equals(h)) {
+                                        h.checkBox.setChecked(false);
+                                    }
+                                }
+                                selected_item = filter;
+                                holders.get(0).title.setText(selected_item);
+                                titleHolder.title.setText(selected_item);
+                                listener.sortWalkingDistance();
+                            } else if (selected_item.equalsIgnoreCase("number of badges")) {
+                                for (FilterHolder h : holders) {
+                                    if (!holder.equals(h)) {
+                                        h.checkBox.setChecked(false);
+                                    }
+                                }
+                                selected_item = filter;
+                                holders.get(0).title.setText(selected_item);
+                                titleHolder.title.setText(selected_item);
+                                listener.sortNumberBadges();
+                            } else if (selected_item.equalsIgnoreCase("closest to me")) {
+                                Toast.makeText(context, "Turn on Location Permissions to use that filter.", Toast.LENGTH_SHORT).show();
+                            }
+
+                        } else {
+                        }
+
+
+                    }
                 }
             });
 

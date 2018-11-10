@@ -17,6 +17,8 @@ import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.ImageManager;
 import com.davis.tyler.magpiehunt.R;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -99,7 +101,7 @@ public class LandmarkSearchAdapter extends RecyclerView.Adapter<LandmarkSearchAd
             else
                 landmarkName.setTextColor(ContextCompat.getColor(context, R.color.colorMagpieLightGray));
 
-            landmarkMiles.setText(""+currentObject.getDistance()); // need to get distance calculated
+            landmarkMiles.setText(""+round(currentObject.getDistance(), 2)); // need to get distance calculated
             landmarkTime.setText(""+currentObject.getMinutes()); // need to get time using lat and long from google services and their estimated time
 
             this.currentObject = currentObject;
@@ -114,6 +116,13 @@ public class LandmarkSearchAdapter extends RecyclerView.Adapter<LandmarkSearchAd
 
 
         }//end setListeners
+        public double round(double value, int places) {
+            if (places < 0) throw new IllegalArgumentException();
+
+            BigDecimal bd = new BigDecimal(value);
+            bd = bd.setScale(places, RoundingMode.HALF_UP);
+            return bd.doubleValue();
+        }
 
         @Override
         public void onClick(View view) {

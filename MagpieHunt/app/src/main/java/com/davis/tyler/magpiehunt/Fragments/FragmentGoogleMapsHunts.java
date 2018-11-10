@@ -1,6 +1,7 @@
 package com.davis.tyler.magpiehunt.Fragments;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -11,13 +12,16 @@ import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -379,10 +383,34 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
         //bitmap.recycle();
     }
     public boolean hasLocPermission(){
-        if(preferences != null) {
-            return preferences.getBoolean("fine", false) && preferences.getBoolean("coarse", false);
+        //preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+
+        System.out.println("permission map: "+preferences.getBoolean("fine", false)+" "+ preferences.getBoolean("coarse", false));
+        return (preferences.getBoolean("fine", false)
+                && preferences.getBoolean("coarse", false)
+                && isLocationEnabled(getContext()));
+    }
+    public static boolean isLocationEnabled(Context context) {
+        int locationMode = 0;
+        String locationProviders;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+            try {
+                locationMode = Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.LOCATION_MODE);
+
+            } catch (Settings.SettingNotFoundException e) {
+                e.printStackTrace();
+                return false;
+            }
+
+            return locationMode != Settings.Secure.LOCATION_MODE_OFF;
+
+        }else{
+            locationProviders = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+            return !TextUtils.isEmpty(locationProviders);
         }
-        return false;
+
+
     }
     public void setupFilter(){
 

@@ -48,7 +48,6 @@ public class DialogAddHunt extends Dialog {
                 activity.onAddHuntEvent(hunt);
 
                 dismiss();
-                activity = null;
             }
         });
         btn_no.setOnClickListener(new View.OnClickListener() {
@@ -56,7 +55,6 @@ public class DialogAddHunt extends Dialog {
             {
 
                 dismiss();
-                activity = null;
             }
         });
 

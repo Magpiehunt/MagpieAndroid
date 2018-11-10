@@ -514,6 +514,7 @@ public class ActivityBase extends AppCompatActivity implements
         updateSpinner();
         updateList();
         fragmentHome.updateHuntsList();
+        fragmentList.moveCameraToHuntSpinnerClose();
         Toast.makeText(this, "Successfully added hunt", Toast.LENGTH_SHORT).show();
     }
 
@@ -641,5 +642,9 @@ public class ActivityBase extends AppCompatActivity implements
     public void onAddCollectionClicked(){
         changePage(FRAGMENT_OVERALL_HUNTS);
         fragmentOverallHunt.changeTab(FragmentOverallHuntTabs.FRAGMENT_HUNT_SEARCH);
+    }
+
+    public boolean hasLocationPermissions(){
+        return mLocationTracker.hasLocPermission();
     }
 }
