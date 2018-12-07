@@ -38,26 +38,13 @@ import static android.app.Activity.RESULT_OK;
 public class FragmentQR extends Fragment implements ZXingScannerView.ResultHandler{
     private static final String TAG = "Fragment QR";
     private ZXingScannerView scanner;
-    private OnFragmentInteractionListener mListener;
     private Badge mBadge;
     private HuntManager mHuntManager;
     private SharedPreferences preferences;
 
 
-    // TODO: Rename and change types and number of parameters
-    @Override
-    public void setArguments(@Nullable Bundle args) {
-        super.setArguments(args);
-        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
-        //mBadge = mHuntManager.getFocusBadge();
-
-    }
-
-    public static FragmentQR newInstance(HuntManager huntManager) {
+    public static FragmentQR newInstance() {
         FragmentQR f = new FragmentQR();
-        Bundle args = new Bundle();
-        //args.putSerializable("huntmanager", huntManager);
-        f.setArguments(args);
         return f;
     }
     @Override
@@ -82,7 +69,7 @@ public class FragmentQR extends Fragment implements ZXingScannerView.ResultHandl
         }
         else{
             Toast.makeText(getContext(), "Cannot collect badge without camera permission", Toast.LENGTH_SHORT).show();
-            ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_LANDMARK_INFO);
+            ((FragmentOverallHunt)getParentFragment()).setFragment(FragmentOverallHunt.FRAGMENT_LANDMARK_INFO);
         }
         return view;
 
@@ -102,44 +89,9 @@ public class FragmentQR extends Fragment implements ZXingScannerView.ResultHandl
         }
     }
 
-
-    /*public boolean checkQRPermission() {
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        else
-        {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{
-                    Manifest.permission.CAMERA,
-                    Manifest.permission.INTERNET,
-                    Manifest.permission.ACCESS_NETWORK_STATE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-            }, PackageManager.PERMISSION_GRANTED);
-            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
-                    && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED
-                    && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED
-                    && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
-                return true;
-            }
-        }
-        return false;
-    }*/
-
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-
-
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
     //handle result from qr scanner see top of file for a description of what this is currently doing.
@@ -154,23 +106,20 @@ public class FragmentQR extends Fragment implements ZXingScannerView.ResultHandl
                 //If there is a quiz in badge object, go to quiz screen next
                 if(mBadge.getQuiz() != null) {
                     Log.e(TAG, "Switching to Quiz fragment...");
-                    ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_QUIZ);
+                    ((FragmentOverallHunt)getParentFragment()).setFragment(FragmentOverallHunt.FRAGMENT_QUIZ);
                 }
                 else {
                     //There is no quiz so user gets badge
                     mHuntManager.getFocusBadge().setmIsCompleted(true);
 
-                    ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_BADGE_OBTAINED);
+                    ((FragmentOverallHunt)getParentFragment()).setFragment(FragmentOverallHunt.FRAGMENT_BADGE_OBTAINED);
                 }
             }
             else {
                 Toast.makeText(getContext(), "Wrong QR Code... found: " + result.getText(), Toast.LENGTH_SHORT).show();
-                ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_LANDMARK_INFO);
+                ((FragmentOverallHunt)getParentFragment()).setFragment(FragmentOverallHunt.FRAGMENT_LANDMARK_INFO);
             }
 
     }
 
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
-    }
 }

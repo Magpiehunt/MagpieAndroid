@@ -29,7 +29,6 @@ public class DialogDeleteHunt extends Dialog {
 
     public DialogDeleteHunt(Activity a) {
         super(a);
-        // TODO Auto-generated constructor stub
     }
 
     @Override
@@ -69,7 +68,6 @@ public class DialogDeleteHunt extends Dialog {
         hunt = h;
         response = r;
         this.viewHolder = viewHolder;
-        //TODO set img_badge here when you get CMS communicator imgs working...
     }
 
 }

@@ -91,13 +91,33 @@
             />
     </RelativeLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/searchView"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/spinnercontainer">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/searchView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
 
-    </android.support.v7.widget.RecyclerView>
+        </android.support.v7.widget.RecyclerView>
+
+        <ImageView
+            android:id="@+id/btn_toggle"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="30dp"
+            android:layout_marginBottom="40dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/cur_hunt"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="30dp" />
+    </RelativeLayout>
+
+
 
 
 </RelativeLayout>

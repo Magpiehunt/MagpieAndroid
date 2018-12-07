@@ -57,11 +57,8 @@ public class FragmentQuiz extends Fragment implements View.OnClickListener{
 
         return view;
     }
-    public static FragmentQuiz newInstance(HuntManager huntManager) {
+    public static FragmentQuiz newInstance() {
         FragmentQuiz f = new FragmentQuiz();
-        Bundle args = new Bundle();
-        //args.putSerializable("huntmanager", huntManager);
-        f.setArguments(args);
         return f;
     }
     public void updateFragment(){
@@ -91,7 +88,7 @@ public class FragmentQuiz extends Fragment implements View.OnClickListener{
             Fragment f = getParentFragment();
             mHuntManager.getFocusBadge().setmIsCompleted(true);
 
-            ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_BADGE_OBTAINED);
+            ((FragmentOverallHunt)getParentFragment()).setFragment(FragmentOverallHunt.FRAGMENT_BADGE_OBTAINED);
         }
     }
 
@@ -113,15 +110,6 @@ public class FragmentQuiz extends Fragment implements View.OnClickListener{
         for(ViewCheckbox cb: checkboxes){
             cb.setCheckBox(false);
         }
-    }
-    @Override
-    public void setArguments(@Nullable Bundle args) {
-        super.setArguments(args);
-        Log.e(TAG, "setArguments, args: "+args);
-        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
-        Log.e(TAG, "setArguments, huntman: "+mHuntManager);
-
-
     }
 
     @Override
@@ -145,7 +133,7 @@ public class FragmentQuiz extends Fragment implements View.OnClickListener{
 
     public void answeredIncorrectly(){
         ((ActivityBase)getActivity()).setPagerSwipe(false);
-        ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_TIMER);
+        ((FragmentOverallHunt)getParentFragment()).setFragment(FragmentOverallHunt.FRAGMENT_TIMER);
     }
     public void findFirstUncompletedQuestion(){
         while(question_num < questionList.size() && questionList.get(question_num).getIsCompleted()) {

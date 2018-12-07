@@ -38,11 +38,11 @@ public class FragmentPrizeInfo extends Fragment {
         img_badge = view.findViewById(R.id.img_super_badge);
         //txt_code.setText(""+mHuntManager.getFocusAward().getID());
         Award award = mHuntManager.getFocusAward();
-        System.out.println("award: "+award+" setting to new false");
         award.setIsNew(false);
         txt_prize.setText(award.getName());
         txt_terms.setText("Redeemable only at "+award.getAddress()+". "+award.getTerms());
-
+        if(!award.getmRedemptionCode().equals("") && !award.getmRedemptionCode().equals("null"))
+            txt_code.setText(award.getmRedemptionCode());
         ((ActivityBase)getActivity()).setBackButtonOnOff(true);
 
         ImageManager imageManager = new ImageManager();
@@ -51,36 +51,12 @@ public class FragmentPrizeInfo extends Fragment {
         return view;
     }
 
-    public static FragmentPrizeInfo newInstance(HuntManager huntManager) {
+    public static FragmentPrizeInfo newInstance() {
         FragmentPrizeInfo f = new FragmentPrizeInfo();
         Bundle args = new Bundle();
-        //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
         return f;
     }
 
-    @Override
-    public void setArguments(@Nullable Bundle args) {
-        super.setArguments(args);
-        Log.e(TAG, "setArguments, args: " + args);
-        //mHuntManager = (HuntManager) args.getSerializable("huntmanager");
-        Log.e(TAG, "setArguments, huntman: " + mHuntManager);
 
-
-    }
-
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser) {
-            Log.e(TAG, "visible");
-        } else {
-            Log.e(TAG, "not visible");
-        }
-    }
-
-    public void updateInfo(Hunt h) {
-
-
-    }
 }

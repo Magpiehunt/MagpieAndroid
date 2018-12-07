@@ -36,23 +36,16 @@ public class FragmentBadgeObtained extends Fragment implements View.OnClickListe
         relativeLayout = view.findViewById(R.id.relativelayout);
         txt_name = view.findViewById(R.id.txt_badge_name);
         img_badge = view.findViewById(R.id.img_badge);
-        /*txt_name.setText(mHuntManager.getFocusBadge().getName());
-        if(mHuntManager.getSelectedHuntsSize() == 1){
-            mHuntManager.getSingleSelectedHunt().updateIsCompleted();
-        }
-        */
 
         ((ActivityBase)getActivity()).setBackButtonOnOff(true);
         mHuntManager = ((ActivityBase)getActivity()).getData();
         Badge b = mHuntManager.getFocusBadge();
         txt_name.setText(b.getName());
         Hunt h = mHuntManager.getHuntByID(b.getHuntID());
+        mHuntManager.setFocusAward(h.getID());
         h.updateIsCompleted();
 
         relativeLayout.setOnClickListener(this);
-        /*Picasso.get().load("http://206.189.204.95/badge/icon/"+mHuntManager.getFocusBadge().getIcon())
-                .resize(200,200)
-                .into(img_badge);*/
         ImageManager im = new ImageManager();
         im.fillBadgeImage(getContext(), mHuntManager.getFocusBadge(), img_badge);
         addHuntsToFileSystem();
@@ -70,32 +63,9 @@ public class FragmentBadgeObtained extends Fragment implements View.OnClickListe
 
     }
 
-    public static FragmentBadgeObtained newInstance(HuntManager huntManager) {
+    public static FragmentBadgeObtained newInstance() {
         FragmentBadgeObtained f = new FragmentBadgeObtained();
-        Bundle args = new Bundle();
-        //args.putSerializable("huntmanager", huntManager);
-        f.setArguments(args);
         return f;
-    }
-
-    @Override
-    public void setArguments(@Nullable Bundle args) {
-        super.setArguments(args);
-        Log.e(TAG, "setArguments, args: " + args);
-        //mHuntManager = (HuntManager) args.getSerializable("huntmanager");
-        Log.e(TAG, "setArguments, huntman: " + mHuntManager);
-
-
-    }
-
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser) {
-            Log.e(TAG, "visible");
-        } else {
-            Log.e(TAG, "not visible");
-        }
     }
 
     public void updateInfo(Badge b) {
@@ -106,22 +76,18 @@ public class FragmentBadgeObtained extends Fragment implements View.OnClickListe
     @Override
     public void onClick(View view) {
         if(view.getId() == R.id.relativelayout){
-            if(getParentFragment() instanceof FragmentList){
-                ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_BIRDS_EYE);
-                ((FragmentList) getParentFragment()).updateFocusHunts();
-                Badge b = mHuntManager.getFocusBadge();
-                Hunt h = mHuntManager.getHuntByID(b.getHuntID());
-                h.updateIsCompleted();
-                if(h.getIsCompleted()){
-                    mHuntManager.setFocusAward(h.getID());
-                    ((FragmentList) getParentFragment()).setHuntCompleteNotification(h);
-
-                }
+            ((FragmentOverallHunt)getParentFragment()).setFragment(FragmentOverallHunt.FRAGMENT_OVERALL_HUNT_TABS);
+            ((FragmentOverallHunt) getParentFragment()).updateFocusHunts();
+            Badge b = mHuntManager.getFocusBadge();
+            Hunt h = mHuntManager.getHuntByID(b.getHuntID());
+            h.updateIsCompleted();
+            if(h.getIsCompleted()){
+                mHuntManager.setFocusAward(h.getID());
+                ((FragmentOverallHunt) getParentFragment()).setHuntCompleteNotification(h);
 
             }
-            else if(getParentFragment() instanceof FragmentMap){
-                ((ActivityBase)getActivity()).changePage(ActivityBase.FRAGMENT_MAP);
-            }
+
+
         }
     }
 }

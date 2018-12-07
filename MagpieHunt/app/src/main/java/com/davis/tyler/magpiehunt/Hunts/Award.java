@@ -18,6 +18,7 @@ public class Award implements Serializable {
     private String mTerms;
     private int mWorth;
     private int mValue;
+    private String mRedemptionCode;
     private boolean isNew;
 
     //TODO add terms, worth, value, to constructor after figuring out what they're for...
@@ -119,4 +120,6 @@ public class Award implements Serializable {
     public String getSuperBadgeImageFileName(){
         return "superbadgeimage"+mID;
     }
+    public void setmRedemptionCode(String code){mRedemptionCode = code;}
+    public String getmRedemptionCode(){return mRedemptionCode;}
 }

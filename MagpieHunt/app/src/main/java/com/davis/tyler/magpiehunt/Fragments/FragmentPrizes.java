@@ -1,5 +1,6 @@
 package com.davis.tyler.magpiehunt.Fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -31,17 +32,16 @@ public class FragmentPrizes extends Fragment implements FragmentPrizesList.OnHun
         return view;
     }
 
-    public static FragmentPrizes newInstance(HuntManager huntManager) {
+    public static FragmentPrizes newInstance() {
         FragmentPrizes f = new FragmentPrizes();
-        Bundle args = new Bundle();
-        //args.putSerializable("huntmanager", huntManager);
-        f.setArguments(args);
         return f;
     }
 
     public void updateActionBar(){
         ActivityBase activityBase = ((ActivityBase) getActivity());
-
+        if(activityBase == null) {
+            return;
+        }
         activityBase.getSupportActionBar().setTitle("My Prizes");
         activityBase.menuSettingsVisibility(false);
         if(curFrag == FRAGMENT_PRIZES_LIST) {
@@ -53,41 +53,27 @@ public class FragmentPrizes extends Fragment implements FragmentPrizesList.OnHun
 
     }
     @Override
-    public void setArguments(@Nullable Bundle args) {
-        super.setArguments(args);
-        Log.e(TAG, "setArguments, args: "+args);
-        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
-        Log.e(TAG, "setArguments, huntman: "+mHuntManager);
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
+        updateActionBar();
+    }
 
-    }
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if(isVisibleToUser){
-            Log.e(TAG,"visible");
-        }
-        else{
-            Log.e(TAG,"not visible");
-        }
-    }
 
     public void setFragment(int i) {
+        if (!isAdded()) return;
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         curFrag = i;
-        Log.e(TAG, "curfrag set to: "+curFrag);
         if(i == FRAGMENT_PRIZES_LIST) {
 
             if(fragmentPrizesList == null) {
-                fragmentPrizesList = FragmentPrizesList.newInstance(mHuntManager);
+                fragmentPrizesList = FragmentPrizesList.newInstance();
             }
             ft.replace(R.id.currentfragment, fragmentPrizesList);
         }
         else if(i == FRAGMENT_PRIZES_INFO){
-            /*if (fragmentPrizeInfo == null) {
-                fragmentPrizeInfo = FragmentPrizeInfo.newInstance(mHuntManager);
-            }*/
-            ft.replace(R.id.currentfragment, FragmentPrizeInfo.newInstance(mHuntManager));
+
+            ft.replace(R.id.currentfragment, FragmentPrizeInfo.newInstance());
         }
         ft.commit();
     }

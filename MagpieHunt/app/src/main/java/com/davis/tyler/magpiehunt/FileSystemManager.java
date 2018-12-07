@@ -44,7 +44,6 @@ public class FileSystemManager
 
     public FileSystemManager()
     {
-        //TODO: set up files and scanners
     }
 
     public void initializationCheck(Context c) throws IOException
@@ -120,7 +119,15 @@ public class FileSystemManager
             out.write((award.getID()+"\r\n"));
             out.write((award.getAddress()+"\r\n"));
             out.write((award.getDescription()+"\r\n"));
+
             out.write("////////\r\n");
+            String temp = award.getmRedemptionCode();
+            System.out.println("writing award redemption code: "+temp);
+            if(temp != null && !temp.equals("null")) {
+                System.out.println("writing award redemption code");
+                out.write("///\r\n");
+                out.write((award.getmRedemptionCode() + "\r\n"));
+            }
             out.write((award.getName()+"\r\n"));
             out.write((award.getLocationDescription()+"\r\n"));
             out.write((award.getLat()+"\r\n"));
@@ -228,8 +235,7 @@ public class FileSystemManager
             if(newString == null)
                 cont = false;
             huntList = new LinkedList<>();
-            while(cont)
-            {
+            while(cont) {
                 //System.out.println("check: in while loop");
                 //HUNT DATA
                 newString = br.readLine();
@@ -250,7 +256,7 @@ public class FileSystemManager
                 boolean isOrdered = Boolean.parseBoolean(newString);
                 newString = br.readLine();
                 String description = "";
-                while(!newString.equals("////////")) {
+                while (!newString.equals("////////")) {
                     //System.out.println("check: in desc1 while");
                     description += newString;
                     newString = br.readLine();
@@ -283,18 +289,34 @@ public class FileSystemManager
                 String awardAddress = newString;
                 newString = br.readLine();
                 String awardDescription = "";
-                while(!newString.equals("////////")) {
+                while (!newString.equals("////////")) {
                     //System.out.println("check: in desc2 while");
                     awardDescription += newString;
                     newString = br.readLine();
 
                 }
+                System.out.println("writing 2reading in newstring: "+newString);
                 //System.out.println("check: exited while");
                 newString = br.readLine();
-                String awardName = newString;
+                String awardRedemptionCode = "";
+                String awardName;
+                if (newString.equals("///")) {
+                    System.out.println("writing reading award redemption code ///");
+                    newString = br.readLine();
+                    System.out.println("writing 1reading in newstring: "+newString);
+                     awardRedemptionCode = newString;
+                    newString = br.readLine();
+                    System.out.println("writing 1reading in newstring: "+newString);
+                    awardName = newString;
+                } else{
+                    awardName = newString;
+
+                }
                 newString = br.readLine();
+                System.out.println("writing reading in newstring: "+newString);
                 String awardLocationDescription = newString;
                 newString = br.readLine();
+                System.out.println("writing reading in newstring: "+newString);
                 double awardLat = Double.parseDouble(newString);
                 newString = br.readLine();
                 double awardLong = Double.parseDouble(newString);
@@ -314,6 +336,7 @@ public class FileSystemManager
                 newAward.setmWorth(awardWorth);
                 newAward.setmValue(awardValue);
                 newAward.setIsNew(isNew);
+                newAward.setmRedemptionCode(awardRedemptionCode);
 
                 //GET BADGE INFO
                 HashMap<Integer, Badge> badges = new HashMap<>();

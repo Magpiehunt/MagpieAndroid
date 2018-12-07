@@ -1,6 +1,7 @@
 package com.davis.tyler.magpiehunt.Adapters;
 
 import android.content.Context;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -12,7 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
-import com.davis.tyler.magpiehunt.Fragments.FragmentBirdsEyeViewContainer;
+import com.davis.tyler.magpiehunt.Fragments.FragmentOverallHuntTabs;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.ImageManager;
 import com.davis.tyler.magpiehunt.R;
@@ -26,12 +27,12 @@ public class LandmarkSearchAdapter extends RecyclerView.Adapter<LandmarkSearchAd
 
     private static final String TAG = "LandmarkSearchAdapter";
     private final Context context;
-    private FragmentBirdsEyeViewContainer listener;
+    private FragmentOverallHuntTabs listener;
 
 
     public List<Badge> landmarkList;
 
-    public LandmarkSearchAdapter(List<Badge> landmarkList,Context context,FragmentBirdsEyeViewContainer listener) {
+    public LandmarkSearchAdapter(List<Badge> landmarkList,Context context,FragmentOverallHuntTabs listener) {
         this.landmarkList = landmarkList;
         this.context = context;
         this.listener = listener;
@@ -63,8 +64,6 @@ public class LandmarkSearchAdapter extends RecyclerView.Adapter<LandmarkSearchAd
     public class LandmarkHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private static final String TAG = "LandmarkHolder";
-
-        private int position;
 
         // fields for CardView (While Condensed)
         private TextView landmarkSponsor, landmarkName, minutestext, milestext;
@@ -107,7 +106,6 @@ public class LandmarkSearchAdapter extends RecyclerView.Adapter<LandmarkSearchAd
             this.currentObject = currentObject;
             ImageManager im = new ImageManager();
             im.fillBadgeImage(context, currentObject, landmarkImage);
-            this.position = position;
         }//end setData
 
         public void setListeners() {
@@ -128,7 +126,6 @@ public class LandmarkSearchAdapter extends RecyclerView.Adapter<LandmarkSearchAd
         public void onClick(View view) {
             switch (view.getId()) {
                 case R.id.landmarkCard:
-                    Log.d(TAG, "LandmarkClick: " + currentObject.getLandmarkName());
                     listener.onLandmarkSearchSelected(currentObject);
 
                     break;

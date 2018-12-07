@@ -40,7 +40,6 @@ public class FragmentPrivacyPolicy extends Fragment implements View.OnClickListe
     }
     public void showButton(boolean show)
     {
-        Log.e(TAG, "showbutton");
         if(show)
             this.acceptBtn.setVisibility(View.VISIBLE);
         else

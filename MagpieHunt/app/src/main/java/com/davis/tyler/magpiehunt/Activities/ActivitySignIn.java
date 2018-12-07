@@ -30,12 +30,15 @@ public class ActivitySignIn extends AppCompatActivity implements FragmentSigninI
     public static final int FRAGMENT_PRIVACY = 0;
     public static final int FRAGMENT_TERMS = 1;
     public static final int FRAGMENT_SIGNIN = 2;
+    public static final int FRAGMENT_WALKTHROUGH= 3;
 
     private FragmentPrivacyPolicy fragmentPrivacyPolicy;
     private FragmentTermsAndConditions fragmentTermsAndConditions;
+    private FragmentWalkthroughContainer fragmentWalkthroughContainer;
     private int curFrag;
     private String[] permissionResults;
     private SharedPreferences preferences;
+    private int curWalkthrough = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,13 +53,28 @@ public class ActivitySignIn extends AppCompatActivity implements FragmentSigninI
         } else {
             System.out.println("permission this is not first time run");
         }
-        if (!preferences.getBoolean("privacyAccepted", false)) {
-            setFragment(FRAGMENT_PRIVACY);
-        } else if (!preferences.getBoolean("termsAccepted", false)) {
-            setFragment(FRAGMENT_TERMS);
-        } else {
-            setFragment(FRAGMENT_SIGNIN);
+
+
+        if(savedInstanceState != null){
+            curFrag = savedInstanceState.getInt("curfrag");
+            curWalkthrough = savedInstanceState.getInt("curwalk");
+            if(curFrag == FRAGMENT_WALKTHROUGH){
+                fragmentWalkthroughContainer =(FragmentWalkthroughContainer) getSupportFragmentManager().findFragmentById(R.id.currentfragment);
+                System.out.println("walkthrough: "+fragmentWalkthroughContainer);
+            }
+            setFragment(curFrag);
+
+        }else{
+            if (!preferences.getBoolean("privacyAccepted", false)) {
+                setFragment(FRAGMENT_PRIVACY);
+            } else if (!preferences.getBoolean("termsAccepted", false)) {
+                setFragment(FRAGMENT_TERMS);
+            }else {
+                setFragment(FRAGMENT_SIGNIN);
+            }
+            //setFragment(FRAGMENT_PRIVACY);
         }
+
         getSupportActionBar().setBackgroundDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.action_bar_gradient, null));
 
     }
@@ -91,7 +109,16 @@ public class ActivitySignIn extends AppCompatActivity implements FragmentSigninI
             getSupportActionBar().setTitle("Terms And Conditions");
             ft.replace(R.id.currentfragment, fragmentTermsAndConditions);
         }
-
+        else if(i == FRAGMENT_WALKTHROUGH)
+        {
+            if(fragmentWalkthroughContainer == null){
+                System.out.println("fragmentwalkthrough container isnull");
+                fragmentWalkthroughContainer = FragmentWalkthroughContainer.newInstance();
+            }
+            getSupportActionBar().setTitle("Walkthrough");
+            ft.replace(R.id.currentfragment, fragmentWalkthroughContainer);
+        }
+        ft.addToBackStack(null);
         ft.commit();
 
 
@@ -99,14 +126,13 @@ public class ActivitySignIn extends AppCompatActivity implements FragmentSigninI
 
     @Override
     public void swipedLeftEvent() {
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-
-        ft.replace(R.id.currentfragment, new FragmentWalkthroughContainer());
-        ft.addToBackStack(null);
-        ft.commit();
+       setFragment(FRAGMENT_WALKTHROUGH);
     }
 
-
+    public void setCurWalkthrough(int i){
+        curWalkthrough = i;
+    }
+    public int getCurWalkthrough(){return curWalkthrough;}
     public boolean checkQRPermission() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED
@@ -159,5 +185,12 @@ public class ActivitySignIn extends AppCompatActivity implements FragmentSigninI
                 }
             }
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("curfrag", curFrag);
+        outState.putInt("curwalk", curWalkthrough);
     }
 }

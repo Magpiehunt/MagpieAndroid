@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -50,7 +51,6 @@ public class LocationTracker implements ActivityCompat.OnRequestPermissionsResul
     private static final String TAG = "LocationTracker";
     private Activity a;
     private Context context;
-    private GoogleMap gMap;
     //private GPSTracker gpsTracker;
     //private static double validDistanceInMiles = 0.008;//change this later to whatever the valid distance you decide on then
     private static double validDistanceInMiles = 20;
@@ -104,10 +104,10 @@ public class LocationTracker implements ActivityCompat.OnRequestPermissionsResul
                         System.out.println("updating: has location permissions");
                         currLoc = location;
                         coords = new LatLng(location.getLatitude(), location.getLongitude());
+
                         updateDistances();
-                        if (gMap != null) {
-                            gMap.animateCamera(CameraUpdateFactory.zoomTo(20));
-                            gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 20));
+                        if(location.hasBearing()) {
+                            ((ActivityBase) a).updateLocation(location);
                         }
                     }
                 }
@@ -131,8 +131,11 @@ public class LocationTracker implements ActivityCompat.OnRequestPermissionsResul
 
                 }
             };
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 2, mLocationListener);
-            mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 2, mLocationListener);
+            Criteria criteria = new Criteria();
+            criteria.setBearingRequired(true);
+            criteria.setBearingAccuracy(Criteria.ACCURACY_HIGH);
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, mLocationListener);
+            //mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2000, 0, mLocationListener);
             //mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 2, mLocationListener);
             if(hasLocPermission()) {
                 currLoc = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);

@@ -24,7 +24,6 @@ public class DialogMoveCloser extends Dialog {
 
     public DialogMoveCloser(Activity a) {
         super(a);
-        // TODO Auto-generated constructor stub
     }
 
     @Override
@@ -53,7 +52,6 @@ public class DialogMoveCloser extends Dialog {
         mBadge = badge;
         this.context = context;
 
-        //TODO set img_badge here when you get CMS communicator imgs working...
     }
 
 }

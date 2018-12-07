@@ -45,12 +45,6 @@ public class ImageManager {
         if(loadImageFromFile(context, award.getSuperBadgeImageFileName(), imageView, isGrayScale)){
             return;
         }
-        String url = award.getSuperBadgeIcon();
-        String[] arr = url.split("\\.");
-        if(arr.length >1 && arr[1].equalsIgnoreCase("svg")){
-            getSVGImage(context, "http://206.189.204.95/superbadge/image/"+award.getSuperBadgeIcon(), imageView);
-        }
-        else{
             if(hunt.getIsCompleted())
                 Picasso.get().load("http://206.189.204.95/superbadge/image/"+award.getSuperBadgeIcon())
                         .fit()
@@ -62,7 +56,7 @@ public class ImageManager {
                         .fit()
                         .centerCrop()
                         .into(imageView);
-        }
+
     }
 
     public void fillAwardFinished(Context context, Award award, ImageView imageView){
@@ -84,22 +78,15 @@ public class ImageManager {
     public void fillLandmarkImage(Context context, Badge badge, ImageView imageView){
         if(context == null)
             return;
-        boolean isGrayScale = false;
 
         if(loadImageFromFileLandmarkInfo(context, badge.getLandmarkImageFileName(), imageView)){
             return;
         }
         String url = badge.getLandmarkImage();
-        String[] arr = url.split("\\.");
-        if(arr.length >0 && arr[1].equalsIgnoreCase("svg")){
-            getSVGImage(context, "http://206.189.204.95/landmark/image/"+url, imageView);
-        }
-        else{
-            Picasso.get().load("http://206.189.204.95/landmark/image/"+url).fit().centerCrop().into(imageView);
-        }
+        Picasso.get().load("http://206.189.204.95/landmark/image/"+url).fit().centerCrop().into(imageView);
+
     }
 
-    //TODO try saving images to file and try downloading hunt and using this method to load imgs from filesystem.
     public void fillBadgeImage(Context context, Badge badge, ImageView imageView){
         if(context == null)
             return;
@@ -108,27 +95,11 @@ public class ImageManager {
             return;
         }
         String url = "http://206.189.204.95/badge/icon/"+badge.getIcon();
-        String[] arr = badge.getIcon().split("\\.");
-        if(arr.length >0 && arr[1].equalsIgnoreCase("svg")){
-            getSVGImage(context, url, imageView);
-            if(!badge.getIsCompleted()){
-                //setColorFilterGrayScale(imageView);
-                //imageView.setColorFilter(Color.WHITE);
-                //convertToGrayscale(imageView);
-                //imageView.setColorFilter(context.getResources().getColor(android.R.color.black), PorterDuff.Mode.SRC_IN);
-                //System.out.println("setting to gray: "+imageView.getDrawable());
-            }
-            else{
-                imageView.clearColorFilter();
-            }
-
-        }
-        else{
             if(badge.getIsCompleted())
                 Picasso.get().load(url).into(imageView);
             else
                 Picasso.get().load(url).transform(new GrayScaleTransformation()).into(imageView);
-        }
+
     }
 
     public void fillBadgeImage(Context context, Badge badge, ImageView imageView, Marker marker){
@@ -159,33 +130,6 @@ public class ImageManager {
                 Picasso.get().load(url).resize(200,200).into(imageView, new MarkerCallback(marker));
             else
                 Picasso.get().load(url).transform(new GrayScaleTransformation()).resize(200,200).into(imageView, new MarkerCallback(marker));
-        }
-    }
-
-    public void fillLandmarkImage(Context context, Badge badge, ImageView imageView, Marker marker){
-        if(context == null)
-            return;
-        if(loadImageFromFile(context, badge.getLandmarkImageFileName(), imageView, marker)){
-            return;
-        }
-        String url = "http://206.189.204.95/landmark/image/"+badge.getLandmarkImage();
-        String[] arr = badge.getLandmarkImage().split("\\.");
-        if(arr.length >0 && arr[1].equalsIgnoreCase("svg")){
-            getSVGImage(context, url, imageView);
-            if(!badge.getIsCompleted()){
-                //setColorFilterGrayScale(imageView);
-                //imageView.setColorFilter(Color.WHITE);
-                //convertToGrayscale(imageView);
-                //imageView.setColorFilter(context.getResources().getColor(android.R.color.black), PorterDuff.Mode.SRC_IN);
-                //System.out.println("setting to gray: "+imageView.getDrawable());
-            }
-            else{
-                imageView.clearColorFilter();
-            }
-
-        }
-        else{
-            Picasso.get().load(url).fit().centerCrop().into(imageView, new MarkerCallback(marker));
         }
     }
 
@@ -236,7 +180,6 @@ public class ImageManager {
             return;
         }
         String url = award.getSuperBadgeIcon();
-        String[] arr = url.split("\\.");
                 Picasso.get().load("http://206.189.204.95/superbadge/image/"+award.getSuperBadgeIcon())
                         .into(target);
     }
@@ -290,19 +233,6 @@ public class ImageManager {
         //System.out.println("image: "+fileName+" loaded successfully");
         return true;
     }
-    public boolean loadImageFromFile(Context context, String fileName, ImageView imageView, Marker marker){
-        if(context == null)
-            return false;
-        File f=new File(context.getFilesDir()+"/images",fileName);
-        if(f == null || !f.exists()){
-            //System.out.println("file doesnt exist: "+context.getFilesDir()+"/images/"+fileName);
-            return false;
-        }
-        else {
-            Picasso.get().load(f).into(imageView, new MarkerCallback(marker));;
-        }
-        //System.out.println("image: "+fileName+" loaded successfully");
-        return true;
-    }
+
 
 }

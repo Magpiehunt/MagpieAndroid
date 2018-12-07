@@ -44,15 +44,9 @@ public class FragmentHuntsList extends Fragment implements View.OnClickListener,
     protected LinkedList<Hunt> mDataset;
     private Button addCollectionBtn;
     private HuntManager mHuntManager;
-    private LinearLayout linearLayout;
     private OnCollectionSelectedListener mListener;
     private DialogDeleteHunt dialogDeleteHunt;
 
-    public static FragmentHuntsList newInstance() {
-        FragmentHuntsList fragment = new FragmentHuntsList();
-        Bundle args = new Bundle();
-        return fragment;
-    }
 
 
     @Override
@@ -63,7 +57,6 @@ public class FragmentHuntsList extends Fragment implements View.OnClickListener,
         View rootView = inflater.inflate(R.layout.fragment_my_collections, container, false);
         rootView.setTag(TAG);
         initializeData();
-        linearLayout = rootView.findViewById(R.id.container);
 
         this.addCollectionBtn = rootView.findViewById(R.id.button_addCollection_collection);
         addCollectionBtn.setOnClickListener(FragmentHuntsList.this);
@@ -73,7 +66,7 @@ public class FragmentHuntsList extends Fragment implements View.OnClickListener,
 
         setRecyclerViewLayoutManager();
 
-        mModelAdapter = new CollectionAdapter(mDataset, FragmentHuntsList.TAG, this.getActivity(), FragmentHuntsList.this, this.mListener);
+        mModelAdapter = new CollectionAdapter(mDataset, this.getActivity(), this.mListener);
         // Set the adapter for RecyclerView.
         mRecyclerView.setAdapter(mModelAdapter);
 
@@ -87,41 +80,12 @@ public class FragmentHuntsList extends Fragment implements View.OnClickListener,
         return rootView;
 
     }
-    public static FragmentHuntsList newInstance(HuntManager huntManager) {
+    public static FragmentHuntsList newInstance() {
         FragmentHuntsList f = new FragmentHuntsList();
         Bundle args = new Bundle();
-        //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
         return f;
     }
-
-    @Override
-    public void setArguments(@Nullable Bundle args) {
-        super.setArguments(args);
-        Log.e(TAG, "setArguments, args: "+args);
-        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
-        Log.e(TAG, "setArguments, huntman: "+mHuntManager);
-
-
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        if (savedInstanceState != null) {
-            //TODO: restore state of fragment
-        }//end if
-    }//end
-
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        Log.e(TAG, "onsave");
-
-        super.onSaveInstanceState(savedInstanceState);
-
-        //TODO: saved state of fragment here
-    }//end
 
     public void setRecyclerViewLayoutManager() {
         int scrollPosition = 0;
@@ -154,7 +118,6 @@ public class FragmentHuntsList extends Fragment implements View.OnClickListener,
         switch (v.getId()) {
             case R.id.button_addCollection_collection:
                 ((ActivityBase)getActivity()).onAddCollectionClicked();
-                //((ActivityBase)getActivity()).changePage(ActivityBase.FRAGMENT_OVERALL_HUNTS);
                 break;
 
             default:
@@ -163,11 +126,8 @@ public class FragmentHuntsList extends Fragment implements View.OnClickListener,
     }//end onClick
 
 
-    // TODO: Replace the test data within this with data from room DB
     private void initializeData() {
         mDataset = new LinkedList<>();
-
-
         mDataset= mHuntManager.getAllDownloadedUndeletedHunts();
 
     }//end
@@ -182,44 +142,11 @@ public class FragmentHuntsList extends Fragment implements View.OnClickListener,
 
             // backup of removed item for undo purpose
             final Hunt deletedItem = mDataset.get(viewHolder.getAdapterPosition());
-            final int deletedIndex = viewHolder.getAdapterPosition();
 
-            /*deletedItem.setmIsDeleted(true);
-            // remove the item from recycler view
-            mHuntManager.deleteHuntByID(deletedItem.getID());
-            mModelAdapter.removeItem(viewHolder.getAdapterPosition());*/
 
             dialogDeleteHunt.setHunt(deletedItem,this, viewHolder);
             dialogDeleteHunt.show();
-            /*FileSystemManager fm = new FileSystemManager();
-            try {
-                fm.addHuntList(getContext(), mHuntManager.getAllHunts());
-            }catch(Exception e){
-                e.printStackTrace();
-            }*/
-            // showing snack bar with Undo option
-            /*Snackbar snackbar = Snackbar
-                    .make(linearLayout, "Are you sure you would like to delete "+name , Snackbar.LENGTH_INDEFINITE);
-            snackbar.setAction("UNDO", new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
 
-                    // undo is selected, restore the deleted item
-                    deletedItem.setmIsDeleted(false);
-                    mModelAdapter.restoreItem(deletedItem, deletedIndex);
-                    mHuntManager.addHunt(deletedItem);
-                    mModelAdapter.notifyDataSetChanged();
-                    /*FileSystemManager fm = new FileSystemManager();
-                    try {
-                        fm.addHuntList(getContext(), mHuntManager.getAllHunts());
-                    }catch(Exception e){
-                        e.printStackTrace();
-                    }
-                }
-            });
-            snackbar.setActionTextColor(Color.YELLOW);
-            snackbar.show();
-            mModelAdapter.notifyDataSetChanged();*/
         }
     }
 
@@ -235,7 +162,6 @@ public class FragmentHuntsList extends Fragment implements View.OnClickListener,
 
         deletedItem.setmIsDeleted(true);
         // remove the item from recycler view
-        //mHuntManager.deleteHuntByID(deletedItem.getID());
         mModelAdapter.removeItem(viewHolder.getAdapterPosition());
         mModelAdapter.notifyDataSetChanged();
     }
@@ -245,17 +171,7 @@ public class FragmentHuntsList extends Fragment implements View.OnClickListener,
         mModelAdapter.notifyDataSetChanged();
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    //TODO implement this before release, just for testing
+
     public interface OnCollectionSelectedListener {
         void onCollectionSelected(int cid, String name);
         void onCollectionDeleted();

@@ -88,15 +88,21 @@ public class Hunt implements Serializable {
     public void setmBadges(HashMap<Integer, Badge> b){ this.mBadges = b; }
     public void setmIsCompleted(boolean b){mIsCompleted = b;}
     public void updateIsCompleted(){
+        boolean bool = true;
         LinkedList<Badge> ll = getAllBadges();
         setmIsCompleted(true);
         for(Badge b: ll){
             if(!b.getIsCompleted()){
                 setmIsCompleted(false);
+                mAward.setIsNew(false);
+                bool = false;
             }
         }
-        //System.out.println("setting award: "+this+" to true");
-        mAward.setIsNew(true);
+        System.out.println("setting award: "+this+" to true");
+        System.out.println("setting hunt completed: "+mIsCompleted);
+
+        if(bool)
+            mAward.setIsNew(true);
     }
     public void setmIsDeleted(boolean b){
         System.out.println("Saving: setting isdeleted"+getName()+" to: "+b);

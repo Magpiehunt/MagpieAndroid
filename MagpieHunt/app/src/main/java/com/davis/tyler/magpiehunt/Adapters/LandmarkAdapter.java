@@ -40,7 +40,6 @@ public class LandmarkAdapter extends RecyclerView.Adapter<LandmarkAdapter.Landma
         this.landmarkList = landmarkList;
         this.context = context;
         this.listener = listener;
-        //TODO MAKE TEST LANDMARK LSIT
 
 
     }//end DVC
@@ -55,8 +54,6 @@ public class LandmarkAdapter extends RecyclerView.Adapter<LandmarkAdapter.Landma
 
     @Override
     public void onBindViewHolder(LandmarkHolder holder, int position) {
-        Log.d(TAG, "Element " + position + " set.");
-
         // Get element from your dataset at this position and replace the contents of the view
         // with that element
         holder.setData(landmarkList.get(position), position);
@@ -104,7 +101,6 @@ public class LandmarkAdapter extends RecyclerView.Adapter<LandmarkAdapter.Landma
             else
                 landmarkName.setTextColor(ContextCompat.getColor(context, R.color.colorMagpieLightGray));
 
-            Log.e(TAG, "setting distance in list");
             landmarkMiles.setText(""+round(currentObject.getDistance(), 2)); // need to get distance calculated
             landmarkTime.setText(""+currentObject.getMinutes()); // need to get time using lat and long from google services and their estimated time
 
@@ -122,14 +118,11 @@ public class LandmarkAdapter extends RecyclerView.Adapter<LandmarkAdapter.Landma
         public void setListeners() {
             // set listeners for items to be implemented with onClick functionality
             this.card.setOnClickListener(LandmarkHolder.this);
-            // TODO: set listeners
-
         }//end setListeners
 
         @Override
         public void onClick(View view) {
             switch (view.getId()) {
-                // TODO: implement click functionality
                 case R.id.landmarkCard:
                     Log.d(TAG, "LandmarkClick: " + currentObject.getLandmarkName());
                     listener.onLandmarkSelected(currentObject);
@@ -139,40 +132,6 @@ public class LandmarkAdapter extends RecyclerView.Adapter<LandmarkAdapter.Landma
                     break;
             }//end switch
         }// end onClick
-
-
-        public void populateBadgeImage(){
-            Target target = new Target() {
-                @Override
-                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    /*ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-                    byte[] byteArray = byteArrayOutputStream.toByteArray();
-                    String imgageBase64 = Base64.encodeToString(byteArray, Base64.DEFAULT);
-                    String dataURL= "data:image/png;base64," + imgageBase64;*/
-
-                    //landmarkImage.loadUrl(dataURL);
-                    //landmarkImage.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", "");
-                    landmarkImage.setImageBitmap(bitmap);
-                }
-
-                @Override
-                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-                    System.out.println("error from landmark: "+e.toString());
-                    //landmarkImage.loadUrl("http://206.189.204.95/badge/icon/"+currentObject.getIcon());
-                }
-
-                @Override
-                public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                }
-            };
-            if(currentObject.getIsCompleted())
-                Picasso.get().load("http://206.189.204.95/badge/icon/"+currentObject.getIcon()).resize(200,200).into(target);
-            else
-                Picasso.get().load("http://206.189.204.95/badge/icon/"+currentObject.getIcon()).transform(new GrayScaleTransformation()).resize(200,200).into(target);
-
-        }
 
 
     }//end inner class: LandmarkHolder

@@ -19,8 +19,6 @@ public class DialogAddHunt extends Dialog {
     private Button btn_no;
     private Hunt hunt;
     private TextView txt_warning;
-    private IOnHuntDeleteResponse response;
-    private RecyclerView.ViewHolder viewHolder;
     private ActivityBase activity;
 
 
@@ -28,7 +26,6 @@ public class DialogAddHunt extends Dialog {
     public DialogAddHunt(Activity a) {
         super(a);
         activity = (ActivityBase)a;
-        // TODO Auto-generated constructor stub
     }
 
     @Override
@@ -63,7 +60,6 @@ public class DialogAddHunt extends Dialog {
 
     public void setHunt(Hunt h){
         hunt = h;
-        //TODO set img_badge here when you get CMS communicator imgs working...
     }
 
 }

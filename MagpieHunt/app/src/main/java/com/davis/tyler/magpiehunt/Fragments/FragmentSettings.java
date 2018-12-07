@@ -55,7 +55,6 @@ public class FragmentSettings extends Fragment implements View.OnClickListener{
 
     public static FragmentSettings newInstance() {
         FragmentSettings fragment = new FragmentSettings();
-        Bundle args = new Bundle();
         return fragment;
     }
 
@@ -92,8 +91,6 @@ public class FragmentSettings extends Fragment implements View.OnClickListener{
         btn_terms_and_conditions.setOnClickListener(this);
         btn_signout.setOnClickListener(this);
 
-        //TODO set check boxes based on whats in shared preferences
-
         return rootView;
 
     }
@@ -104,24 +101,6 @@ public class FragmentSettings extends Fragment implements View.OnClickListener{
         if(preferences.getBoolean("camera", false))
             cb_camera.setChecked(true);
     }
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        if (savedInstanceState != null) {
-            //TODO: restore state of fragment
-        }//end if
-    }//end
-
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        Log.e(TAG, "onsave");
-
-        super.onSaveInstanceState(savedInstanceState);
-
-        //TODO: saved state of fragment here
-    }//end
-
 
     @Override
     public void onClick(View v) {
@@ -130,7 +109,6 @@ public class FragmentSettings extends Fragment implements View.OnClickListener{
             case R.id.btn_signout:
                 startActivity(new Intent(getActivity().getApplicationContext(), ActivitySignIn.class));
                 getActivity().finish();
-                //TODO do signout function here
                 break;
             case R.id.terms_and_conditions:
                 fh = (FragmentHome)getParentFragment();
@@ -161,16 +139,6 @@ public class FragmentSettings extends Fragment implements View.OnClickListener{
             }
         }
     }
-    private void setFilePermissionOnElseOff(boolean b){
-        if(!b){
-            preferences.edit().putBoolean("storage", false).apply();
-        }
-        else{
-            requestPermissions(new String[]{
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-            }, FILE_PERMISSION_CODE);
-        }
-    }
     private void setLocationPermissionOnElseOff(boolean b){
         System.out.println( "permission toggle location: "+b );
         if(!b){
@@ -196,16 +164,14 @@ public class FragmentSettings extends Fragment implements View.OnClickListener{
     }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        System.out.println("permission retoggle off camera");
+
         switch (requestCode) {
             case CAMERA_PERMISSION_CODE: {
-                System.out.println("permission retoggle off camera");
                 if (grantResults.length > 0) {
                     for (int i = 0; i < grantResults.length; i++) {
                         if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                             preferences.edit().putBoolean("camera", false).apply();
                             cb_camera.setChecked(false);
-                            System.out.println("permission retoggle off");
                         }
                         else{
                             preferences.edit().putBoolean("camera", true).apply();
@@ -221,7 +187,6 @@ public class FragmentSettings extends Fragment implements View.OnClickListener{
                     preferences.edit().putBoolean("coarse", false).commit();
                     cb_location.setChecked(false);
                 }else {
-                    System.out.println("permission toggled to location: " + true);
                     preferences.edit().putBoolean("fine", true).commit();
                     preferences.edit().putBoolean("coarse", true).commit();
                     if(!isLocationEnabled(getContext())){
@@ -243,14 +208,13 @@ public class FragmentSettings extends Fragment implements View.OnClickListener{
                     }
 
                     preferences.edit().putBoolean("storage", permission_granted).apply();
-                    //todo toggle checkbox now
+
 
                 }
             }
             break;
 
         }
-        System.out.println("permission retoggle off camera");
     }
 
 

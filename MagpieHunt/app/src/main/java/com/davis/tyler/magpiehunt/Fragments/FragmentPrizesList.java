@@ -34,23 +34,12 @@ public class FragmentPrizesList extends Fragment {
 
 
     // TODO: Rename and change types and number of parameters
-    public static FragmentPrizesList newInstance(HuntManager huntManager) {
+    public static FragmentPrizesList newInstance() {
         FragmentPrizesList f = new FragmentPrizesList();
-        Bundle args = new Bundle();
-        //args.putSerializable("huntmanager", huntManager);
-        f.setArguments(args);
         return f;
     }
 
-    @Override
-    public void setArguments(@Nullable Bundle args) {
-        super.setArguments(args);
-        Log.e(TAG, "setArguments, args: "+args);
-        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
-        Log.e(TAG, "setArguments, huntman: "+mHuntManager);
 
-
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -68,7 +57,7 @@ public class FragmentPrizesList extends Fragment {
         mLayoutManager = new LinearLayoutManager(getActivity());
         setRecyclerViewLayoutManager();
 
-        mModelAdapter = new PrizesAdapter(prize_items, this.getActivity(), this, mListener);
+        mModelAdapter = new PrizesAdapter(prize_items, this.getActivity(), mListener);
 
         // Set the adapter for RecyclerView.
         mRecyclerView.setAdapter(mModelAdapter);
@@ -113,10 +102,7 @@ public class FragmentPrizesList extends Fragment {
     }
 
 
-
-    //TODO implement this before release, just for testing
     public interface OnHuntSelectedListener {
-        // TODO: Update argument type and name
         void onHuntSelected(Hunt b);
     }
 }

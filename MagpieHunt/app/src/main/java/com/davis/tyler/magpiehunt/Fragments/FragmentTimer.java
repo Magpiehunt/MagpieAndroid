@@ -54,12 +54,7 @@ public class FragmentTimer extends Fragment {
                 ((ActivityBase)getActivity()).setPagerSwipe(true);
                 ((ActivityBase)getActivity()).setNavigationViewVisibility(View.VISIBLE);
                 Fragment f = getParentFragment();
-                if(f instanceof FragmentMap){
-                    ((FragmentMap) f).setFragment(FragmentMap.FRAGMENT_QUIZ);
-                }
-                else if( f instanceof FragmentList){
-                    ((FragmentList) f).setFragment(FragmentList.FRAGMENT_QUIZ);
-                }
+                    ((FragmentOverallHunt) f).setFragment(FragmentOverallHunt.FRAGMENT_QUIZ);
             }
         }.start();
     }
@@ -90,11 +85,8 @@ public class FragmentTimer extends Fragment {
                     ((ActivityBase) getActivity()).setPagerSwipe(true);
                     ((ActivityBase) getActivity()).setNavigationViewVisibility(View.VISIBLE);
                     Fragment f = getParentFragment();
-                    if (f instanceof FragmentMap) {
-                        ((FragmentMap) f).setFragment(FragmentMap.FRAGMENT_QUIZ);
-                    } else if (f instanceof FragmentList) {
-                        ((FragmentList) f).setFragment(FragmentList.FRAGMENT_QUIZ);
-                    }
+                    ((FragmentOverallHunt) f).setFragment(FragmentOverallHunt.FRAGMENT_QUIZ);
+
                 }
             }.start();
         }

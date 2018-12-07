@@ -26,7 +26,6 @@ public class JSONParser
     //call for single and multiple hunts
     public LinkedList<Hunt> getAllHunts()
     {
-        System.out.println("test ");
         LinkedList<String> mEntries = new LinkedList();
         LinkedList<Hunt> huntList = new LinkedList<Hunt>();
 
@@ -36,7 +35,6 @@ public class JSONParser
             {
                 JSONObject jObj = this.array.getJSONObject(i);
                 mEntries.add(jObj.toString());
-                System.out.println("test "+jObj.toString());
                 Hunt h = parseHunt(jObj);
                 if(h != null) {
                     huntList.add(parseHunt(jObj));
@@ -69,7 +67,6 @@ public class JSONParser
             }
 
             hunt.setID(huntObj.getInt("huntId"));
-            System.out.println("questions1");
             hunt.setDescription(huntObj.getString("summary"));
             hunt.setAbbreviation(huntObj.getString("abbreviation"));
             hunt.setIsAvailable(huntObj.getBoolean("available"));
@@ -82,7 +79,6 @@ public class JSONParser
             hunt.setmDateEnd(dateEnd);*/
             hunt.setmSponsor(huntObj.getString("sponsor"));
 
-            System.out.println("name: "+hunt.getName()+"abbr: "+hunt.getAbbreviation());
             JSONObject huntLocation = huntObj.getJSONObject("huntLocation");
             hunt.setmCity(huntLocation.getString("city"));
             hunt.setmState(huntLocation.getString("state"));
@@ -105,13 +101,11 @@ public class JSONParser
                 badge.setmLandmarkImage(badges.getJSONObject(i).getString("landmarkImage"));
                 //badge.setQRurl(badges.getJSONObject(i).getString("qrCode"));
                 badge.setQRurl(badge.getName());
-                System.out.println("Made badge: "+badge.getName());
                 String lat = badges.getJSONObject(i).getString("lat");
                 String lon = badges.getJSONObject(i).getString("lon");
                 badge.setmLatitude(Double.parseDouble(lat));
                 badge.setmLongitude(Double.parseDouble(lon));
                 badge.setmLandmarkName(badges.getJSONObject(i).getString("landmarkName"));
-                //System.out.println("questions1");
                 String str = badges.getJSONObject(i).getString("quiz");
                 if(str != null && str.length() > 3) {
                     badge.setQuiz(parseQuizText(badges.getJSONObject(i).getString("quiz")));
@@ -134,10 +128,9 @@ public class JSONParser
                 huntAward.setmWorth(Integer.parseInt(award.getString("worth")));
                 huntAward.setmAddress(award.getString("address"));
                 huntAward.setmTerms(award.getString("terms"));
+                huntAward.setmRedemptionCode(award.getString("redeemCode"));
                 huntAward.setmValue(Integer.parseInt(award.getString("hasValue")));
-                System.out.println("Award set, name: "+huntAward.getName());
             }catch(Exception e){
-                System.out.println("award error");
             }
         }
         catch(JSONException e)
@@ -178,7 +171,6 @@ public class JSONParser
 
 
         size = questionObj.getInt("size");
-        System.out.println("size: "+size);
 
         for(i = 0; i < size; i++)
         {

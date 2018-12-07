@@ -21,6 +21,7 @@ public class FragmentSigninInitial extends Fragment implements View.OnClickListe
 
 
 
+
     public interface FragmentSigninInitialListener{
         void swipedLeftEvent();
     }

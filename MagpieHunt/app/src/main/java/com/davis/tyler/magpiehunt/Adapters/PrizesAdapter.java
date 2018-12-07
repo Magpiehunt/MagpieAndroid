@@ -27,18 +27,15 @@ public class PrizesAdapter extends RecyclerView.Adapter<PrizesAdapter.PrizeHolde
 
 private static final String TAG = "LandmarkAdapter";
 private final Context context;
-private final FragmentPrizesList fragment;
 private FragmentPrizesList.OnHuntSelectedListener listener;
 
 
 public LinkedList<Hunt> huntList;
 
-public PrizesAdapter(LinkedList<Hunt> huntList, Context context, FragmentPrizesList fragment, FragmentPrizesList.OnHuntSelectedListener listener) {
+public PrizesAdapter(LinkedList<Hunt> huntList, Context context, FragmentPrizesList.OnHuntSelectedListener listener) {
         this.huntList = huntList;
         this.context = context;
-        this.fragment = fragment;
         this.listener = listener;
-        //TODO MAKE TEST LANDMARK LSIT
 
 
         }//end DVC
@@ -54,8 +51,6 @@ public PrizeHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
 @Override
 public void onBindViewHolder(PrizeHolder holder, int position) {
-        Log.d(TAG, "Element " + position + " set.");
-
         // Get element from your dataset at this position and replace the contents of the view
         // with that element
         holder.setData(huntList.get(position));
@@ -111,14 +106,12 @@ public class PrizeHolder extends RecyclerView.ViewHolder implements View.OnClick
     public void setListeners() {
         // set listeners for items to be implemented with onClick functionality
         this.card.setOnClickListener(this);
-        // TODO: set listeners
 
     }//end setListeners
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            // TODO: implement click functionality
             case R.id.prize_card:
                 listener.onHuntSelected(currentObject);
 

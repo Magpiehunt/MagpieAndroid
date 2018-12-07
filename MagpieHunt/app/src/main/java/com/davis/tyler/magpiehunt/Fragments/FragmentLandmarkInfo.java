@@ -47,8 +47,9 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
             if(view.getId() == R.id.mapButton) {
                 mListener.onMapClicked(mBadge);
             }
-            else if(view.getId() == R.id.lyt_nextbadge){
+            else if(view.getId() == R.id.lyt_nextbadge || view.getId() == R.id.btn_nextbadge){
                 Hunt h = mHuntManager.getHuntByID(mBadge.getHuntID());
+                mHuntManager.setFocusBadge(h.getNextBadge(mBadge).getID());
                 updateScreen(h.getNextBadge(mBadge));
 
             }
@@ -114,13 +115,8 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
                 return;
             }
             if (((ActivityBase) getActivity()).isCloseEnough(mBadge)) {
-                /*if (getParentFragment() instanceof FragmentMap) {
 
-                    ((FragmentMap) getParentFragment()).setFragment(FragmentMap.FRAGMENT_QUIZ);
-                } else if (getParentFragment() instanceof FragmentList) {
-                    ((FragmentList) getParentFragment()).setFragment(FragmentList.FRAGMENT_QUIZ);
-                }*/
-                ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_QUIZ);
+                ((FragmentOverallHunt)getParentFragment()).setFragment(FragmentOverallHunt.FRAGMENT_QUIZ);
             }
             else
                 mListener.onCollectMoveCloser(mBadge);
@@ -134,7 +130,7 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
                 return;
             }
 
-            ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_QR_READER);
+            ((FragmentOverallHunt)getParentFragment()).setFragment(FragmentOverallHunt.FRAGMENT_QR_READER);
         }
         else if(((ActivityBase)getActivity()).getmLocationTracker().hasLocPermission()) {
             if(((ActivityBase)getActivity()).isCloseEnough(mBadge)) {
@@ -147,7 +143,7 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
                     } else if (getParentFragment() instanceof FragmentList) {
                         ((FragmentList) getParentFragment()).setFragment(FragmentList.FRAGMENT_BADGE_OBTAINED);
                     }*/
-                    ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_BADGE_OBTAINED);
+                    ((FragmentOverallHunt)getParentFragment()).setFragment(FragmentOverallHunt.FRAGMENT_BADGE_OBTAINED);
                 }
             }else{
                 mListener.onCollectMoveCloser(mBadge);
@@ -165,7 +161,7 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
                 Toast.makeText(getContext(), "Cannot open QR Scanner without camera permission", Toast.LENGTH_SHORT).show();
                 return;
             }
-            ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_QR_READER);
+            ((FragmentOverallHunt)getParentFragment()).setFragment(FragmentOverallHunt.FRAGMENT_QR_READER);
         }
         else if(((ActivityBase)getActivity()).getmLocationTracker().hasLocPermission()) {
             if(((ActivityBase)getActivity()).isCloseEnough(mBadge)) {
@@ -173,10 +169,10 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
                 if (mBadge.getQuiz() == null) {
                     Toast.makeText(getContext(), "No quiz or qr code found...", Toast.LENGTH_SHORT).show();
                     mBadge.setmIsCompleted(true);
-                    ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_BADGE_OBTAINED);
+                    ((FragmentOverallHunt)getParentFragment()).setFragment(FragmentOverallHunt.FRAGMENT_BADGE_OBTAINED);
                 } else if (mBadge.getQuiz() != null) {
                     Log.e(TAG, "Switching to Quiz fragment...");
-                    ((FragmentList)getParentFragment()).setFragment(FragmentList.FRAGMENT_QUIZ);
+                    ((FragmentOverallHunt)getParentFragment()).setFragment(FragmentOverallHunt.FRAGMENT_QUIZ);
                 }
             }
             else
@@ -238,6 +234,7 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
         foregroundView.setOnClickListener(this);
         btn_map.setOnClickListener(this);
         btn_nextbadge.setOnClickListener(this);
+        btn_nextbadgebottom.setOnClickListener(this);
         btn_share.setOnClickListener(this);
         preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
 
@@ -253,14 +250,12 @@ public class FragmentLandmarkInfo extends Fragment implements View.OnClickListen
     @Override
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
-        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
 
     }
 
-    public static FragmentLandmarkInfo newInstance(HuntManager huntManager) {
+    public static FragmentLandmarkInfo newInstance() {
         FragmentLandmarkInfo f = new FragmentLandmarkInfo();
         Bundle args = new Bundle();
-        //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
         return f;
     }

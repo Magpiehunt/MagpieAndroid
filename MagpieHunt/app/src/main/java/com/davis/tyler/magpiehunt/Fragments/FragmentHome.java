@@ -1,5 +1,7 @@
 package com.davis.tyler.magpiehunt.Fragments;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -26,6 +28,7 @@ public class FragmentHome extends Fragment implements FragmentHuntsList.OnCollec
     private FragmentPrivacyPolicy fragmentPrivacy;
     private HuntManager mHuntManager;
     private int curFrag;
+    private Context context;
 
     @Nullable
     @Override
@@ -37,10 +40,9 @@ public class FragmentHome extends Fragment implements FragmentHuntsList.OnCollec
         return view;
     }
 
-    public static FragmentHome newInstance(HuntManager huntManager) {
+    public static FragmentHome newInstance() {
         FragmentHome f = new FragmentHome();
         Bundle args = new Bundle();
-        //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
         return f;
     }
@@ -50,40 +52,51 @@ public class FragmentHome extends Fragment implements FragmentHuntsList.OnCollec
         //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
     }
 
+    private Activity activity;
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        context = getActivity();
+        updateActionBar();
+    }
 
     public void updateActionBar(){
+        if(context == null) {
+            return;
+        }
         if(curFrag == FRAGMENT_SETTINGS){
-            ((ActivityBase) getActivity()).setBackButtonOnOff(true);
-            ((ActivityBase) getActivity()).getSupportActionBar().setTitle("Settings");
-            ((ActivityBase) getActivity()).menuSettingsVisibility(false);
+            ((ActivityBase)context).setBackButtonOnOff(true);
+            ((ActivityBase)context).getSupportActionBar().setTitle("Settings");
+            ((ActivityBase)context).menuSettingsVisibility(false);
         }
         else if(curFrag == FRAGMENT_HUNTS_LIST){
 
 
-            ((ActivityBase) getActivity()).getSupportActionBar().setTitle("My Collections");
-            ((ActivityBase) getActivity()).menuSettingsVisibility(true);
+            ((ActivityBase)context).getSupportActionBar().setTitle("My Collections");
+            ((ActivityBase)context).menuSettingsVisibility(true);
         }
         else if(curFrag == FRAGMENT_TERMS)
         {
-            ((ActivityBase) getActivity()).setBackButtonOnOff(true);
-            ((ActivityBase) getActivity()).getSupportActionBar().setTitle("Terms of Use");
-            ((ActivityBase) getActivity()).menuSettingsVisibility(false);
+            ((ActivityBase)context).setBackButtonOnOff(true);
+            ((ActivityBase)context).getSupportActionBar().setTitle("Terms of Use");
+            ((ActivityBase)context).menuSettingsVisibility(false);
         }
         else if(curFrag == FRAGMENT_PRIVACY)
         {
-            ((ActivityBase) getActivity()).setBackButtonOnOff(true);
-            ((ActivityBase) getActivity()).getSupportActionBar().setTitle("Privacy Policy");
-            ((ActivityBase) getActivity()).menuSettingsVisibility(false);
+            ((ActivityBase)context).setBackButtonOnOff(true);
+            ((ActivityBase)context).getSupportActionBar().setTitle("Privacy Policy");
+            ((ActivityBase)context).menuSettingsVisibility(false);
         }
     }
 
-
     public void setFragment(int i) {
+        if (!isAdded()) return;
         curFrag = i;
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         if(i == FRAGMENT_HUNTS_LIST) {
             if(collectionFragment == null) {
-                collectionFragment = FragmentHuntsList.newInstance(mHuntManager);
+                collectionFragment = FragmentHuntsList.newInstance();
             }
             ft.replace(R.id.currentfragment, collectionFragment);
         }else if( i == FRAGMENT_SETTINGS){

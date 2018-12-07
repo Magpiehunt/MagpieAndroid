@@ -99,7 +99,7 @@ public class CheckableSpinnerSearchAdapter extends BaseAdapter {
                 public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                     preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
-                    boolean permission = preferences.getBoolean("location", false);
+                    boolean permission = preferences.getBoolean("fine", false);
                     if(permission) {
                         if (isChecked) {
                             for (FilterHolder h : holders) {
@@ -110,7 +110,6 @@ public class CheckableSpinnerSearchAdapter extends BaseAdapter {
                             selected_item = filter;
                             holders.get(0).title.setText(selected_item);
                             titleHolder.title.setText(selected_item);
-                            Log.e(TAG, "checked: " + filter + " holder is: " + titleHolder);
                             if (selected_item.equalsIgnoreCase("walking distance")) {
                                 listener.sortWalkingDistance();
                             } else if (selected_item.equalsIgnoreCase("number of badges")) {
@@ -124,8 +123,6 @@ public class CheckableSpinnerSearchAdapter extends BaseAdapter {
                     }
                     else {
                         if (isChecked) {
-
-                            Log.e(TAG, "checked: " + filter + " holder is: " + titleHolder);
                             if (selected_item.equalsIgnoreCase("walking distance")) {
                                 for (FilterHolder h : holders) {
                                     if (!holder.equals(h)) {

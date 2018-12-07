@@ -24,6 +24,7 @@ public abstract class OnInfoWindowElementTouchListener implements OnTouchListene
 
     @Override
     public boolean onTouch(View vv, MotionEvent event) {
+
         System.out.println("ON TOUCH EVENT VIEW: "+vv+" EVENT: "+event);
         if (0 <= event.getX() && event.getX() <= view.getWidth() &&
                 0 <= event.getY() && event.getY() <= view.getHeight())

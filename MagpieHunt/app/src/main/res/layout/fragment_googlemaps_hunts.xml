@@ -6,25 +6,68 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <com.davis.tyler.magpiehunt.MapWrapperLayout
+        android:id="@+id/mapwrapper"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/map"
+        android:id="@+id/map2"
         tools:context=".MapsActivity"
         android:name="com.google.android.gms.maps.SupportMapFragment" />
 
+    </com.davis.tyler.magpiehunt.MapWrapperLayout>
+
+    <ImageView
+        android:id="@+id/btn_zoom_in"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:layout_above="@+id/btn_zoom_out"
+        android:layout_marginRight="30dp"
+        android:layout_marginBottom="40dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_zoom_in"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="30dp" />
+    <ImageView
+        android:id="@+id/btn_zoom_out"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:layout_above="@+id/ic_gps"
+        android:layout_marginRight="30dp"
+        android:layout_marginBottom="40dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_zoom_out"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="30dp" />
     <ImageView
         android:id="@+id/ic_gps"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@+id/btn_toggle"
         android:layout_marginRight="30dp"
         android:layout_marginBottom="40dp"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_gps"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="30dp" />
+
+    <ImageView
+        android:id="@+id/btn_toggle"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="40dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginRight="30dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/cur_hunt" />
 
 </RelativeLayout>

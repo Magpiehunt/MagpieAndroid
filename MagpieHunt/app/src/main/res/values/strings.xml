@@ -21,6 +21,7 @@
     <string name="walkthrough1">With Magpie, you can find tours, events, walks, scavenger hunts and more around you, known on Magpie as "collections."</string>
     <string name="walkthrough2">Each collection will take you to a series of locations where you will learn fun facts, explore, and earn special badges. Find all the badges to complete your collections!</string>
     <string name="walkthrough3">Win awesome prizes for completing collections. We partner up with some of the best businesses we can find to provide real prizes and exclusive discoutns where you live!</string>
+    <string name="dialog_add_hunt">Add Hunt?</string>
 
     <string name="termsFragIntro">INTRODUCTION</string>
 

@@ -38,17 +38,29 @@
         </android.support.design.widget.TabLayout>
 
 
-        <com.davis.tyler.magpiehunt.Spinners.SpinnerOverallHuntsFilter
-            android:id="@+id/spinner"
+        <RelativeLayout
             android:layout_width="200dp"
-            android:dropDownWidth="400dp"
+            android:id="@+id/spinner"
             android:layout_marginRight="15dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
-            android:background="@drawable/standard_button_gray"/>
+            android:layout_alignParentRight="true">
+            <com.davis.tyler.magpiehunt.Spinners.SpinnerOverallHuntsFilter
+                android:id="@+id/spinnerhunts"
+                android:layout_width="match_parent"
+                android:dropDownWidth="400dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/standard_button_gray"/>
+            <com.davis.tyler.magpiehunt.Spinners.SpinnerHuntFilter
+                android:id="@+id/spinnerlandmarks"
+                android:layout_width="match_parent"
+                android:dropDownWidth="400dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/standard_button_gray" />
+        </RelativeLayout>
+
 
         <ImageView
             android:id="@+id/greenarrow"

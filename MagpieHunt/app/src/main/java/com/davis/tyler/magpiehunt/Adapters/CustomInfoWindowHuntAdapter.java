@@ -28,8 +28,6 @@ public class CustomInfoWindowHuntAdapter implements GoogleMap.InfoWindowAdapter,
     public CustomInfoWindowHuntAdapter(Context mContext, HuntManager huntManager) {
         mWindow = LayoutInflater.from(mContext).inflate(R.layout.custom_info_hunt_marker, null);
         mHuntManager = huntManager;
-
-
     }
 
 
@@ -77,6 +75,6 @@ public class CustomInfoWindowHuntAdapter implements GoogleMap.InfoWindowAdapter,
     }
     @Override
     public void onInfoWindowClick(Marker marker) {
-        Log.d(TAG, "WINDOW CLICKED FROM ADAPTER");
+
     }
 }

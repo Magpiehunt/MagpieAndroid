@@ -29,27 +29,19 @@ import org.w3c.dom.Text;
 import java.util.LinkedList;
 import java.util.List;
 
-//import static com.loopj.android.http.AsyncHttpClient.log;
 
-/**
- * Created by Blake Impecoven on 1/22/18.
- */
 public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.CollectionHolder> {
 
     private static final String TAG = "CollectionAdapter";
     private final Context context;
 
     private List<Hunt> collectionList;
-    private String fragmentTag;
     private SparseBooleanArray expandState;
-    private android.support.v4.app.Fragment fragment;
     private FragmentHuntsList.OnCollectionSelectedListener listener;
 
-    public CollectionAdapter(List<Hunt> collectionList, String fragmentTag, Context context, Fragment fragment, FragmentHuntsList.OnCollectionSelectedListener listener) {
+    public CollectionAdapter(List<Hunt> collectionList, Context context,FragmentHuntsList.OnCollectionSelectedListener listener) {
         this.collectionList = collectionList;
-        this.fragmentTag = fragmentTag;
         this.context = context;
-        this.fragment = fragment;
         this.expandState = new SparseBooleanArray();
         this.listener = listener;
         for (int x = 0; x < collectionList.size(); x++) {
@@ -73,8 +65,6 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(final CollectionHolder holder, final int position) {
-        Log.d(TAG, "Element " + position + " set.");
-
         // Get element from your dataset at this position and replace the contents of the view
         // with that element
         holder.setIsRecyclable(false);
@@ -127,20 +117,11 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
         listener.onCollectionDeleted();
     }
 
-    public void restoreItem(Hunt item, int position) {
-        collectionList.add(position, item);
-        // notify item added by position
-        notifyItemInserted(position);
-        notifyItemRangeChanged(position, collectionList.size());
-    }
     public class CollectionHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private static final String TAG = "CollectionHolder";
         // fields for CardView (Expanded)
         ExpandableLinearLayout expandableLinearLayout;
-        private int position;
-        // We may need to add more fields here for expanding of the cards.
-        // fields for CardView (Condensed)
         private TextView collectionTitle;
         private TextView collectionAbbreviation;
         private ImageView imgThumb, expandArrow;
@@ -173,7 +154,7 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
             time = itemView.findViewById(R.id.collectionTime);
             distance = itemView.findViewById(R.id.collectionDistance);
 
-        }//end DVC
+        }
 
         void setCondensedData(int position) {
             currentObject = collectionList.get(position);
@@ -192,8 +173,6 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
         public void setListeners() {
             expandArrow.setOnClickListener(CollectionHolder.this);
             viewForeground.setOnClickListener(CollectionHolder.this);
-            //TODO: change this listener to respond to a click of the whole card?
-            //imgThumb.setOnClickListener(CollectionHolder.this);
         }//end setListeners
 
         void setExpandedData(int position) {
@@ -204,7 +183,6 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
             this.numBadges.setText(""+currentObject.getNumBadges());
             this.rewardName.setText(currentObject.getAward().getName());
             this.rewardWorth.setText(currentObject.getAward().getWorth()+"$");
-//            this.rating.setText(currentObject.getRating());
         }//end setExpandedData
 
         @Override
@@ -220,42 +198,10 @@ public class CollectionAdapter extends RecyclerView.Adapter<CollectionAdapter.Co
 
                     break;
 
-                case R.id.img_thumb_collection:
-                    //TODO: implement opening the collection (view landmarks)
-
-                    break;
-
-                //TODO: implement deletion below.
-                //if deletion is to be added
-//                case delete item:
-//                    removeItem(position);
-//                    break;
-
                 default:
                     break;
             }//end switch
         }//end onClick
-
-        private void startCollectionLandmarks() {
-           // AppCompatActivity activity = (AppCompatActivity )context;
-            //activity.changeFragments()
-
-        }
-
-        // will be used at some point.
-        //TODO: decide on gesture or button removal.
-        public void removeItem(int position) {
-            collectionList.remove(position);
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, collectionList.size());
-        }//end removeItem
-
-        public void addItem(int position, Hunt currentObject) {
-            collectionList.add(position, currentObject);
-            notifyItemInserted(position);
-            notifyItemRangeChanged(position, collectionList.size());
-        }//end addItem
-
     }//end inner class: CollectionHolder
 
 

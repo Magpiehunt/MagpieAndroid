@@ -51,35 +51,17 @@ public class FragmentLandmarkList extends Fragment {
     protected RecyclerView.LayoutManager mLayoutManager;
     private OnLandmarkSelectedListener mListener;
     private HuntManager mHuntManager;
-    //private List<Hunt> spinner_items;
-    //private Set<Hunt> selected_items;
     private List<Badge> landmarks;
-    private TextView txt_select_hunts;
-    //private CheckableSpinnerAdapter checkableSpinnerAdapter;
     private RelativeLayout badgeCompleted;
     private ImageView superBadge;
     private DialogAddHunt dialogAddHunt;
 
 
-
-    // TODO: Rename and change types and number of parameters
-    public static FragmentLandmarkList newInstance(HuntManager huntManager) {
+    public static FragmentLandmarkList newInstance() {
         FragmentLandmarkList f = new FragmentLandmarkList();
-        Bundle args = new Bundle();
-        //args.putSerializable("huntmanager", huntManager);
-        f.setArguments(args);
         return f;
     }
 
-    @Override
-    public void setArguments(@Nullable Bundle args) {
-        super.setArguments(args);
-        Log.e(TAG, "setArguments, args: "+args);
-        //mHuntManager = ((ActivityBase)getActivity()).getData();
-        Log.e(TAG, "setArguments, huntman: "+mHuntManager);
-
-
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -90,10 +72,6 @@ public class FragmentLandmarkList extends Fragment {
         mHuntManager = ((ActivityBase)getActivity()).getData();
         View rootView = inflater.inflate(R.layout.fragment_landmark_list, container, false);
 
-        if(savedInstanceState != null){
-            Log.e(TAG, "bundle not null");
-        }
-
         badgeCompleted = rootView.findViewById(R.id.badge_completed);
         badgeCompleted.setVisibility(View.GONE);
         setPagerSwipe(true);
@@ -101,13 +79,11 @@ public class FragmentLandmarkList extends Fragment {
 
         badgeCompleted.setOnTouchListener(new OnSwipeTouchListener(getActivity()){
             public void onSwipeLeft() {
-                System.out.println("swiping to prize");
                 setPagerSwipe(true);
                 ((ActivityBase)getActivity()).swipedToPrize();
             }
 
             public void onSwipeRight() {
-                System.out.println("swiping to prize");
                 setPagerSwipe(true);
                 ((ActivityBase)getActivity()).swipedToPrize();
             }
@@ -151,7 +127,6 @@ public class FragmentLandmarkList extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        //TODO implement this before release, just for testing
         if (context instanceof OnLandmarkSelectedListener) {
             mListener = (OnLandmarkSelectedListener) context;
         } else {
@@ -194,6 +169,7 @@ public class FragmentLandmarkList extends Fragment {
         //if there is a single focused hunt, alert the user their super badge is complete
         if(mHuntManager.getFocusAward() != null){
             Award a = mHuntManager.getFocusAward();
+
             if(a.getIsNew()) {
                 Picasso.get().load("http://206.189.204.95/superbadge/image/"+a.getSuperBadgeIcon())
                         .fit()
@@ -215,7 +191,6 @@ public class FragmentLandmarkList extends Fragment {
     public void setHuntCompleteNotificationList(Hunt h)
     {
         if(h.getIsCompleted() && h.getAward().getIsNew()) {
-            System.out.println("award: "+h.getAward()+" award is new: "+h.getAward().getIsNew());
             Picasso.get().load("http://206.189.204.95/superbadge/image/"+h.getAward().getSuperBadgeIcon())
                     .fit()
                     .centerCrop()
@@ -240,11 +215,4 @@ public class FragmentLandmarkList extends Fragment {
         void onLandmarkSelected(Badge b);
     }
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        Log.e(TAG, "onsave");
-
-        super.onSaveInstanceState(outState);
-        //outState.putSerializable("huntmanager", mHuntManager);
-    }
 }

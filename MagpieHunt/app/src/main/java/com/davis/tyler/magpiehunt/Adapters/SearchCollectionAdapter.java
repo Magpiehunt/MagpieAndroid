@@ -19,7 +19,6 @@ import android.widget.Toast;
 import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.CMS.DownloadImage;
 import com.davis.tyler.magpiehunt.FileSystemManager;
-import com.davis.tyler.magpiehunt.Fragments.FragmentSearch;
 import com.davis.tyler.magpiehunt.Fragments.FragmentSearchHunts;
 import com.davis.tyler.magpiehunt.Hunts.Award;
 import com.davis.tyler.magpiehunt.Hunts.Badge;
@@ -70,8 +69,6 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(final CollectionHolder holder, final int position) {
-        Log.d(TAG, "Element " + position + " set.");
-
         // Get element from your dataset at this position and replace the contents of the view
         // with that element
         holder.setIsRecyclable(false);
@@ -160,7 +157,6 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
 
         void setCondensedData(int position) {
             currentObject = collectionList.get(position);
-            System.out.println("querying for superbadge of: "+currentObject.getName());
             Picasso.get().load("http://206.189.204.95/superbadge/image/"+currentObject.getAward().getSuperBadgeIcon()).fit().centerCrop().into(imgThumb);
 
             this.collectionTitle.setText(currentObject.getName());
@@ -218,7 +214,6 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
 
                 case R.id.button_addCollection_search:
                     Hunt h = huntManager.getHuntByID(currentObject.getID());
-                    System.out.println("download: Hunt is not downloaded"+h.getName());
                     if(h == null){
                         h = currentObject;
                         h.setmIsDeleted(false);
@@ -235,82 +230,11 @@ public class SearchCollectionAdapter extends RecyclerView.Adapter<SearchCollecti
                         addCollectionBtn.setText("DOWNLOADED");
                         notifyDataSetChanged();
                     }
-                    /*if(h == null ){
-                        System.out.println("download: Hunt is not downloaded");
-                        currentObject.setmIsDownloaded(true);
-                        listener.onAddHuntListener(currentObject);
-                        addCollectionBtn.setText("DOWNLOADED");
-                        notifyDataSetChanged();
 
-                    }
-                    else if(h.getIsDeleted()){
-                        System.out.println("download: Hunt is deleted");
-                        h.setmIsDeleted(false);
-                        h.setmIsDownloaded(true);
-                        listener.onAddHuntListener(currentObject);
-                        addCollectionBtn.setText("DOWNLOADED");
-                        notifyDataSetChanged();
-                    }
-                    else if(!h.getIsDeleted() && h.getIsDownloaded()){
-                        System.out.println("download: Hunt is not deleted and is downloaded");
-                        h.setmIsDeleted(false);
-
-                    }
-                    else{
-                        currentObject.setmIsDownloaded(true);
-                        listener.onAddHuntListener(currentObject);
-                        addCollectionBtn.setText("DOWNLOADED");
-                        notifyDataSetChanged();
-                    }*/
-                    //     break;
                 default:
                     break;
             }//end switch
         }//end onClick
-
-        private void addHuntsToFileSystem(){
-            FileSystemManager fm = new FileSystemManager();
-                        try {
-                            fm.addHuntList(listener.getContext(), huntManager.getAllDownloadedHunts());
-                        }catch(Exception e){
-                            e.printStackTrace();
-                            Toast.makeText(listener.getContext(), "Download failed.", Toast.LENGTH_LONG).show();
-                        }
-                        //listener.onAddHuntListener();
-        }
-
-        private void saveImagesToFileSystem(Hunt h){
-            LinkedList<Badge> badges = h.getAllBadges();
-
-            //FileSystemManager fm = new FileSystemManager();
-            for(Badge b: badges){
-                String src = "http://206.189.204.95/badge/icon/"+b.getIcon();
-                try {
-                    URL url = new URL(src);
-                    new DownloadImage(context, b.getBadgeImageFileName()).execute(url );
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-                src = "http://206.189.204.95/landmark/image/"+b.getLandmarkImage();
-                try {
-                    URL url = new URL(src);
-                    new DownloadImage(context, b.getLandmarkImageFileName()).execute(url );
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-
-            }
-            Award award = h.getAward();
-            String src = "http://206.189.204.95/superbadge/image/"+award.getSuperBadgeIcon();
-            try {
-                URL url = new URL(src);
-                new DownloadImage(context, award.getSuperBadgeImageFileName()).execute(url );
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-
-
 
     }//end inner class: CollectionHolder
 

@@ -62,7 +62,7 @@ public class FragmentHuntListTab extends Fragment implements View.OnClickListene
 
         setRecyclerViewLayoutManager();
 
-        mModelAdapter = new CollectionAdapter(mDataset, FragmentHuntListTab.TAG, this.getActivity(), FragmentHuntListTab.this, this.mListener);
+        mModelAdapter = new CollectionAdapter(mDataset, this.getActivity(), this.mListener);
         // Set the adapter for RecyclerView.
         mRecyclerView.setAdapter(mModelAdapter);
 
@@ -74,41 +74,12 @@ public class FragmentHuntListTab extends Fragment implements View.OnClickListene
         return rootView;
 
     }
-    public static FragmentHuntListTab newInstance(HuntManager huntManager) {
+    public static FragmentHuntListTab newInstance() {
         FragmentHuntListTab f = new FragmentHuntListTab();
         Bundle args = new Bundle();
-        //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
         return f;
     }
-
-    @Override
-    public void setArguments(@Nullable Bundle args) {
-        super.setArguments(args);
-        Log.e(TAG, "setArguments, args: "+args);
-        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
-        Log.e(TAG, "setArguments, huntman: "+mHuntManager);
-
-
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        if (savedInstanceState != null) {
-            //TODO: restore state of fragment
-        }//end if
-    }//end
-
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        Log.e(TAG, "onsave");
-
-        super.onSaveInstanceState(savedInstanceState);
-
-        //TODO: saved state of fragment here
-    }//end
 
     public void setRecyclerViewLayoutManager() {
         int scrollPosition = 0;
@@ -148,8 +119,6 @@ public class FragmentHuntListTab extends Fragment implements View.OnClickListene
         }//end switch
     }//end onClick
 
-
-    // TODO: Replace the test data within this with data from room DB
     private void initializeData() {
         mDataset = mHuntManager.getAllDownloadedUndeletedHunts();
 
@@ -159,33 +128,16 @@ public class FragmentHuntListTab extends Fragment implements View.OnClickListene
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position) {
         if (viewHolder instanceof CollectionAdapter.CollectionHolder) {
-
             final Hunt deletedItem = mDataset.get(viewHolder.getAdapterPosition());
-            final int deletedIndex = viewHolder.getAdapterPosition();
-
-            /*deletedItem.setmIsDeleted(true);
-            // remove the item from recycler view
-            mHuntManager.deleteHuntByID(deletedItem.getID());
-            mModelAdapter.removeItem(viewHolder.getAdapterPosition());*/
-
             dialogDeleteHunt.setHunt(deletedItem,this, viewHolder);
             dialogDeleteHunt.show();
         }
-    }
-
-    public void updateHuntsList(){
-        mDataset = mHuntManager.getAllDownloadedUndeletedHunts();
-        mModelAdapter.updateList(mDataset);
-
-        mModelAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onDelete(Hunt deletedItem, RecyclerView.ViewHolder viewHolder) {
 
         deletedItem.setmIsDeleted(true);
-        // remove the item from recycler view
-        //mHuntManager.deleteHuntByID(deletedItem.getID());
         mModelAdapter.removeItem(viewHolder.getAdapterPosition());
         mModelAdapter.notifyDataSetChanged();
     }
@@ -194,21 +146,5 @@ public class FragmentHuntListTab extends Fragment implements View.OnClickListene
     public void onRestore() {
         mModelAdapter.notifyDataSetChanged();
     }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    //TODO implement this before release, just for testing
-    public interface OnCollectionSelectedListener {
-        void onCollectionSelected(int cid, String name);
-    }
-
 
 }

@@ -45,8 +45,10 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Adapters.CheckableSpinnerAdapter;
+import com.davis.tyler.magpiehunt.Adapters.CustomInfoWindowAdapter;
 import com.davis.tyler.magpiehunt.Adapters.CustomInfoWindowHuntAdapter;
 import com.davis.tyler.magpiehunt.CMS.JSONParser;
+import com.davis.tyler.magpiehunt.Dialogs.DialogHuntCompleted;
 import com.davis.tyler.magpiehunt.HuntMarkerInfo;
 import com.davis.tyler.magpiehunt.ImageManager;
 import com.davis.tyler.magpiehunt.Location.CameraManager;
@@ -61,6 +63,7 @@ import com.davis.tyler.magpiehunt.Spinners.SpinnerHuntFilter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -70,6 +73,7 @@ import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -83,37 +87,25 @@ import org.json.JSONArray;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
 public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallback,
-        GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
     private static final String TAG = "Fragment_Maps_tab";
     private static final String FINE_LOCATION = android.Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static final float DEFAULT_ZOOM = 15;
 
-
-
-
-
-    private ViewGroup infoWindow;
-    private Button btn_LetsWingit;
-    private ImageView wingitLandmarkImg;
-    private RelativeLayout wingitContainer;
-    private TextView wingitTitle;
-    private TextView wingitMiles;
-    private TextView wingitHrs;
-    private OnInfoWindowElementTouchListener infoButtonListener;
-    private MapWrapperLayout mapWrapperLayout;
-
     private HashMap<Integer, Marker> downloadedHuntMarkers; //key: huntID
-    private HashMap<Integer, Marker> nearbyHuntMarkers;     //key: huntID
     private LinkedList<Hunt> nearbyHunts;
     private double userLong, userLat;
     private String cityName;
@@ -129,103 +121,106 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
     private LatLng mLocationToFocus;
     private ViewGroup view_marker;
     private ImageView img_markerbadge;
+    private ImageView img_markerbackground;
+    private Drawable draw_markergrey;
+    private Drawable draw_markercolor;
+    private HashMap<Integer, Bitmap> superBadgeImagesLandmarks;
 
-    private Hashtable<Integer, HuntMarkerInfo> table;
+    private ImageView btn_toggle;
 
-
-    private RelativeLayout slidableview;
-    private Button btn_slideIn, btn_slideOut;
 
     private CameraManager mCameraManager;
     private HashMap<Integer, Marker> markers; //key: badgeid
-    private boolean slidableViewUp;
-    private DialogMoveCloser customDialog;
-    private Set<Hunt> selected_items;
-    private SpinnerHuntFilter spinner;
-    private CheckableSpinnerAdapter checkableSpinnerAdapter;
-
-    private int width, height;
-    private Bitmap defaultMarker;
-    private Bitmap greyMarker;
+    private DialogHuntCompleted dialogHuntCompleted;
     private SharedPreferences preferences;
     private  LatLngBounds.Builder builder;
-    private CustomInfoWindowHuntAdapter customInfoWindowAdapter;
+    private CustomInfoWindowHuntAdapter customInfoWindowHuntAdapter;
+    private CustomInfoWindowAdapter customInfoWindowAdapter;
     private GoogleMap.InfoWindowAdapter currentInfoWindowAdapter, custominfo;
+
+    private CustomTargetFailedLandmark customTargetFailedLandmark;
+    private CustomTargetLandmark customTargetLandmark;
+    private boolean moveCameraOnHunt;
+
+    private ViewGroup infoWindow;
+    private Button btn_LetsWingit;
+    private ImageView wingitLandmarkImg;
+    private RelativeLayout wingitContainer;
+    private TextView wingitTitle;
+    private TextView wingitMiles;
+    private TextView wingitHrs;
+    private CustomTargetWingit wingitTarget;
+    private OnInfoWindowElementTouchListener infoButtonListener;
+    private MapWrapperLayout mapWrapperLayout;
+
+    private ImageView btn_zoom_in;
+    private ImageView btn_zoom_out;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_google_maps, container, false);
-        mapWrapperLayout = view.findViewById(R.id.mapwrapper);
-        mHuntManager = ((ActivityBase)getActivity()).getData();
-        customDialog =new DialogMoveCloser(getActivity());
+        View view = inflater.inflate(R.layout.fragment_googlemaps_hunts, container, false);
 
+        mHuntManager = ((ActivityBase)getActivity()).getData();
+        mapWrapperLayout = view.findViewById(R.id.mapwrapper);
+        btn_zoom_in = view.findViewById(R.id.btn_zoom_in);
+        btn_zoom_out = view.findViewById(R.id.btn_zoom_out);
+
+        btn_zoom_in.setOnClickListener(this);
+        btn_zoom_out.setOnClickListener(this);
         initLetsWingIt();
         initMarkerView();
+
         initSuperBadgeImages();
-        customInfoWindowAdapter = new CustomInfoWindowHuntAdapter(getContext(), mHuntManager);
+        initSuperBadgeImagesLandmark();
+        customInfoWindowHuntAdapter = new CustomInfoWindowHuntAdapter(getContext(), mHuntManager);
+        customInfoWindowAdapter = new CustomInfoWindowAdapter(getContext(), mHuntManager);
+
         currentInfoWindowAdapter = custominfo;
+        dialogHuntCompleted = new DialogHuntCompleted(getActivity());
+        btn_toggle = view.findViewById(R.id.btn_toggle);
+        btn_toggle.setOnClickListener(this);
 
-
-
-
-        //Get reference to FilterSpinner and Center_Camera button
-        //spinner = (SpinnerHuntFilter) view.findViewById(R.id.spinner);
         btn_center_camera = (ImageView)view.findViewById(R.id.ic_gps);
 
+        btn_center_camera.setOnClickListener(this);
 
-
-
-
-        slidableViewUp = false;
-        /*
-        slidableview = view.findViewById(R.id.slidable_view);
-        btn_slideIn = view.findViewById(R.id.btn_slide_in);
-        btn_slideOut = view.findViewById(R.id.btn_slide_down);
-        slidableview.setVisibility(View.INVISIBLE);
-
-        initSlideView();
-        */
-        //setupFilter();
-        btn_center_camera.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view){
-                Log.d(TAG, "onClick: clicked gps icon");
-                if(!isSlidableViewUp()) {
-                    mAnimateCamera = true;
-                    centerOnPosition();
-                }
-            }
-        });
-
-        setupMarkerGraphics();
         preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
 
         if(hasLocPermission()){
             getLocationPermission();
         }
-        //getLocationPermission();
         initMap();
         return view;
     }
 
     public void initSuperBadgeImages(){
         superBadgeImages = new HashMap<>();
-        /*LinkedList<Hunt> hll = mHuntManager.getAllDownloadedHunts();
-        for(Hunt h: hll){
-            System.out.println("Hunt added to map: "+h);
-            ImageManager im = new ImageManager();
-            customTarget = new CustomTarget(h);
-            im.fillSuperBadgeImageIntoMarker(getContext(), h, customTarget);
-        }*/
     }
-
+    public void initSuperBadgeImagesLandmark(){
+        superBadgeImagesLandmarks = new HashMap<>();
+        LinkedList<Hunt> hll = mHuntManager.getAllDownloadedHunts();
+        for(Hunt h: hll){
+            ImageManager im = new ImageManager();
+            customTargetLandmark = new CustomTargetLandmark(h);
+            im.fillSuperBadgeImageIntoMarker(getContext(), h, customTargetLandmark);
+        }
+    }
     public void initMarkerView(){
         view_marker = (ViewGroup)getLayoutInflater().inflate(R.layout.markerimg, null);
         img_markerbadge = view_marker.findViewById(R.id.img_badge);
+        img_markerbackground = view_marker.findViewById(R.id.img_markerbackground);
+        draw_markercolor = getResources().getDrawable(R.drawable.badgepin2);
+        draw_markergrey = getResources().getDrawable(R.drawable.defaultmarkergrey);
     }
-
     public void initLetsWingIt(){
+        infoWindow = (ViewGroup)getLayoutInflater().inflate(R.layout.custom_info_start_hunt, null);
+        wingitLandmarkImg = infoWindow.findViewById(R.id.landmarkImage);
+        wingitContainer = infoWindow.findViewById(R.id.custom_info_container);
+        wingitMiles = infoWindow.findViewById(R.id.landmarkMiles);
+        wingitHrs = infoWindow.findViewById(R.id.landmarkTime);
+        wingitTitle = infoWindow.findViewById(R.id.badgeName);
+        btn_LetsWingit = infoWindow.findViewById(R.id.btn_wingit);
         custominfo = new GoogleMap.InfoWindowAdapter() {
             @Override
             public View getInfoWindow(Marker marker) {
@@ -233,17 +228,21 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
             }
 
             @Override
-            public View getInfoContents(Marker marker) {
+            public View getInfoContents(final Marker marker) {
                 // Setting up the infoWindow with current's markertext info
                 int title = Integer.parseInt(marker.getTitle());
                 final Badge badge = mHuntManager.getBadgeByID(title);
 
                 wingitTitle.setText(badge.getName());
-                ImageManager im = new ImageManager();
-                im.fillLandmarkImage(getContext(),badge, wingitLandmarkImg, marker);
+                String url = "http://206.189.204.95/landmark/image/"+badge.getLandmarkImage();
+
+                wingitTarget = new CustomTargetWingit(marker);
+
+                wingitLandmarkImg.setImageDrawable(null);
+                Picasso.get().load(url).placeholder(getContext().getResources().getDrawable(R.drawable.background_color_white)).into(wingitTarget);
 
 
-                wingitMiles.setText(""+badge.getDistance());
+                wingitMiles.setText(""+mHuntManager.round(badge.getDistance(), 2));
                 wingitHrs.setText(""+badge.getHours());
                 infoButtonListener.setMarker(marker);
 
@@ -254,17 +253,6 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
             }
         };
 
-
-
-
-        infoWindow = (ViewGroup)getLayoutInflater().inflate(R.layout.custom_info_start_hunt, null);
-        wingitLandmarkImg = infoWindow.findViewById(R.id.landmarkImage);
-        wingitContainer = infoWindow.findViewById(R.id.custom_info_container);
-        wingitMiles = infoWindow.findViewById(R.id.landmarkMiles);
-        wingitHrs = infoWindow.findViewById(R.id.landmarkTime);
-        wingitTitle = infoWindow.findViewById(R.id.badgeName);
-        btn_LetsWingit = infoWindow.findViewById(R.id.btn_wingit);
-
         this.infoButtonListener = new OnInfoWindowElementTouchListener(btn_LetsWingit)
         {
             @Override
@@ -272,116 +260,15 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
                 // Here we can perform some action triggered after clicking the button
                 //Toast.makeText(getActivity(), markertext.getTitle() + "'s button clicked!", Toast.LENGTH_SHORT).show();
 
+                //TODO put the round method in hunt manager, and make the parameter of getdistance include precision
                 Badge b = mHuntManager.getBadgeByID(Integer.parseInt(marker.getTitle()));
                 Hunt h = mHuntManager.getHuntByID(b.getHuntID());
                 ((ActivityBase)getActivity()).onAddHuntEvent(h);
             }
         };
         btn_LetsWingit.setOnTouchListener(infoButtonListener);
-
     }
 
-    public void initSlideView(){
-        btn_slideIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                slidableview.setVisibility(View.VISIBLE);
-                if(isSlidableViewUp()){
-                    return;
-                }
-                AnimationSet set = new AnimationSet(true);
-
-                Animation anim = new AlphaAnimation(0.0f, 1.0f);
-                anim.setDuration(200);
-                TranslateAnimation animation = new TranslateAnimation(0, 0, slidableview.getHeight(),0);
-                animation.setDuration(200);
-                animation.setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-                        slidableViewUp = true;
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
-                });
-
-                set.addAnimation(anim);
-                set.addAnimation(animation);
-                slidableview.startAnimation(set);
-            }
-        });
-        btn_slideOut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!isSlidableViewUp()){
-                    return;
-                }
-                AnimationSet set = new AnimationSet(true);
-
-                Animation anim = new AlphaAnimation(1.0f, 0.0f);
-                anim.setDuration(200);
-                TranslateAnimation animation = new TranslateAnimation(0, 0, 0,slidableview.getHeight());
-                animation.setDuration(200);
-
-                set.addAnimation(anim);
-                set.addAnimation(animation);
-                animation.setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-                        slidableViewUp = false;
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        slidableview.setVisibility(View.INVISIBLE);
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
-                });
-                slidableview.startAnimation(set);
-            }
-        });
-
-        //Set onclick listener to center camera when button is clicked
-
-    }
-    public boolean isSlidableViewUp(){return slidableViewUp;}
-
-    public void setupMarkerGraphics(){
-        //Obtain screen size
-        Display display = getActivity().getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-
-        //Make markertext width 1/15th of screen width so markers are a good size no matter the screen size
-        width = size.x / 15;
-        height = (int)(width * 1.4);
-
-        //Get bitmap Drawable for default blue-green gradient markertext
-        BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.badgepin2);
-
-        Bitmap bitmap=bitmapdraw.getBitmap();
-        //Scale the bitmap so we dont waste space.
-        defaultMarker = Bitmap.createScaledBitmap(bitmap, width, height, false);
-        //free up space for new bitmaps
-        //bitmap.recycle();
-
-        //Now do the same for the grey markertext.
-        bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.ic_grey_marker);
-        bitmap=bitmapdraw.getBitmap();
-        height =(int)( width * 1.6);
-        greyMarker = Bitmap.createScaledBitmap(bitmap, width, height, false);
-        //bitmap.recycle();
-    }
     public boolean hasLocPermission(){
         //preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 
@@ -412,31 +299,8 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
 
 
     }
-    public void setupFilter(){
 
-        selected_items = mHuntManager.getSelectedHunts();
-        String headerText = "Filter";
-
-        //Set the max height of the dropdown spinner:
-        try {
-            Field popup = Spinner.class.getDeclaredField("mPopup");
-            popup.setAccessible(true);
-
-            // Get private mPopup member variable and try cast to ListPopupWindow
-            android.widget.ListPopupWindow popupWindow = (android.widget.ListPopupWindow) popup.get(spinner);
-
-            // Set popupWindow height to 500px
-            popupWindow.setHeight(600);
-        }
-        catch (NoClassDefFoundError | ClassCastException | NoSuchFieldException | IllegalAccessException e) {
-
-        }
-
-        checkableSpinnerAdapter = new CheckableSpinnerAdapter(getContext(), headerText, mHuntManager, selected_items);
-        spinner.setAdapter(checkableSpinnerAdapter);
-        spinner.setSpinnerEventsListener((ActivityBase)getActivity());
-    }
-    public static FragmentGoogleMapsHunts newInstance(HuntManager huntManager, CameraManager cameraManager) {
+    public static FragmentGoogleMapsHunts newInstance(CameraManager cameraManager) {
         /*
         This is the constructor ( public 'classname'() constructors dont work, so this is a way to get references
         into the fragment at start-up
@@ -444,7 +308,6 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
 
         FragmentGoogleMapsHunts f = new FragmentGoogleMapsHunts();
         Bundle args = new Bundle();
-        //args.putSerializable("huntmanager", huntManager);
         args.putSerializable("cameramanager", cameraManager);
         f.setArguments(args);
         return f;
@@ -456,40 +319,9 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
         mCameraManager = (CameraManager)args.getSerializable("cameramanager");
     }
 
-
-    public void setCameraOnLandmark(Badge badge){
-        Log.e(TAG,"SETTING LANDMARK TO FOCUS ON");
-        /*
-        When this method is called, it get to this line before map is ready, so we need
-        to set a boolean flag to show the info window as soon as map is ready to be displayed
-         */
-        mShowInfoWindow = true;
-
-        //Set location to focus on before calling repositionCamera()
-        mLocationToFocus = badge.getLatLng();
-        mCameraManager.setLat(mLocationToFocus.latitude);
-        mCameraManager.setLon(mLocationToFocus.longitude);
-        /*
-        Find the markertext in the hashmap being focused on
-         */
-        if(markers != null) {
-            Marker m = markers.get(mHuntManager.getFocusBadge().getID());
-            if(m != null)
-                m.showInfoWindow();
-        }
-        System.out.println("Reposition camera from setcameraonlandmark()");
-        repositionCamera();
-    }
     public void initMap(){
-        System.out.println("init map");
-        SupportMapFragment mMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        SupportMapFragment mMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map2);
         mMapFragment.getMapAsync(this);
-    }
-
-    @Override
-    public void onResume() {
-        System.out.println(TAG+" onResume");
-        super.onResume();
     }
 
     private void getLocationPermission(){
@@ -501,7 +333,6 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
             if(ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
                 preferences.edit().putBoolean("fine", true).apply();
                 preferences.edit().putBoolean("coarse", true).apply();
-                Log.e(TAG, "init map from getLocationPermission()");
                 //initMap();
             }
             else{
@@ -527,7 +358,6 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
                      */
                     for (int i = 0; i < grantResults.length; i++) {
                         if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                            System.out.println("distance permission denied from map");
                             preferences.edit().putBoolean("fine", false).apply();
                             preferences.edit().putBoolean("coarse", false).apply();
                             return;
@@ -540,6 +370,31 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
         }
     }
 
+    public void setCameraOnLandmark(Badge badge){
+        Log.e(TAG,"SETTING LANDMARK TO FOCUS ON");
+        /*
+        When this method is called, it get to this line before map is ready, so we need
+        to set a boolean flag to show the info window as soon as map is ready to be displayed
+         */
+        mShowInfoWindow = true;
+
+        //Set location to focus on before calling repositionCamera()
+        mLocationToFocus = badge.getLatLng();
+        mCameraManager.setLat(mLocationToFocus.latitude);
+        mCameraManager.setLon(mLocationToFocus.longitude);
+        /*
+        Find the markertext in the hashmap being focused on
+         */
+        if(markers != null) {
+            Marker m = markers.get(mHuntManager.getFocusBadge().getID());
+            if(m != null)
+                m.showInfoWindow();
+        }
+        repositionCamera();
+    }
+    public void setMoveCameraOnHunt(){
+        moveCameraOnHunt = true;
+    }
     //This loads the map after getMapAsync() is called on SupportMapFragment
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -547,11 +402,10 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
 
         //save reference to the map object
         mMap = googleMap;
-
         int offset=
                 getContext().getResources().getDimensionPixelSize(R.dimen.custom_info_bottom_offset);
         mapWrapperLayout.init(googleMap, offset );
-        System.out.println("Map is: "+mMap);
+
         // turns off default googlemaps toolbar
         mMap.getUiSettings().setMapToolbarEnabled(false);
 
@@ -574,6 +428,7 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
         }
         mMap.getUiSettings().setMyLocationButtonEnabled(false);// turn off default user location button
 
+
         //setup the center on user location button and place markers
 
         updateFocusHunts();
@@ -582,8 +437,14 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
         setCustomInfoWindow();
         if (mShowInfoWindow) {
             mShowInfoWindow = false;
-            Marker m = markers.get(mHuntManager.getFocusBadge().getID());
-            m.showInfoWindow();
+            Badge b = mHuntManager.getFocusBadge();
+            Marker m = markers.get(b.getID());
+            if(m == null){
+                populateMapWithHunt(b.getHuntID(), b);
+            }
+            else {
+                m.showInfoWindow();
+            }
         }
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -593,7 +454,13 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
                 LatLng markerPosition = marker.getPosition();
                 Point markerPoint = projection.toScreenLocation(markerPosition);
                 Point targetPoint;
-                targetPoint = new Point(markerPoint.x, markerPoint.y - customInfoWindowAdapter.getViewHeight() / 2);
+                if(!(currentInfoWindowAdapter instanceof CustomInfoWindowAdapter)
+                        && !(currentInfoWindowAdapter instanceof CustomInfoWindowHuntAdapter)) {
+                    targetPoint = new Point(markerPoint.x, markerPoint.y - wingitContainer.getHeight() / 2);
+                    System.out.println("setting background white");
+                    //wingitLandmarkImg.setImageDrawable(null);
+                }else
+                    targetPoint = new Point(markerPoint.x, markerPoint.y - customInfoWindowAdapter.getViewHeight() / 2);
 
                 LatLng targetPosition = projection.fromScreenLocation(targetPoint);
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(targetPosition), 300, null);
@@ -601,28 +468,70 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
                 return true;
             }
         });
-
     }
 
+    public void populateMapWithHunt(int huntid, Badge b){
+        setModeHuntElseLandmark(false);
+        mHuntManager.setFocusHunt(huntid);
+        updateFocusHunts();
+        markers.get(b.getID()).showInfoWindow();
+    }
     public void setCustomInfoWindow(){
-        currentInfoWindowAdapter = customInfoWindowAdapter;
-        mMap.setInfoWindowAdapter(customInfoWindowAdapter);
-        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            @Override
-            public void onInfoWindowClick(Marker marker) {
+        if(mHuntManager != null) {
+            if(getModeHuntElseLandmark()){
+                currentInfoWindowAdapter = customInfoWindowHuntAdapter;
+                mMap.setInfoWindowAdapter(customInfoWindowHuntAdapter);
+                mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                    @Override
+                    public void onInfoWindowClick(Marker marker) {
 
-                saveCameraPosition();
-                System.out.println("ACCESS PARENT FRAGMENT FROM googlemaps");
-                mHuntManager.setFocusHunt(Integer.parseInt(marker.getTitle()));
-                //((FragmentBirdsEyeViewContainer) getParentFragment()).setParentFragment(FragmentList.FRAGMENT_LANDMARK_INFO);
-                ((ActivityBase)getActivity()).collectionClickedMapView();
+                        saveCameraPosition();
+                        mHuntManager.setFocusHunt(Integer.parseInt(marker.getTitle()));
+                        //((FragmentBirdsEyeViewContainer) getParentFragment()).setParentFragment(FragmentList.FRAGMENT_LANDMARK_INFO);
+                        ((ActivityBase)getActivity()).collectionClickedMapView();
+                    }
+                });
             }
-        });
+            else {
+                if (mHuntManager.getSelectedHuntsSize() == 1) {
+                    Hunt h = mHuntManager.getSingleSelectedHunt();
+                    if (!h.getIsDownloaded() || h.getIsDeleted()) {
+                        currentInfoWindowAdapter = custominfo;
+                        mMap.setInfoWindowAdapter(custominfo);
+                        mMap.setOnInfoWindowClickListener(null);
+                    } else {
+                        currentInfoWindowAdapter = customInfoWindowAdapter;
+                        mMap.setInfoWindowAdapter(customInfoWindowAdapter);
+                        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                            @Override
+                            public void onInfoWindowClick(Marker marker) {
 
+                                saveCameraPosition();
+                                mHuntManager.setFocusBadge(Integer.parseInt(marker.getTitle()));
+                                //System.out.println("ACCESS PARENT FRAGMENT FROM googlemaps");
+                                ((FragmentOverallHuntTabs) getParentFragment()).setParentFragment(FragmentOverallHunt.FRAGMENT_LANDMARK_INFO);
 
+                            }
+                        });
+                    }
+                } else {
+                    currentInfoWindowAdapter = customInfoWindowAdapter;
+                    mMap.setInfoWindowAdapter(customInfoWindowAdapter);
+                    mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                        @Override
+                        public void onInfoWindowClick(Marker marker) {
 
+                            saveCameraPosition();
+                            mHuntManager.setFocusBadge(Integer.parseInt(marker.getTitle()));
+                            ((FragmentOverallHuntTabs) getParentFragment()).setParentFragment(FragmentOverallHunt.FRAGMENT_LANDMARK_INFO);
+
+                        }
+                    });
+
+                }
+            }
+        }
     }
-
     public void saveCameraPosition(){
         if(mMap == null)return;
 
@@ -637,14 +546,11 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
 
 
     public void repositionCamera(){
-        System.out.println("Reposition camera");
             if (mLocationToFocus != null) {
 
                 moveCamera(mLocationToFocus, DEFAULT_ZOOM);
                 mLocationToFocus = null;
             } else if (mCameraManager.getLat() != 0) {
-                Log.e(TAG, "Repositioning camera, lat: " + mCameraManager.getLat() + " lon: " + mCameraManager.getLon());
-
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCameraManager.getLat(), mCameraManager.getLon()), DEFAULT_ZOOM));
             }
 
@@ -659,10 +565,10 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, zoom), 100, null);
         else {
             //Have camera immediately move to position (done when map is loaded)
-            Log.e(TAG, "mmap: "+mMap+"latlng: "+latlng);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, zoom));
         }
         mAnimateCamera = false;
+
 
 
     }
@@ -676,6 +582,60 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
         outState.putInt("permissions", i);
     }
 
+    public void moveCameraOntoHunt(){
+        if(getModeHuntElseLandmark())
+            return;
+        if(mHuntManager.getSelectedHuntsSize() == 1)
+        {
+            builder = new LatLngBounds.Builder();
+
+            int i = 0;
+            Iterator it = markers.entrySet().iterator();
+            while (it.hasNext())
+            {
+                HashMap.Entry pair = (HashMap.Entry)it.next();
+                Marker marker = (Marker)pair.getValue();
+                builder.include(marker.getPosition());
+                i++;
+            }
+            if(hasLocPermission())
+            {
+
+                try {
+                    mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
+
+                    Task location = mFusedLocationProviderClient.getLastLocation();
+                    location.addOnCompleteListener(new OnCompleteListener() {
+                        @Override
+                        public void onComplete(@NonNull Task task) {
+                            if (task.isSuccessful())
+                            {
+                                Location currentLocation = (Location) task.getResult();
+                                LatLng position =  new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+                                builder.include(position);
+                                buildBounds();
+                                // emthod(builder, position);
+                            } else {
+                                Toast.makeText(getContext(), "unable to get current location", Toast.LENGTH_SHORT).show();
+                                buildBounds();
+                            }
+
+
+                        }
+                    });
+                } catch (SecurityException e) {
+                    Log.e(TAG, "getDeviceLocation: SecurityException: " + e.getMessage());
+                }catch (Exception e) {
+                    Log.e(TAG, "getDeviceLocation: SecurityException: " + e.getMessage());
+                }
+            }
+            else
+            {
+                buildBounds();
+            }
+
+        }
+    }
 
     /*
     This method is called when the user clicks the target button to center the camera on
@@ -715,6 +675,8 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
     This method will query user's current location and upon successful response, move the camera
     to that location when the map is first loaded.
      */
+
+
     private void getDeviceLocation(){
         if(hasLocPermission()) {
             mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
@@ -771,54 +733,48 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
     /*
         This is called to clear the map and redraw all markers for the selected hunts.
      */
-    public void updateFocusHunts(){
-        System.out.println("filter: updating focus hunts from maps ");
-        System.out.println("filter: updating focus hunts from maps inside first if "+ getContext()+" "+mMap);
-        //if (getContext() != null) {
-            System.out.println("filter: updating focus hunts from maps inside first if "+ getContext()+" "+mMap);
-            //clear the map of all markers
-            FragmentOverallHuntTabs f = (FragmentOverallHuntTabs)getParentFragment();
-            //if(f == null)
-              //  return;
+    public void updateFocusHuntMode(){
+        FragmentOverallHuntTabs f = (FragmentOverallHuntTabs)getParentFragment();
+        img_markerbackground.setImageDrawable(draw_markergrey);
 
-            mMap.clear();
-            markers = new HashMap<>();
-            System.out.println("filter: updating focus hunts");
-            int curFilter = f.getCurFilter();
-            if (curFilter == FragmentOverallHunt.FILTER_NEARME) {
-                if(hasLocPermission()) {
-                    //TODO make this work without gps
-                    //make a toast possibly and clear markers?
-                    System.out.println("filter: updating focus hunts near me");
-                    getUserCityState();
-                }
-                else{
-                    Toast.makeText(getContext(), "Turn on location permissions to see nearby hunts", Toast.LENGTH_SHORT).show();
-                }
-            } else if (curFilter == FragmentOverallHunt.FILTER_SEARCHED){
-                System.out.println("filter: updating focus searched");
-                for (Hunt h : mHuntManager.getmSearchHunts()) {
-                    setUpMarkerGenerationThreads(h);
-                }
-            }else if (curFilter == FragmentOverallHunt.FILTER_DOWNLOADED) {
-                System.out.println("filter: updating focus downloaded");
-                for (Hunt h : mHuntManager.getAllDownloadedUndeletedHunts()) {
-                    setUpMarkerGenerationThreads(h);
-                }
+        int curFilter = f.getCurFilter();
+        if (curFilter == FragmentOverallHunt.FILTER_NEARME) {
+            if(hasLocPermission()) {
+                getUserCityState();
             }
-            //superBadgeImages = new HashMap<>();
-
-            /*for(Hunt h: ((FragmentBirdsEyeViewContainer)getParentFragment()).getSelected_items()){
-                System.out.println("markers: starting a hunt");
-                System.out.println("markers: starting a marker generation");
-
+            else{
+                Toast.makeText(getContext(), "Turn on location permissions to see nearby hunts", Toast.LENGTH_SHORT).show();
+            }
+        } else if (curFilter == FragmentOverallHunt.FILTER_SEARCHED){
+            for (Hunt h : mHuntManager.getmSearchHunts()) {
                 setUpMarkerGenerationThreads(h);
-            }*/
-            //getUserCityState();
-            // for each hunt in the collection of selected hunts, place markertext at each badge's location
+            }
+        }else if (curFilter == FragmentOverallHunt.FILTER_DOWNLOADED) {
+            for (Hunt h : mHuntManager.getAllDownloadedUndeletedHunts()) {
+                setUpMarkerGenerationThreads(h);
+            }
+        }
+    }
+    public void updateFocusHunts(){
+        if(mMap == null)
+            return;
 
+        mMap.clear();
+        markers = new HashMap<>();
+        if(getModeHuntElseLandmark())
+            updateFocusHuntMode();
+        else
+            updateFocusLandmarkMode();
+
+    }
+    public void updateFocusLandmarkMode() {
+        //if (mMap != null && getContext() != null) {
+            //table = new Hashtable<>();
+            for (Hunt h : ((FragmentOverallHuntTabs) getParentFragment()).getSelected_items()) {
+
+                setUpMarkerGenerationThreadsLandmarks(h);
+            }
         //}
-
     }
     public void buildBounds(){
         try
@@ -840,27 +796,7 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
         }
     }
 
-    /*public void publishMarkers(){
-        Set<Integer> keys = table.keySet();
-        for(Integer key: keys){
-            //MarkerInfo mi = table.get(key);
-            img_markerbadge.setImageBitmap(mi.getImg());
-            Badge b = mi.getBadge();
-            MarkerOptions mo;
-            mo = new MarkerOptions().position(b
-                    .getLatLng())
-                    .title("" + b.getID())
-                    .icon(BitmapDescriptorFactory.fromBitmap(loadBitmapFromView(view_marker)));
-            markers.put(b.getID(), mMap.addMarker(mo));
 
-        }
-    }*/
-    //updates the items in the spinner list
-    public void updateSpinner(){
-        //TODO eventually make this get all downloaded hunts, as undownloaded hunts may be sitting in huntmanager
-        checkableSpinnerAdapter.updateSpinnerItems();
-        checkableSpinnerAdapter.notifyDataSetChanged();
-    }
 
 
     public Bitmap loadBitmapFromView(View v) {
@@ -877,10 +813,14 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
             v.draw(c);
             return b;
         }
-        int iconWidth =
-                getContext().getResources().getDimensionPixelSize(R.dimen.custom_marker_width);
-        int iconHeight =
-                getContext().getResources().getDimensionPixelSize(R.dimen.custom_marker_height);
+        int iconWidth = 20;
+        int iconHeight = 20;
+        if(getContext() != null){
+            iconWidth =
+                    getContext().getResources().getDimensionPixelSize(R.dimen.custom_marker_width);
+            iconHeight =
+                    getContext().getResources().getDimensionPixelSize(R.dimen.custom_marker_height);
+        }
         Bitmap b = Bitmap.createBitmap(iconWidth, iconHeight, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(b);
         v.layout(v.getLeft(), v.getTop(), v.getRight(), v.getBottom());
@@ -894,11 +834,40 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
     private CustomTarget customTarget;
     private CustomTargetFailed customTargetFailed;
 
+    public void setUpMarkerGenerationThreadsLandmarks(Hunt h) {
+        LinkedList<Badge> badges = h.getAllBadges();
+        Bitmap bitmap = superBadgeImagesLandmarks.get(h.getID());
+        if(bitmap == null){
+            ImageManager im = new ImageManager();
+            customTargetFailedLandmark = new CustomTargetFailedLandmark(h);
+            im.fillSuperBadgeImageIntoMarker(getContext(), h, customTargetFailedLandmark);
+        }else {
+            img_markerbadge.setImageBitmap(bitmap);
 
+            for (Badge b : badges) {
+                if(b.getIsCompleted())
+                    img_markerbackground.setImageDrawable(draw_markercolor);
+                else
+                    img_markerbackground.setImageDrawable(draw_markergrey);
+                BitmapDescriptor bd = BitmapDescriptorFactory.fromBitmap(loadBitmapFromView(view_marker));
+                MarkerOptions mo = new MarkerOptions().position(b
+                        .getLatLng())
+                        .title("" + b.getID())
+                        .icon(bd);
+                markers.put(b.getID(), mMap.addMarker(mo));
+            }
+            if(moveCameraOnHunt) {
+                moveCameraOntoHunt();
+                moveCameraOnHunt = false;
+            }
+        }
+
+    }
 
     public void setUpMarkerGenerationThreads(Hunt h) {
-
-        System.out.println("hashmap: bitmap checking: "+h.getName());
+        if(!getModeHuntElseLandmark()){
+            return;
+        }
         HuntMarkerInfo huntMarkerInfo = superBadgeImages.get(h.getID());
         if(huntMarkerInfo == null){
             huntMarkerInfo = new HuntMarkerInfo();
@@ -906,7 +875,6 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
         }
         Bitmap bitmap = huntMarkerInfo.getBitmap();
         if(bitmap == null){
-            System.out.println("hashmap: bitmap null: "+h.getName());
             ImageManager im = new ImageManager();
             customTargetFailed = new CustomTargetFailed(h);
             im.fillSuperBadgeImageIntoMarker(getContext(), h, customTargetFailed);
@@ -915,113 +883,111 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
 
             MarkerOptions tempMarker = new MarkerOptions().position(huntCoords).title(h.getID()+"").icon(BitmapDescriptorFactory.fromBitmap(loadBitmapFromView(view_marker)));
             huntMarkerInfo.setMarkerOptions(tempMarker);
-            System.out.println("hashmap: bitmap not null: "+h.getName());
             img_markerbadge.setImageBitmap(bitmap);
+            Hunt h1 = mHuntManager.getHuntByID(h.getID());
+            if(h1 != null){
+                if(h1.getIsCompleted())
+                    img_markerbackground.setImageDrawable(draw_markercolor);
+                else
+                    img_markerbackground.setImageDrawable(draw_markergrey);
+            }
+            else
+                img_markerbackground.setImageDrawable(draw_markergrey);
+
             BitmapDescriptor bd = BitmapDescriptorFactory.fromBitmap(loadBitmapFromView(view_marker));
 
 
             tempMarker.icon(bd);
             markers.put(h.getID(), mMap.addMarker(tempMarker));
-            mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
-                @Override
-                public void onMarkerDragStart(Marker marker) {
-                    System.out.println("marker drag");
-                }
 
-                @Override
-                public void onMarkerDrag(Marker marker) {
-
-                }
-
-                @Override
-                public void onMarkerDragEnd(Marker marker) {
-
-                }
-            });
         }
 
     }
+
+    @Override
+    public void onClick(View view) {
+        switch(view.getId()){
+            case R.id.btn_zoom_in:
+                mMap.animateCamera(CameraUpdateFactory.zoomIn(), 100, null);
+                break;
+            case R.id.btn_zoom_out:
+                mMap.animateCamera(CameraUpdateFactory.zoomOut(), 100, null);
+                break;
+            case R.id.ic_gps:
+                mAnimateCamera = true;
+                centerOnPosition();
+                break;
+            case R.id.btn_toggle:
+                setModeHuntElseLandmark(!getModeHuntElseLandmark());
+                updateFocusHunts();
+                moveCameraOntoHunt();
+                break;
+        }
+    }
+
     class CustomTarget implements Target{
         private Hunt h;
         CustomTarget(Hunt h){
-            System.out.println("Hunt added to constructor: "+h.getID());
             this.h = h;
         }
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            System.out.println("Hunt added to: "+h.getID());
-            //superBadgeImages.put(h.getID(),);
-            System.out.println("getting hunt from hashmap: "+h.getName());
             superBadgeImages.get(h.getID()).setBitmap(bitmap);
             setUpMarkerGenerationThreads(h);
         }
 
         @Override
         public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-            System.out.println("Hunt added to: failed");
         }
 
         @Override
         public void onPrepareLoad(Drawable placeHolderDrawable) {
-            System.out.println("Hunt added to onprepareload: "+h.getID());
 
         }
     }
 
-
-    class CustomTargetFailed implements Target{
-        private Badge badge;
-        private MarkerOptions mo;
+    class CustomTargetFailedLandmark implements Target{
         private Hunt h;
-        /*CustomTarget(Badge b, MarkerOptions mo){
-            badge = b;
-            this.mo = mo;
-        }*/
-        CustomTargetFailed(Hunt h){
-            System.out.println("Hunt added to constructor: "+h.getID());
+        CustomTargetFailedLandmark(Hunt h){
             this.h = h;
         }
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                /*img_markerbadge.setImageBitmap(bitmap);
-                mo.icon(BitmapDescriptorFactory.fromBitmap(loadBitmapFromView(view_marker)));
-                markers.put(badge.getID(), mMap.addMarker(mo));*/
-            System.out.println("Hunt added to: "+h.getID());
-            System.out.println("getting hunt from hashmap: "+h.getName());
-            superBadgeImages.get(h.getID()).setBitmap(bitmap);
-            setUpMarkerGenerationThreads(h);
-            //markers.put(h.getID(), mMap.addMarker(superBadgeImages.get(h.getID()).getMarkerOptions()));
+            superBadgeImagesLandmarks.put(h.getID(),bitmap);
+            setUpMarkerGenerationThreadsLandmarks(h);
         }
 
         @Override
         public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-            System.out.println("Hunt added to: failed");
+        }
+
+        @Override
+        public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+        }
+    }
+    class CustomTargetFailed implements Target{
+        private Hunt h;
+        CustomTargetFailed(Hunt h){
+            this.h = h;
+        }
+        @Override
+        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+            superBadgeImages.get(h.getID()).setBitmap(bitmap);
+            setUpMarkerGenerationThreads(h);
+        }
+
+        @Override
+        public void onBitmapFailed(Exception e, Drawable errorDrawable) {
             setUpMarkerGenerationThreads(h);
         }
 
         @Override
         public void onPrepareLoad(Drawable placeHolderDrawable) {
-            System.out.println("Hunt added to onprepareload: "+h.getID());
 
         }
     }
 
-    public void createDownloadedHuntMarkers()
-    {
-        downloadedHuntMarkers = new HashMap<>();
-        LinkedList<Hunt> downloadedHunts = mHuntManager.getAllHunts();
-        LatLng huntCoords;
-
-        for(int i = 0; i < downloadedHunts.size(); i++)
-        {
-            Hunt tempHunt = downloadedHunts.get(i);
-            huntCoords = findHuntMarkerCoordinates(downloadedHunts.get(i));
-
-            MarkerOptions tempMarker = new MarkerOptions().position(huntCoords).title(tempHunt.getID()+"").icon(BitmapDescriptorFactory.fromBitmap(defaultMarker));
-            downloadedHuntMarkers.put(tempHunt.getID(), mMap.addMarker(tempMarker));
-        }
-
-    }
 
     public LatLng findHuntMarkerCoordinates(Hunt hunt)
     {
@@ -1051,21 +1017,13 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
         if(!hasLocPermission()){
             return;
         }
-        nearbyHuntMarkers = new HashMap<>();
-        LinkedList<Hunt> huntsInManager = mHuntManager.getAllHunts();
         LinkedList<Hunt> huntsInCity = nearbyHunts;
-        LatLng huntCoords;
 
 
         for(int i = 0; i < huntsInCity.size(); i++)
         {
             Hunt tempHunt = huntsInCity.get(i);
-            huntCoords = findHuntMarkerCoordinates(tempHunt);
 
-            //MarkerOptions tempMarker = new MarkerOptions().position(huntCoords).title(tempHunt.getID()+"").icon(BitmapDescriptorFactory.fromBitmap(defaultMarker));
-            //nearbyHuntMarkers.put(tempHunt.getID(), mMap.addMarker(tempMarker));
-            table = new Hashtable<>();
-            //setUpMarkerGenerationThreads(tempHunt, tempMarker);
             if(superBadgeImages.get(tempHunt.getID())==null){
                 HuntMarkerInfo hmi = new HuntMarkerInfo();
                 superBadgeImages.put(tempHunt.getID(), hmi);
@@ -1073,7 +1031,6 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
             }
             setUpMarkerGenerationThreads(tempHunt);
 
-            System.out.println("huntname: "+tempHunt.getName());
         }
     }
 
@@ -1082,7 +1039,6 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
         //LinkedList<Hunt> nearbyHunts;
         //String city = getUserCityState();
         RequestQueue queue = Volley.newRequestQueue(getContext());
-        System.out.println("city result: "+city);
         JsonArrayRequest request = new JsonArrayRequest("http://206.189.204.95/api/v3/hunts/city/"+city,
                 new Response.Listener<JSONArray>() {
                     @Override
@@ -1119,45 +1075,39 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
 
     public void getUserCityState()
     {
+        if(getContext() == null)
+            return;
         if(hasLocPermission())
         {
             mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
             try
             {
                 Task location = mFusedLocationProviderClient.getLastLocation();
-                System.out.println("getusercity: 1");
                 location.addOnCompleteListener(new OnCompleteListener()
                 {
                     @Override
                     public void onComplete(@NonNull Task task)
                     {
-                        System.out.println("getusercity: 2");
                         if (task.isSuccessful())
                         {
-                            System.out.println("getusercity: 3");
                             Log.e(TAG, "onComplete from centerOnPosition " + this);
                             Location currentLocation = (Location) task.getResult();
                             userLong = currentLocation.getLatitude();
                             userLat = currentLocation.getLongitude();
-
+                            try {
                             Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
 
-                            try {
-                                System.out.println("getusercity: 4");
                                 List<Address> addresses = geocoder.getFromLocation(userLong, userLat, 1);
                                 cityName = addresses.get(0).getLocality();
                                 retrieveNearbyHunts(cityName);
-                                System.out.println("getusercity: 5");
-                                Log.d("ADDRESS", cityName);
                             }
-                            catch(IOException e)
+                            catch(Exception e)
                             {
                                 Log.e("GEO", "Error retrieving user Lat/Long");
                             }
                         }
                         else
                         {
-                            Log.d(TAG, "onComplete: current location is null");
                             Toast.makeText(getContext(), "unable to get current location", Toast.LENGTH_SHORT).show();
                             buildBounds();
                         }
@@ -1172,6 +1122,76 @@ public class FragmentGoogleMapsHunts extends Fragment implements OnMapReadyCallb
 
     }
 
+    class CustomTargetLandmark implements Target{
+        private Hunt h;
+        CustomTargetLandmark(Hunt h){
+            this.h = h;
+        }
+        @Override
+        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+            superBadgeImagesLandmarks.put(h.getID(),bitmap);
 
+        }
+
+        @Override
+        public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+        }
+
+        @Override
+        public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+        }
+    }
+
+    class CustomTargetWingit implements Target{
+        private Marker marker;
+        CustomTargetWingit(Marker m){
+            marker = m;
+        }
+        @Override
+        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+            wingitLandmarkImg.setImageBitmap(bitmap);
+            if(marker != null && marker.isInfoWindowShown()) {
+                marker.hideInfoWindow();
+                marker.showInfoWindow();
+            }
+        }
+
+        @Override
+        public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+        }
+
+        @Override
+        public void onPrepareLoad(Drawable placeHolderDrawable) {
+        }
+
+    }
+    public void setHuntCompleteNotificationMaps(Hunt h){
+        dialogHuntCompleted.setHunt(h);
+        dialogHuntCompleted.setCancelable(false);
+        dialogHuntCompleted.show();
+    }
+    private void updateCameraBearing(GoogleMap mMap, Location location) {
+        if ( mMap == null) return;
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+            CameraPosition cameraPosition = new CameraPosition.Builder(mMap.getCameraPosition())
+                    .target(latLng)
+                    .bearing(location.getBearing())
+                    .build();
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), null);
+
+
+    }
+
+    public void updateLocation(Location location) {
+
+        // ... process location
+
+        updateCameraBearing(mMap, location);
+    }
+
+    private boolean getModeHuntElseLandmark(){return ((FragmentOverallHuntTabs)getParentFragment()).getModeHuntsElseLandmarks();}
+    private void setModeHuntElseLandmark(boolean b){((FragmentOverallHuntTabs)getParentFragment()).setModeHuntsElseLandmarks(b);}
 }
 

@@ -22,15 +22,12 @@ public class DialogHuntCompleted extends Dialog {
     private Hunt hunt;
     private TextView txt_warning;
     private ImageView img_superbadge;
-    private IOnHuntDeleteResponse response;
-    private RecyclerView.ViewHolder viewHolder;
     private ActivityBase activity;
 
 
     public DialogHuntCompleted(Activity a) {
         super(a);
         activity = (ActivityBase) a;
-        // TODO Auto-generated constructor stub
     }
 
     @Override
@@ -67,6 +64,5 @@ public class DialogHuntCompleted extends Dialog {
     public void setHunt(Hunt h) {
         hunt = h;
 
-        //TODO set img_badge here when you get CMS communicator imgs working...
     }
 }

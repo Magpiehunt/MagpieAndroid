@@ -22,6 +22,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,8 +36,9 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.davis.tyler.magpiehunt.Activities.ActivityBase;
 import com.davis.tyler.magpiehunt.Adapters.CheckableSpinnerSearchAdapter;
+import com.davis.tyler.magpiehunt.Adapters.LandmarkSearchAdapter;
 import com.davis.tyler.magpiehunt.Adapters.SearchCollectionAdapter;
-import com.davis.tyler.magpiehunt.CMS.CMSCommunicator;
+import com.davis.tyler.magpiehunt.Hunts.Badge;
 import com.davis.tyler.magpiehunt.Hunts.Hunt;
 import com.davis.tyler.magpiehunt.Hunts.HuntManager;
 import com.davis.tyler.magpiehunt.CMS.JSONParser;
@@ -58,43 +60,35 @@ import java.util.regex.Pattern;
  * This class displays all Collections available on the CMS (during testing the CMS was running locally)
  * RecyclerView for this fragment is SearchCollectionAdapter
  */
-public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeListener{
+public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeListener, View.OnClickListener{
     private static final String TAG = "SearchCollectionsFrag";
     protected RecyclerView mRecyclerView;
     protected SearchCollectionAdapter mModelAdapter;
+    protected LandmarkSearchAdapter mModelAdapterLandmark;
     protected RecyclerView.LayoutManager mLayoutManager;
     protected Context context;
     private HuntManager mHuntManager;
     private EditText mSearchText;
     private LinkedList<Hunt> hunts;
-    private Target target;
+    private LinkedList<Badge> badges;
     private SharedPreferences preferences;
+    private RelativeLayout spinnerContainer;
+    private ImageView btn_Toggle;
+
 
     /**
      * @return A new instance of fragment FragmentSearchHunts.
      */
-    public static FragmentSearchHunts newInstance(HuntManager huntManager) {
+    public static FragmentSearchHunts newInstance() {
         FragmentSearchHunts f = new FragmentSearchHunts();
-        Bundle args = new Bundle();
-        //args.putSerializable("huntmanager", huntManager);
-        f.setArguments(args);
-
         return f;
     }
 
     @Override
-    public void setArguments(@Nullable Bundle args) {
-        super.setArguments(args);
-        Log.e(TAG, "setArguments, args: "+args);
-        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
-        Log.e(TAG, "setArguments, huntman: "+mHuntManager);
-
-
-    }
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        System.out.println("oncreate searchhunts");
         mHuntManager = ((ActivityBase)getActivity()).getData();
         View rootView = inflater.inflate(R.layout.fragment_search_collections, container, false);
         this.context = this.getActivity();
@@ -103,6 +97,7 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
         preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
         mRecyclerView = rootView.findViewById(R.id.searchView);
         mLayoutManager = new LinearLayoutManager(getActivity());
+        btn_Toggle = rootView.findViewById(R.id.btn_toggle);
         mSearchText = rootView.findViewById(R.id.searchText);
         mSearchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -113,44 +108,27 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
                         || event.getAction() == KeyEvent.KEYCODE_ENTER){
                     //execute our method for searching when they hit enter instead of making new line
                     //getAllHunts();
-                    searchForHunts(mSearchText.getText().toString());
+                    if(((FragmentOverallHuntTabs)getParentFragment()).getSearchHuntsElseLandmarks()){
+                        searchForHunts(mSearchText.getText().toString());
+                    }else {
+                        searchForBadges(mSearchText.getText().toString());
+                    }
                     hideSoftKeyboard();
                 }
                 return false;
             }
         });
+        spinnerContainer = rootView.findViewById(R.id.spinnercontainer);
         mSearchText.setOnFocusChangeListener(this);
+        btn_Toggle.setOnClickListener(this);
         setRecyclerViewLayoutManager();
 
-        target = new Target() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                System.out.println("icon received: "+bitmap);
-                //test.setImageBitmap(bitmap);
-            }
-
-            @Override
-            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-                System.out.println("icon failed: ");
-                e.printStackTrace();
-            }
-
-
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-            }
-        };
-
-
-        //get data from api
-        //TODO make class to make http requests. pass that  class to this fragment
-        //method call to query all hunts here that will return a list of hunts to display
 
         hunts = mHuntManager.getmSearchHunts();
         if(hunts == null)
             hunts = new LinkedList<>();
         mModelAdapter = new SearchCollectionAdapter(hunts, getContext(), mHuntManager, this);
-        mRecyclerView.setAdapter(mModelAdapter);
+
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         SpinnerSearchFilter spinner = (SpinnerSearchFilter) rootView.findViewById(R.id.spinner);
@@ -158,10 +136,35 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
         spinner.setAdapter(adapter);
         spinner.setSpinnerSearchEventsListener((ActivityBase)getActivity());
 
+        badges = mHuntManager.getmSearchBadges();
+        if(badges == null)
+            badges = new LinkedList<>();
+        mModelAdapterLandmark = new LandmarkSearchAdapter(badges, getContext(),((FragmentOverallHuntTabs)getParentFragment()));
+
+        if(((FragmentOverallHuntTabs)getParentFragment()).getSearchHuntsElseLandmarks()){
+            mRecyclerView.setAdapter(mModelAdapter);
+        }else {
+            mRecyclerView.setAdapter(mModelAdapterLandmark);
+        }
+
 
         return rootView;
     }
 
+    public void setAdapterHuntsOnElseOff(boolean onElseOff){
+        ((FragmentOverallHuntTabs)getParentFragment()).setSearchHuntsElseLandmarks(onElseOff);
+        if(onElseOff){
+            mRecyclerView.setAdapter(mModelAdapter);
+            spinnerContainer.setVisibility(View.VISIBLE);
+            mSearchText.setHint("Enter ZIP, City or State");
+
+        }
+        else{
+            mRecyclerView.setAdapter(mModelAdapterLandmark);
+            spinnerContainer.setVisibility(View.GONE);
+            mSearchText.setHint("Enter Keyword");
+        }
+    }
 
     public void sortWalkingDistance(){
         mHuntManager.getSortedHuntsByDistance(hunts);
@@ -213,7 +216,6 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
                         }
                         else
                             updateList();
-                        //TODO sort list by filter, then update list
 
                     }
                 },
@@ -250,7 +252,6 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
                         }
                         else
                             updateList();
-                        //TODO sort list by filter, then update list
 
                     }
                 },
@@ -301,50 +302,16 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
         queue.add(request);
     }
 
-    public void getAllHunts(){
-        System.out.println("test 1");
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-        JsonArrayRequest request = new JsonArrayRequest("http://206.189.204.95/api/v3/hunts/city/seattle",
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray jsonArray) {
-                        //this will return list of hunts
-                        Log.e(TAG, "Response gained");
-                        JSONParser jsonparser = new JSONParser(jsonArray);
-                        hunts = jsonparser.getAllHunts();
 
-                        updateList();
-                        //TODO sort list by filter, then update list
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        Toast.makeText(getActivity(), "Unable to fetch data: " + volleyError.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-        queue.add(request);
-    }
-
-    public void getBadgeImage(String filename){
-        System.out.println("getting icon: "+filename);
-        String imageUrl = "http://206.189.204.95/badge/icon/"+filename;
-        someMethod(filename);
-
-    }
-
-
-    private void someMethod(String filename) {
-        Picasso.get().load("http://206.189.204.95/badge/icon/"+filename).into(target);
-    }
     public void setImage(Bitmap bitmap){
         //test.setImageBitmap(bitmap);
     }
     public void updateList(){
-        mModelAdapter.updateList(hunts);
-        mModelAdapter.notifyDataSetChanged();
+        boolean b = ((FragmentOverallHuntTabs)getParentFragment()).getSearchHuntsElseLandmarks();
+        if(b) {
+            mModelAdapter.updateList(hunts);
+            mModelAdapter.notifyDataSetChanged();
+        }
     }
     public void setRecyclerViewLayoutManager() {
         int scrollPosition = 0;
@@ -358,12 +325,16 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.scrollToPosition(scrollPosition);
     }//end
+    private void searchForBadges(String query){
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        /*if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }*/
+
+        LinkedList<Badge> res = mHuntManager.getAllBadgesByKeyword(query);
+        if(res.size() == 0)
+            Toast.makeText(context, "No results found", Toast.LENGTH_LONG).show();
+        mModelAdapterLandmark.updateList(res);
+        mModelAdapterLandmark.notifyDataSetChanged();
+
+
     }
     public boolean hasLocPermission(){
         if(preferences != null) {
@@ -389,23 +360,6 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
         }
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
-
-
-
     public void hideSoftKeyboard(){
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
@@ -414,4 +368,11 @@ public class FragmentSearchHunts extends Fragment implements View.OnFocusChangeL
         ((ActivityBase)getActivity()).onAddHuntEvent(h);
     }
 
+    @Override
+    public void onClick(View view) {
+        if(view.getId() == R.id.btn_toggle){
+            boolean b = ((FragmentOverallHuntTabs)getParentFragment()).getSearchHuntsElseLandmarks();
+            setAdapterHuntsOnElseOff(!b);
+        }
+    }
 }

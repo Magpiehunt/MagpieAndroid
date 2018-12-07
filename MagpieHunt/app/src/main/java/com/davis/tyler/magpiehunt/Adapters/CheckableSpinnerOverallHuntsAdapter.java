@@ -80,7 +80,6 @@ public class CheckableSpinnerOverallHuntsAdapter extends BaseAdapter {
             holder.checkBox.setVisibility(View.GONE);
             holder.title.setText(selected_item);
             titleHolder = holder;
-            Log.e(TAG, "title holder set to: "+titleHolder);
         }
         else{
             final int pos = i -1;
@@ -106,7 +105,6 @@ public class CheckableSpinnerOverallHuntsAdapter extends BaseAdapter {
                         selected_item = filter;
                         holders.get(0).title.setText(selected_item);
                         titleHolder.title.setText(selected_item);
-                        Log.e(TAG, "checked: " + filter + " holder is: " + titleHolder);
                         if (selected_item.equalsIgnoreCase("near me")) {
                             listener.filterUpdate(FragmentOverallHunt.FILTER_NEARME);
                         } else if (selected_item.equalsIgnoreCase("downloaded")) {

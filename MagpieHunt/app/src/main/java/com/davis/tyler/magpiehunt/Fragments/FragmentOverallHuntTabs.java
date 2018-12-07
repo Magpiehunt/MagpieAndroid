@@ -1,6 +1,7 @@
 package com.davis.tyler.magpiehunt.Fragments;
 
 import android.graphics.PorterDuff;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -34,25 +35,27 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
     private static final String TAG = "OverallHuntTabs";
 
     public static final int FRAGMENT_GOOGLE_MAPS = 0;
-    public static final int FRAGMENT_HUNT_LIST = 1;
+    public static final int FRAGMENT_LIST = 1;
     public static final int FRAGMENT_HUNT_SEARCH = 2;
 
-    public static final int FILTER_NEARME = 0;
-    public static final int FILTER_DOWNLOADED = 1;
-    public static final int FILTER_SEARCHED = 2;
     //private ViewPager mViewPager;
-    private FragmentHuntListTab fragmentHuntsList;
+    private FragmentLandmarkList fragmentLandmarkList;
     private FragmentGoogleMapsHunts fragmentGoogleMaps;
     private FragmentSearchHunts fragmentSearchHunts;
     private HuntManager mHuntManager;
     private CameraManager mCameraManager;
+
     //private int curFrag;
     private TabLayout tabBar;
     private Set<Hunt> selected_items;
     private ImageView img_greenarrow;
 
-    private CheckableSpinnerOverallHuntsAdapter adapter;
-    private SpinnerOverallHuntsFilter spinner;
+    private CheckableSpinnerOverallHuntsAdapter adapterHunts;
+    private SpinnerOverallHuntsFilter spinnerHunts;
+    private SpinnerHuntFilter spinnerLandmarks;
+    private CheckableSpinnerAdapter checkableSpinnerAdapter;
+    private boolean moveCameraOntoHunt;
+
 
     @Nullable
     @Override
@@ -62,31 +65,29 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
         mHuntManager = ((ActivityBase)getActivity()).getData();
         tabBar = view.findViewById(R.id.tabLayout);
         img_greenarrow = view.findViewById(R.id.greenarrow);
-        //setupFilter();
-        //mViewPager = view.findViewById(R.id.view_container);
-        //setupViewPager(mViewPager);
-        //mViewPager.setOffscreenPageLimit(2);
+        moveCameraOntoHunt = false;
         initTabLayout();
-        //fragmentGoogleMaps = FragmentGoogleMapsHunts.newInstance(mHuntManager, mCameraManager);
-        setFragment(FRAGMENT_GOOGLE_MAPS);
-        spinner = (SpinnerOverallHuntsFilter) view.findViewById(R.id.spinner);
-        adapter = new CheckableSpinnerOverallHuntsAdapter(getContext(), (FragmentOverallHunt)getParentFragment());
-        spinner.setAdapter(adapter);
-        spinner.setSpinnerSearchEventsListener((SpinnerOverallHuntsFilter.OnSpinnerEventsListener)getParentFragment());
+        setFragment(((FragmentOverallHunt)getParentFragment()).getCurTab());
+        spinnerHunts = (SpinnerOverallHuntsFilter) view.findViewById(R.id.spinnerhunts);
+        adapterHunts = new CheckableSpinnerOverallHuntsAdapter(getContext(), (FragmentOverallHunt)getParentFragment());
+        spinnerHunts.setAdapter(adapterHunts);
+        spinnerHunts.setSpinnerSearchEventsListener((SpinnerOverallHuntsFilter.OnSpinnerEventsListener)getParentFragment());
+        spinnerLandmarks = (SpinnerHuntFilter) view.findViewById(R.id.spinnerlandmarks);
+        setupFilter();
+        updateSpinnerVisibility();
         return view;
     }
-    /*public void setupFilter(){
+
+    public void setupFilter(){
 
         selected_items = mHuntManager.getSelectedHunts();
-        String headerText = "Filter";
-
         //Set the max height of the dropdown spinner:
         try {
             Field popup = Spinner.class.getDeclaredField("mPopup");
             popup.setAccessible(true);
 
             // Get private mPopup member variable and try cast to ListPopupWindow
-            android.widget.ListPopupWindow popupWindow = (android.widget.ListPopupWindow) popup.get(spinner);
+            android.widget.ListPopupWindow popupWindow = (android.widget.ListPopupWindow) popup.get(spinnerLandmarks);
 
             // Set popupWindow height to 500px
             popupWindow.setHeight(600);
@@ -95,10 +96,11 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
 
         }
 
-        checkableSpinnerAdapter = new CheckableSpinnerAdapter(getContext(), headerText, mHuntManager, selected_items);
-        spinner.setAdapter(checkableSpinnerAdapter);
-        spinner.setSpinnerEventsListener((ActivityBase)getActivity());
-    }*/
+        checkableSpinnerAdapter = new CheckableSpinnerAdapter(getContext(), mHuntManager, selected_items);
+        spinnerLandmarks.setAdapter(checkableSpinnerAdapter);
+        spinnerLandmarks.setSpinnerEventsListener((ActivityBase)getActivity());
+    }
+
 
     public void updatetab(){
         try {
@@ -106,7 +108,6 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
             if (getParentFragment() != null) {
 
                 focusedTab = ((FragmentOverallHunt) getParentFragment()).getCurTab();
-                System.out.println("parent tab not null: "+focusedTab);
             }
             TabLayout.Tab tab = tabBar.getTabAt(focusedTab);
             tab.select();
@@ -128,8 +129,8 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
                     case FRAGMENT_GOOGLE_MAPS:
                         setFragment(FRAGMENT_GOOGLE_MAPS);
                         break;
-                    case FRAGMENT_HUNT_LIST:
-                        setFragment(FRAGMENT_HUNT_LIST);
+                    case FRAGMENT_LIST:
+                        setFragment(FRAGMENT_LIST);
                         break;
                     case FRAGMENT_HUNT_SEARCH:
                         setFragment(FRAGMENT_HUNT_SEARCH);
@@ -157,9 +158,9 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
 
             setFragment(FRAGMENT_GOOGLE_MAPS);
         }
-        else if(tabBar.getTabAt(FRAGMENT_HUNT_LIST).isSelected()) {
+        else if(tabBar.getTabAt(FRAGMENT_LIST).isSelected()) {
 
-            setFragment(FRAGMENT_HUNT_LIST);
+            setFragment(FRAGMENT_LIST);
         }
         else if(tabBar.getTabAt(FRAGMENT_HUNT_SEARCH).isSelected()) {
 
@@ -167,11 +168,10 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
         }
     }
 
-    public static FragmentOverallHuntTabs newInstance(HuntManager huntManager, CameraManager cameraManager) {
+    public static FragmentOverallHuntTabs newInstance(CameraManager cameraManager) {
         FragmentOverallHuntTabs f = new FragmentOverallHuntTabs();
         Bundle args = new Bundle();
         args.putSerializable("cameramanager", cameraManager);
-        //args.putSerializable("huntmanager", huntManager);
         f.setArguments(args);
         return f;
     }
@@ -180,7 +180,6 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
         mCameraManager = (CameraManager)args.getSerializable("cameramanager");
-        //mHuntManager = (HuntManager)args.getSerializable("huntmanager");
     }
 
     public void setFragment(int i){
@@ -190,94 +189,101 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
         if(i == FRAGMENT_GOOGLE_MAPS) {
             ((ActivityBase)getActivity()).setBackButtonOnOff(false);
             if(fragmentGoogleMaps == null) {
-                fragmentGoogleMaps = FragmentGoogleMapsHunts.newInstance(mHuntManager, mCameraManager);
+                fragmentGoogleMaps = FragmentGoogleMapsHunts.newInstance(mCameraManager);
             }
-            spinnerOnElseOff(true);
+            updateSpinnerVisibility();
             ft.replace(R.id.currentfragment, fragmentGoogleMaps);
         }
-        else if(i == FRAGMENT_HUNT_LIST){
-            //if(fragmentGoogleMaps != null)
-                //fragmentGoogleMaps.saveCameraPosition();
-            if(fragmentHuntsList == null){
-                fragmentHuntsList = FragmentHuntListTab.newInstance(mHuntManager);
+        else if(i == FRAGMENT_LIST){
+            if(fragmentLandmarkList == null){
+                fragmentLandmarkList = FragmentLandmarkList.newInstance();
             }
-            spinnerOnElseOff(false);
-            ft.replace(R.id.currentfragment, fragmentHuntsList);
+            updateSpinnerVisibility();
+            ft.replace(R.id.currentfragment, fragmentLandmarkList);
         }
         else if(i == FRAGMENT_HUNT_SEARCH){
-            //if(fragmentGoogleMaps != null)
-                //fragmentGoogleMaps.saveCameraPosition();
             if(fragmentSearchHunts == null){
-                fragmentSearchHunts = FragmentSearchHunts.newInstance(mHuntManager);
+                fragmentSearchHunts = FragmentSearchHunts.newInstance();
             }
-            spinnerOnElseOff(false);
+            updateSpinnerVisibility();
             ft.replace(R.id.currentfragment, fragmentSearchHunts);
 
         }
 
-        System.out.println("COMMITING");
         ft.commit();
-        System.out.println("COMMITING");
         try {
             getChildFragmentManager().executePendingTransactions();
         }catch(Exception e){
             e.printStackTrace();
         }
-        System.out.println("FINISH COMMITING");
-        if(i == FRAGMENT_HUNT_LIST) {
-            //fragmentHuntsList.updateList();
-        }//TODO FINISH SET FRAGMENT
-        else if(i == FRAGMENT_GOOGLE_MAPS){
-            fragmentGoogleMaps.repositionCamera();
-            //fragmentBirdsEyeViewContainer.reloadMap();
+        if(i == FRAGMENT_LIST) {
+            updateFocusHunts();
         }
-    }
-    private void spinnerOnElseOff(boolean b){
-        if(spinner == null || img_greenarrow == null)
-            return;
-        if(b){
-            spinner.setVisibility(View.VISIBLE);
-            img_greenarrow.setVisibility(View.VISIBLE);
-        }else{
-            spinner.setVisibility(View.INVISIBLE);
-            img_greenarrow.setVisibility(View.INVISIBLE);
+        else if(i == FRAGMENT_GOOGLE_MAPS){
+            updateFocusHunts();
+
+            if(moveCameraOntoHunt) {
+                fragmentGoogleMaps.moveCameraOntoHunt();
+                moveCameraOntoHunt = false;
+            }
         }
     }
 
-    @Override
-    public void onResume() {
-        System.out.println(TAG+" onResume");
-        super.onResume();
+    public void updateSpinnerVisibility(){
+        int tab = ((FragmentOverallHunt)getParentFragment()).getCurTab();
+        if(tab == FRAGMENT_GOOGLE_MAPS){
+            if(getModeHuntsElseLandmarks()) {
+                toggleHuntModeOnElseOff(true);
+            }
+            else{
+                toggleHuntModeOnElseOff(false);
+            }
+        }
+        else if(tab == FRAGMENT_HUNT_SEARCH){
+            spinnerHunts.setVisibility(View.GONE);
+            spinnerLandmarks.setVisibility(View.GONE);
+            img_greenarrow.setVisibility(View.GONE);
+        }
+        else if(tab == FRAGMENT_LIST){
+            toggleHuntModeOnElseOff(false);
+        }
     }
+
+    private void toggleHuntModeOnElseOff(boolean onElseOff){
+        if(spinnerHunts == null || spinnerLandmarks == null)
+            return;
+        img_greenarrow.setVisibility(View.VISIBLE);
+        if(onElseOff){
+            spinnerHunts.setVisibility(View.VISIBLE);
+            spinnerLandmarks.setVisibility(View.GONE);
+        }else{
+            spinnerHunts.setVisibility(View.GONE);
+            spinnerLandmarks.setVisibility(View.VISIBLE);
+        }
+    }
+
 
     public void setParentFragment(int i){
-        System.out.println("ACCESS PARENT FRAGMENT FROM BIRDSEYEVIEWCONTAINER");
         ((FragmentOverallHunt)getParentFragment()).setFragment(i);
-        System.out.println("FINISH PARENT FRAGMENT FROM BIRDSEYEVIEWCONTAINER");
     }
 
 
 
 
     public void updateFocusHunts(){
-        System.out.println("filter: updating focus hunts from hunttabs ");
-        if(fragmentHuntsList != null)
-            fragmentHuntsList.updateHuntsList();
+        if(fragmentLandmarkList != null) {
+            fragmentLandmarkList.updateList();
+            fragmentLandmarkList.updateFocusHunts();
+        }
         if(fragmentGoogleMaps != null){
             if(((FragmentOverallHunt)getParentFragment()).getCurTab() == FRAGMENT_GOOGLE_MAPS) {
-                //fragmentGoogleMaps.setCustomInfoWindow();
-                System.out.println("filter: updating focus hunts from hunttabs in final if");
+                fragmentGoogleMaps.setCustomInfoWindow();
                 fragmentGoogleMaps.updateFocusHunts();
             }
         }
     }
 
-    public void setCameraOnLandmark(Badge badge){
-        System.out.println("badge to focus: "+badge.getLatitude());
-        //fragmentGoogleMaps.setCameraOnLandmark(badge);
-        setTab(FRAGMENT_GOOGLE_MAPS);
 
-    }
     public void setTab(int i){
         int focusedTab = i;
         ((FragmentOverallHunt)getParentFragment()).setCurTab(i);
@@ -285,14 +291,6 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
         tab.select();
         setFragment(focusedTab);
     }
-    /*public void updateSpinner(){
-        if(fragmentLandmarkList != null){
-            //fragmentLandmarkList.updateSpinner();
-        }
-        if(fragmentGoogleMaps != null){
-            //fragmentGoogleMaps.updateSpinner();
-        }
-    }*/
     public void updatePermissionLocation(boolean b){
         if(fragmentGoogleMaps!= null)
             fragmentGoogleMaps.updatePermissionLocation(b);
@@ -300,18 +298,19 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
     public Set<Hunt> getSelected_items(){
         return selected_items;
     }
-
-    public void onLandmarkSearchSelected(Badge badge){
-
-        mHuntManager.setFocusHunt(badge.getHuntID());
+    public void setCameraOnLandmark(Badge badge){
+        fragmentGoogleMaps.setCameraOnLandmark(badge);
         setTab(FRAGMENT_GOOGLE_MAPS);
-        //fragmentGoogleMaps.setCameraOnLandmark(badge);
 
     }
 
+    public void setCustomInfoWindow(){
+        if(fragmentGoogleMaps != null)
+            fragmentGoogleMaps.setCustomInfoWindow();
+    }
     public void updateHuntsList(){
-        if(fragmentHuntsList != null)
-            fragmentHuntsList.updateHuntsList();
+        if(fragmentLandmarkList != null)
+            fragmentLandmarkList.updateList();
         if(fragmentSearchHunts!= null)
             fragmentSearchHunts.updateList();
     }
@@ -323,6 +322,44 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
         return FragmentOverallHunt.FILTER_DOWNLOADED;
     }
 
+    public boolean getSearchHuntsElseLandmarks(){return ((FragmentOverallHunt)getParentFragment()).getSearchHuntsElseLandmarks();}
+    public void setSearchHuntsElseLandmarks(boolean b){((FragmentOverallHunt)getParentFragment()).setSearchHuntsElseLandmarks(b);}
+    public boolean getModeHuntsElseLandmarks(){return ((FragmentOverallHunt)getParentFragment()).getModeHuntsElseLandmarks();}
+    public void setModeHuntsElseLandmarks(boolean b){
+        ((FragmentOverallHunt)getParentFragment()).setModeHuntsElseLandmarks(b);
+
+    }
+    public void moveCameraToHuntSpinnerClose(){
+        if(((FragmentOverallHunt)getParentFragment()).getCurTab() == FRAGMENT_GOOGLE_MAPS){
+            System.out.println("movetohunt: from if method");
+            fragmentGoogleMaps.moveCameraOntoHunt();
+        }else{
+            fragmentGoogleMaps.setMoveCameraOnHunt();
+        }
+    }
+    public void onLandmarkSearchSelected(Badge badge){
+        mHuntManager.setFocusHunt(badge.getHuntID());
+        mHuntManager.setFocusBadge(badge.getID());
+        setTab(FRAGMENT_GOOGLE_MAPS);
+        fragmentGoogleMaps.updateFocusHunts();
+        fragmentGoogleMaps.setCameraOnLandmark(badge);
+
+    }
+    public void moveCameraToHunt(){
+        if(!getModeHuntsElseLandmarks()) {
+            moveCameraOntoHunt = true;
+            fragmentGoogleMaps.setMoveCameraOnHunt();
+        }
+
+    }
+    public void notifyLocationChanged(){
+        if(((FragmentOverallHunt) getParentFragment()).getCurTab() == FRAGMENT_LIST)
+            fragmentLandmarkList.updateList();
+    }
+    public void updateSpinner(){
+        checkableSpinnerAdapter.updateSpinnerItems();
+        checkableSpinnerAdapter.notifyDataSetChanged();
+    }
     @Override
     public void onCollectionSelected(int id, String name) {
 
@@ -337,5 +374,16 @@ public class FragmentOverallHuntTabs extends Fragment implements FragmentHuntsLi
     @Override
     public void onCollectionRestored() {
         ((ActivityBase)getActivity()).onCollectionRestored();
+    }
+    public void setHuntCompleteNotificationMaps(Hunt h){
+        fragmentGoogleMaps.setHuntCompleteNotificationMaps(h);
+    }
+    public void setHuntCompleteNotificationList(Hunt h){
+        fragmentLandmarkList.setHuntCompleteNotificationList(h);
+    }
+
+
+    public void updateLocation(Location location){
+        fragmentGoogleMaps.updateLocation(location);
     }
 }
